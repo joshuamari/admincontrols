@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Controls</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/neoBootstrap.css"><!--COMMON-->
+    <link rel="stylesheet" href="css/boxicons.css"><!--COMMON-->
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/jquery.js"></script><!--COMMON-->
+    <script src="js/neoBootstrap.js"></script><!--COMMON-->
+    <script src="js/main.js"></script>
+
+    <!--#region BUSTER CALL  -->
+    <!-- <script>
+        var busterCall = ["js/main.js","css/index.css"];
+        $.post("ajax/getVersion.php", {
+            busterCall : busterCall,
+            titleName: "Admin Controls"
+        },
+            function (data) {
+            $('head').html(data);
+            }
+        );
+    </script> -->
+    
+    <!--#endregion -->
+</head>
+
+<body>
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="addEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Add New Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body ">
+          <div class="row">
+            
+            <!-- <hr class="mb-3" style="color: #777;"> -->
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">First Name</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. Juan" style="color: #333;">
+              <span class="m3 d-none" style="color:#f85e5e;">Input first name</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Last Name</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. Delacruz" style="color: #333;">
+              <span class="m4 d-none" style="color:#f85e5e;">Input surname</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Nickname</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. jd" style="color: #333;">
+              <span class="m5 d-none" style="color:#f85e5e;">Input nickname</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Birth Date</label>
+              <input type="date" class="form-control" id="empNum"  style="color: #333;">
+              <span class="m6 d-none" style="color:#f85e5e;">Input birthday</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Gender</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Gender</option>
+                <option style="color: #333;">Female</option>
+                <option style="color: #333;">Male</option>
+                <option style="color: #333;">Others</option>
+              </select>
+              <span class="m7 d-none" style="color:#f85e5e;">Select Gender</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Civil Status</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Civil Status</option>
+                <option style="color: #333;">Single</option>
+                <option style="color: #333;">Married</option>
+                <option style="color: #333;">Separated</option>
+                <option style="color: #333;">Widowed</option>
+              </select>
+              <span class="m8 d-none" style="color:#f85e5e;">Select civil status</span>
+            </div>
+            <hr class="mb-3" style="color: #777;">
+            <div class="mb-3 col-12 col-md-6" >
+              <label class="form-label" for="empNum" style="color: #333;">Employee No.</label>
+              <input type="number" class="form-control" id="empNum" placeholder="eg. 123" style="color: #333;">
+              <span class="m1 d-none" style="color:#f85e5e;">Input employee no.</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">PC Username</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. juan" style="color: #333;">
+              <span class="m2 d-none" style="color:#f85e5e;">Input PC username</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Group</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Select Group</option>
+                <option style="color: #333;">SYS</option>
+                <option style="color: #333;">ACT</option>
+                <option style="color: #333;">IT</option>
+              </select>
+              <span class="m10 d-none" style="color:#f85e5e;">Select group</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Date Hired</label>
+              <input type="date" class="form-control" id="empNum"  style="color: #333;">
+              <span class="m11 d-none" style="color:#f85e5e;">Input date hired</span>
+            </div>
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="empNum" style="color: #333;">Position</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Select Position</option>
+                <option style="color: #333;">PDE</option>
+                <option style="color: #333;">PSE</option>
+                <option style="color: #333;">SE1</option>
+              </select>
+              <span class="m12 d-none" style="color:#f85e5e;">Select position</span>
+            </div>
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="empNum" style="color: #333;">Lotus E-mail</label>
+              
+                <div class="d-flex justify-content-around col-12">
+                  <input type="text" class="form-control col-8" id="empNum" placeholder="eg. juan" style="color: #333; width: 70%;">
+                  <button class="btn btn-warning col-2" style="width: 30%;">Autocomplete</button>
+                </div>
+                
+              <span class="m13 d-none" style="color:#f85e5e;">Input email</span>
+            </div>
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-addEmp">Add Employee</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal fade" id="showEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Show Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body ">
+          <div class="row">
+            
+            <!-- <hr class="mb-3" style="color: #777;"> -->
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">First Name</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. Juan" style="color: #333;">
+              <span class="m3 d-none" style="color:#f85e5e;">Input first name</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Last Name</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. Delacruz" style="color: #333;">
+              <span class="m4 d-none" style="color:#f85e5e;">Input surname</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Nickname</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. jd" style="color: #333;">
+              <span class="m5 d-none" style="color:#f85e5e;">Input nickname</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Birth Date</label>
+              <input type="date" class="form-control" id="empNum"  style="color: #333;">
+              <span class="m6 d-none" style="color:#f85e5e;">Input birthday</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Gender</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Gender</option>
+                <option style="color: #333;">Female</option>
+                <option style="color: #333;">Male</option>
+                <option style="color: #333;">Others</option>
+              </select>
+              <span class="m7 d-none" style="color:#f85e5e;">Select Gender</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Civil Status</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Civil Status</option>
+                <option style="color: #333;">Single</option>
+                <option style="color: #333;">Married</option>
+                <option style="color: #333;">Separated</option>
+                <option style="color: #333;">Widowed</option>
+              </select>
+              <span class="m8 d-none" style="color:#f85e5e;">Select civil status</span>
+            </div>
+            <hr class="mb-3" style="color: #777;">
+            <div class="mb-3 col-12 col-md-6" >
+              <label class="form-label" for="empNum" style="color: #333;">Employee No.</label>
+              <input type="number" class="form-control" id="empNum" placeholder="eg. 123" style="color: #333;">
+              <span class="m1 d-none" style="color:#f85e5e;">Input employee no.</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">PC Username</label>
+              <input type="text" class="form-control" id="empNum" placeholder="eg. juan" style="color: #333;">
+              <span class="m2 d-none" style="color:#f85e5e;">Input PC username</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Group</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Select Group</option>
+                <option style="color: #333;">SYS</option>
+                <option style="color: #333;">ACT</option>
+                <option style="color: #333;">IT</option>
+              </select>
+              <span class="m10 d-none" style="color:#f85e5e;">Select group</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Date Hired</label>
+              <input type="date" class="form-control" id="empNum"  style="color: #333;">
+              <span class="m11 d-none" style="color:#f85e5e;">Input date hired</span>
+            </div>
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="empNum" style="color: #333;">Position</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Select Position</option>
+                <option style="color: #333;">PDE</option>
+                <option style="color: #333;">PSE</option>
+                <option style="color: #333;">SE1</option>
+              </select>
+              <span class="m12 d-none" style="color:#f85e5e;">Select position</span>
+            </div>
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="empNum" style="color: #333;">Lotus E-mail</label>
+              
+                <div class="d-flex justify-content-around col-12">
+                  <input type="text" class="form-control col-8" id="empNum" placeholder="eg. juan" style="color: #333; width: 70%;">
+                  <button class="btn btn-warning col-2" style="width: 30%;">Autocomplete</button>
+                </div>
+                
+              <span class="m13 d-none" style="color:#f85e5e;">Input email</span>
+            </div>
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-editEmp">Edit</button>
+          <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!----modal end---->
+
+    <div class="containerr">
+        <div class="navigation">
+            <ul>
+                <li class="fw-bolder">
+                    <a href="#">
+                        <span class="icon"><i class='bx bxs-lock-open' ></i></span>
+                        <span class="title " style="font-size: 20px;" >Admin Controls</span>
+                    </a>
+                </li>
+                <li class="startli" style="font-weight: 500;">
+                    <a href="../employeeList/index.html">
+                        <span class="icon"><i class='bx bxs-user'></i></span>
+                        <span class="title">Employee List</span>
+                    </a>
+
+                </li>
+                <li class="d-none" style="font-weight: 500;">
+                    <a href="../groupList/index.html">
+                        <span class="icon"><i class='bx bxs-group' ></i></span>
+                        <span class="title">Group List</span>
+                    </a>
+                </li>
+                <li class="d-none" style="font-weight: 500;">
+                    <a href="../designationList/index.html">
+                        <span class="icon"><i class='bx bxs-award' ></i></span>
+                        <span class="title">Designation List</span>
+                    </a>
+                </li>
+                <li class="d-none" style="font-weight: 500;">
+                    <a href="#">
+                        <span class="icon"><i class='bx bxs-book-open' ></i></span>
+                        <span class="title">Forms PIC</span>
+                    </a>
+                    
+                </li>
+            </ul>
+        </div>
+
+        <div class="main ">
+            <div class="topbar">
+                <div class="toggle">
+                    <i class='bx bx-menu fs-1'></i>
+                </div>
+                <div class="user pe-2">
+                    <h5>Hello, <span class="hello-user">User</span></h5>
+                </div>
+            </div>
+            <div class="content d-flex justify-content-center  row ">
+                <div class="table-cont  col-md-10 p-4 my-3">
+                    <div class="table-title row m-0">
+                        <h1 class="col-10 ">EMPLOYEE LIST</h1>
+                        <button type="button" id="addEmp" class="btn col-2 d-flex justify-content-around align-items-center" title="Add Employee"
+                        data-bs-toggle="modal" data-bs-target="#addEmployee">
+                            <i class='bx bxs-user-plus fs-3' ></i>
+                            <p class="m-0 ">ADD EMPLOYEE</p>
+                        </button>
+                    </div>
+                    <div class="search mt-3">
+                        <i class='bx bx-search' ></i>
+                        <input type="search" class="form-control text-dark" placeholder="Search Employee">
+                    </div>
+                    
+                    <div class="table-container overflow-auto mt-3">
+                        <table class="table table-striped ">
+                            <thead>
+                                <tr class="sticky-top ">
+                                    <th>Emp No.</th>
+                                    <th>Name</th>
+                                    <th>PC Username</th>
+                                    <th>Department</th>
+                                    <th>Group</th>
+                                    <th>Position</th> 
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dataid="1">
+                                    <td>8</td>
+                                    <td>Evangeline Panado</td>
+                                    <td>panado-kdt</td>
+                                    <td>Admin</td>
+                                    <td>Group</td>
+                                    <td>Position</td>
+                                   
+                                </tr>
+                                <tr dataid="2">
+                                    <td>10</td>
+                                    <td>Erwin Tan</td>
+                                    <td>Solution</td>
+                                    <td>ANA</td>
+                                    <td>SM</td>
+                                </tr>
+                                <tr dataid="3">
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>dept</td>
+                                    <td>grp</td>
+                                    <td>pos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

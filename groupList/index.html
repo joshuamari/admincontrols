@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Controls</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/neoBootstrap.css"><!--COMMON-->
+    <link rel="stylesheet" href="css/boxicons.css"><!--COMMON-->
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/jquery.js"></script><!--COMMON-->
+    <script src="js/neoBootstrap.js"></script><!--COMMON-->
+    <script src="js/main.js"></script>
+
+    <!--#region BUSTER CALL  -->
+    <!-- <script>
+        var busterCall = ["js/main.js","css/index.css"];
+        $.post("ajax/getVersion.php", {
+            busterCall : busterCall,
+            titleName: "Admin Controls"
+        },
+            function (data) {
+            $('head').html(data);
+            }
+        );
+    </script> -->
+    
+    <!--#endregion -->
+</head>
+
+<body>
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="addGroupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Add New Group</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body ">
+          <div class="row">
+            
+            <!-- <hr class="mb-3" style="color: #777;"> -->
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Group Name</label>
+              <input type="text" class="form-control" id="empNum" placeholder="Group Name" style="color: #333;">
+              <span class="m1 d-none" style="color:#f85e5e;">Input group name</span>
+            </div>
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label" for="empNum" style="color: #333;">Group Acronym</label>
+              <input type="text" class="form-control" id="empNum" placeholder="XXX" style="color: #333;">
+              <span class="m2 d-none" style="color:#f85e5e;">Input group acronym</span>
+            </div>
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="empNum" style="color: #333;">Department</label>
+              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+                <option selected hidden >Select Department</option>
+                <option style="color: #333;">Project</option>
+                <option style="color: #333;">Solution</option>
+          
+              </select>
+              <span class="m3 d-none" style="color:#f85e5e;">Select Department</span>
+            </div>
+            
+  
+            
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-addEmp">Add Group</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!----modal end---->
+
+    <div class="containerr">
+        <div class="navigation">
+            <ul>
+                <li class="fw-bolder">
+                    <a href="#">
+                        <span class="icon"><i class='bx bxs-lock-open' ></i></span>
+                        <span class="title " style="font-size: 20px;" >Admin Controls</span>
+                    </a>
+                </li>
+                <li class="startli" style="font-weight: 500;">
+                    <a href="../employeeList/index.html">
+                        <span class="icon"><i class='bx bxs-user'></i></span>
+                        <span class="title">Employee List</span>
+                    </a>
+
+                </li>
+                <li style="font-weight: 500;">
+                    <a href="../groupList/index.html">
+                        <span class="icon"><i class='bx bxs-group' ></i></span>
+                        <span class="title">Group List</span>
+                    </a>
+                </li>
+                <li style="font-weight: 500;">
+                    <a href="../designationList/index.html">
+                        <span class="icon"><i class='bx bxs-award' ></i></span>
+                        <span class="title">Designation List</span>
+                    </a>
+                </li>
+                <li style="font-weight: 500;">
+                    <a href="#">
+                        <span class="icon"><i class='bx bxs-book-open' ></i></span>
+                        <span class="title">Forms PIC</span>
+                    </a>
+                    
+                </li>
+            </ul>
+        </div>
+
+        <div class="main ">
+            <div class="topbar">
+                <div class="toggle">
+                    <i class='bx bx-menu fs-1'></i>
+                </div>
+                <div class="user pe-2">
+                    <h5>Hello, <span class="hello-user">User</span></h5>
+                </div>
+            </div>
+            <div class="content d-flex justify-content-center  row ">
+                <div class="table-cont  col-md-10 p-4 my-3">
+                    <div class="table-title row m-0">
+                        <h1 class="col-10 ">GROUP LIST</h1>
+                        <button type="button" id="addGroup" class="btn col-2 d-flex justify-content-around align-items-center" title="Add Employee"
+                        data-bs-toggle="modal" data-bs-target="#addGroupModal">
+                        <i class='bx bx-plus fs-3'></i>
+                            <p class="m-0 ">ADD GROUP</p>
+                        </button>
+                    </div>
+                    <div class="search mt-3">
+                        <i class='bx bx-search' ></i>
+                        <input type="search" class="form-control text-dark" placeholder="Search Group">
+                    </div>
+                    
+                    <div class="table-container overflow-auto mt-3">
+                        <table class="table table-striped ">
+                            <thead>
+                                <tr class="sticky-top ">
+                                    <th>#</th>
+                                    <th>Group Name</th>
+                                    <th>Group Acronym</th>
+                                    <th>Department</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Accounting Group</td>
+                                    <td>ACT</td>
+                                    <td>Admin/Accounting</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Admin</td>
+                                    <td>ADM</td>
+                                    <td>Admin/Accounting</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Analysis Group</td>
+                                    <td>ANA</td>
+                                    <td>Solution</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Boiler Group</td>
+                                    <td>BOI</td>
+                                    <td>Boiler</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Cement Group</td>
+                                    <td>CEM</td>
+                                    <td>Industrial Plant</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
