@@ -131,6 +131,10 @@ $(document).on('keyup','#searchWord',function(){
 $(document).on('search','#searchWord',function(){
     getEmployees();
 })
+$(document).on('click','.btn-editEmp',function(){
+    $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired').prop('disabled',false);
+
+})
 //#endregion
 
 //#region FUNCTIONS
@@ -193,14 +197,37 @@ function getEmpDetails(iVal){
     },
         function (data) {
             empDeetsArray=$.parseJSON(data)
-            // console.log(empDeetsArray)
-            // empDeetsArray.map(fillModal);
+            console.log(empDeetsArray)
+            empDeetsArray.map(fillModal);
         }
     );
 }
 function fillModal(iVal){
-//empNum||firstname||surname||nickname||username||group||position||bday||gender||civilstatus||datehired
-// var firstName=iVal.split('||')[0];
+// empNum||firstname||surname||nickname||username||group||position||bday||gender||civilstatus||datehired
+var empnum =iVal.split('||')[0];
+var firstname =iVal.split('||')[1];
+var surname =iVal.split('||')[2];
+var nname =iVal.split('||')[3];
+var uname =iVal.split('||')[4];
+var group =iVal.split('||')[5];
+var position =iVal.split('||')[6];
+var bday =iVal.split('||')[7];
+var gender =iVal.split('||')[8];
+var status =iVal.split('||')[9];
+var dhired =iVal.split('||')[10];
+$('#editEmpnum').val(empnum);
+$('#editFirstname').val(firstname);
+$('#editSurname').val(surname);
+$('#editNick').val(nname);
+$('#editPCUser').val(uname);
+$('#editGroup').val(group);
+$('#editPos').val(position);
+$('#editBday').val(bday);
+$('#editGender').val(gender);
+$('#editStatus').val(status);
+$('#editDatehired').val(dhired);
+
+$('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired').prop('disabled',true);
 }
 function getGroups(){
     var grps=[];
