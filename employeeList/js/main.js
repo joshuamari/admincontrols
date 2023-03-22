@@ -46,6 +46,64 @@ $(document).ready(function(){
     getGroups();
     getPos();
 });
+
+$(document).on('click', '.btn-addEmp', function(){
+    var fname = $('#addFirstname').val();
+    var lname = $('#addSurname').val();
+    var nname = $('#addNick').val();
+    var bday = $('#addBday').val();
+    var gender = $('#addGender').find(':selected').val();
+    var status = $('#addStatus').find(':selected').val();
+    var empnum = $('#addEmpnum').val();
+    var username = $('#addPCUser').val();
+    var group = $('#addGroup').find(':selected').val();
+    var dhired = $('#addDatehired').val();
+    var position = $('#addPos').find(':selected').val();
+    var email = $('#addLotus').val();
+
+    if (fname == ""){
+        $('.m3').removeClass('d-none');
+    }
+    if (lname == ""){
+        $('.m4').removeClass('d-none');
+    }
+    if (nname == ""){
+        $('.m5').removeClass('d-none');
+    }
+    if (bday == ""){
+        $('.m6').removeClass('d-none');
+    }
+    if (gender == ""){
+        $('.m7').removeClass('d-none');
+    }
+    if (status == ""){
+        $('.m8').removeClass('d-none');
+    }
+    if (empnum == ""){
+        $('.m1').removeClass('d-none');
+    }
+    if (username == ""){
+        $('.m2').removeClass('d-none');
+    }
+    if (group == ""){
+        $('.m9').removeClass('d-none');
+    }
+    if (dhired == ""){
+        $('.m10').removeClass('d-none');
+    }
+    if (position == ""){
+        $('.m11').removeClass('d-none');
+    }
+    if(email == ""){
+        $('.m12').removeClass('d-none');
+    }
+
+
+
+    // $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
+
+    // console.log(position+' '+email);
+})
 $(document).on('click', '.toggle', function(){
     $('.navigation').toggleClass('actived');
     $('.main').toggleClass('actived');
