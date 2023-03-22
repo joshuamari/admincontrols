@@ -117,13 +117,22 @@ $(document).on('click', '.emp', function(){
 $(document).on('click','#clos',function(){
     $(this).parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+        $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
 });
+$(document).on('click','#close',function(){
+    $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
+})
+$(document).on('click','#xadd',function(){
+    $('#close').click();
+})
 $(document).on('click','.btn-close',function(){
     $('#clos').click();
 });
 $(document).on('click', '.btn-editEmp',function(){
     $(this).parent().html(`<button type="button" class="btn btn-saveEmp">SAVE</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+    $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',false);
+
 });
 $(document).on('keyup','#searchWord',function(){
     getEmployees();
@@ -131,10 +140,13 @@ $(document).on('keyup','#searchWord',function(){
 $(document).on('search','#searchWord',function(){
     getEmployees();
 })
-$(document).on('click','.btn-editEmp',function(){
-    $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired').prop('disabled',false);
+$(document).on('click','#ac',function () {
+ 
+    var lname = $('#addSurname').val();
 
+    $('#addLotus').val(lname);
 })
+
 //#endregion
 
 //#region FUNCTIONS
@@ -227,7 +239,7 @@ $('#editGender').val(gender);
 $('#editStatus').val(status);
 $('#editDatehired').val(dhired);
 
-$('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired').prop('disabled',true);
+$('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
 }
 function getGroups(){
     var grps=[];
