@@ -243,3 +243,28 @@ function fillPos(iVal){
 }
 //#endregion
 // var projID=$($(this).find('option:selected')).attr('proj-id');
+
+
+
+var knmCount = 0;
+
+document.addEventListener("keyup", (event) => {
+
+    const code = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight"];
+    var mBool = false;
+    if(event.code == code[knmCount]){
+        mBool = true;
+    }
+    if(mBool){
+        knmCount++;
+        if(knmCount == 8){
+            alert('???');
+        }else{
+            return;
+        }
+    }
+    else{
+        knmCount = 0;
+        return;
+    }
+})
