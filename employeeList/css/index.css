@@ -249,7 +249,7 @@ font-size: 20px;
 
 .table-cont{
     position: relative;
-    height: 900px;
+    height: 95%;
     background: var(--card-color);
     border-radius: 10px;
 
@@ -284,7 +284,7 @@ font-size: 20px;
 
 /*table*/
 .table-container{
-    height: 85%;
+    height: 77%;
     background-color: var(--text-color);
     
 }
