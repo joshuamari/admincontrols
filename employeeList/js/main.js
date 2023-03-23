@@ -108,6 +108,9 @@ $(document).on('click','#ac',function () {
 
     $('#addLotus').val(lname+`-kdt`);
 })
+$(document).on('click','#activeOnly',function () {
+    getEmployees();
+})
 
 //#endregion
 
@@ -142,6 +145,7 @@ function getEmployees(){
     $.post("ajax/getEmployees.php",
     {
         searchWord:searchWord,
+        active:active
     },
         function (data) {
             employees=$.parseJSON(data);
