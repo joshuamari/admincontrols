@@ -31,12 +31,22 @@ foreach($empArr AS $emp){
     $employeeGender=$emp['fldGender'];
     $employeeStatus=$emp['fldStatus'];
     $employeeDatehired=$emp['fldDateHired'];
-    array_push($output,$employeeNum."||".$firstName."||".$surName."||".$nickName."||".$employeeUser."||".$employeeGroup."||".$employeePos."||".$employeeBday."||".$employeeGender."||".$employeeStatus."||".$employeeDatehired);
+    $employeeEmail=getEmail($employeeNum);
+    array_push($output,$employeeNum."||".$firstName."||".$surName."||".$nickName."||".$employeeUser."||".$employeeGroup."||".$employeePos."||".$employeeBday."||".$employeeGender."||".$employeeStatus."||".$employeeDatehired."||".$employeeEmail);
 }
 #endregion
 
 #region function
-
+function getEmail($iVal){
+    GLOBAL $connkdt;
+    $empEmail='';
+    $empEmailQ="SELECT fldLotus FROM kdtlogin WHERE fldEmployeeNum='$iVal'";
+    $empEmailStmt=$connkdt->query($empEmailQ);
+    if($empEmailStmt->rowCount()>0){
+        $empEmail=$empEmailStmt->fetchColumn();
+    }
+    return $empEmail;
+}
 #endregion
 //$.ajaxSetup({async: false});
 echo json_encode($output)

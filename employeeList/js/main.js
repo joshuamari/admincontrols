@@ -48,62 +48,14 @@ $(document).ready(function(){
 });
 
 $(document).on('click', '.btn-addEmp', function(){
-    var fname = $('#addFirstname').val();
-    var lname = $('#addSurname').val();
-    var nname = $('#addNick').val();
-    var bday = $('#addBday').val();
-    var gender = $('#addGender').find(':selected').val();
-    var status = $('#addStatus').find(':selected').val();
-    var empnum = $('#addEmpnum').val();
-    var username = $('#addPCUser').val();
-    var group = $('#addGroup').find(':selected').val();
-    var dhired = $('#addDatehired').val();
-    var position = $('#addPos').find(':selected').val();
-    var email = $('#addLotus').val();
-
-    if (fname == ""){
-        $('.m3').removeClass('d-none');
-    }
-    if (lname == ""){
-        $('.m4').removeClass('d-none');
-    }
-    if (nname == ""){
-        $('.m5').removeClass('d-none');
-    }
-    if (bday == ""){
-        $('.m6').removeClass('d-none');
-    }
-    if (gender == ""){
-        $('.m7').removeClass('d-none');
-    }
-    if (status == ""){
-        $('.m8').removeClass('d-none');
-    }
-    if (empnum == ""){
-        $('.m1').removeClass('d-none');
-    }
-    if (username == ""){
-        $('.m2').removeClass('d-none');
-    }
-    if (group == ""){
-        $('.m9').removeClass('d-none');
-    }
-    if (dhired == ""){
-        $('.m10').removeClass('d-none');
-    }
-    if (position == ""){
-        $('.m11').removeClass('d-none');
-    }
-    if(email == ""){
-        $('.m12').removeClass('d-none');
-    }
-
-
-
+    addEmployee(0);
     // $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
 
     // console.log(position+' '+email);
 })
+$(document).on('click','#addEmp',function(){
+    $('#ac').prop('disabled',false)
+});
 $(document).on('click', '.toggle', function(){
     $('.navigation').toggleClass('actived');
     $('.main').toggleClass('actived');
@@ -121,17 +73,27 @@ $(document).on('click','#clos',function(){
 });
 $(document).on('click','#close',function(){
     $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
+    resetAdd();
 })
 $(document).on('click','#xadd',function(){
     $('#close').click();
+    resetAdd();
 })
 $(document).on('click','.btn-close',function(){
     $('#clos').click();
+    resetAdd();
 });
 $(document).on('click', '.btn-editEmp',function(){
     $(this).parent().html(`<button type="button" class="btn btn-saveEmp">SAVE</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
-    $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',false);
+    $('#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',false);
+
+});
+$(document).on('click', '.btn-saveEmp',function(){
+    // $('.btn-saveEmp').parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
+    // <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+    // $('#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
+    addEmployee(1);
 
 });
 $(document).on('keyup','#searchWord',function(){
@@ -144,7 +106,7 @@ $(document).on('click','#ac',function () {
  
     var lname = $('#addSurname').val();
 
-    $('#addLotus').val(lname);
+    $('#addLotus').val(lname+`-kdt`);
 })
 
 //#endregion
@@ -209,7 +171,7 @@ function getEmpDetails(iVal){
     },
         function (data) {
             empDeetsArray=$.parseJSON(data)
-            console.log(empDeetsArray)
+            // console.log(empDeetsArray)
             empDeetsArray.map(fillModal);
         }
     );
@@ -227,6 +189,7 @@ var bday =iVal.split('||')[7];
 var gender =iVal.split('||')[8];
 var status =iVal.split('||')[9];
 var dhired =iVal.split('||')[10];
+var empEmail=(iVal.split('||')[11]).split('/P/KHI')[0];
 $('#editEmpnum').val(empnum);
 $('#editFirstname').val(firstname);
 $('#editSurname').val(surname);
@@ -238,7 +201,7 @@ $('#editBday').val(bday);
 $('#editGender').val(gender);
 $('#editStatus').val(status);
 $('#editDatehired').val(dhired);
-
+$('#editLotus').val(empEmail);
 $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
 }
 function getGroups(){
@@ -280,11 +243,160 @@ function fillPos(iVal){
     addString=`<option style='color: #333;' value='${acroPos}'>${acroPos}(${fullPos})</option>`;
     $('.empPos').append(addString);
 }
+function addEmployee(iVal){
+    var modeStr=`add`;
+    if(iVal=='1'){
+        modeStr=`edit`;
+    }
+    var fname = $(`#${modeStr}Firstname`).val();
+    var lname = $(`#${modeStr}Surname`).val();
+    var nname = $(`#${modeStr}Nick`).val();
+    var bday = $(`#${modeStr}Bday`).val();
+    var gender = $(`#${modeStr}Gender`).find(`:selected`).val();
+    var status = $(`#${modeStr}Status`).find(`:selected`).val();
+    var empnum = $(`#${modeStr}Empnum`).val();
+    var username = $(`#${modeStr}PCUser`).val();
+    var group = $(`#${modeStr}Group`).find(`:selected`).val();
+    var dhired = $(`#${modeStr}Datehired`).val();
+    var position = $(`#${modeStr}Pos`).find(`:selected`).val();
+    var email = $(`#${modeStr}Lotus`).val();
+    var error=0;
+    var eMsg=``;
+    if (!fname){
+        $('.m3').removeClass('d-none');
+        error++;
+    }
+    if (!lname){
+        $('.m4').removeClass('d-none');
+        error++;
+    }
+    if (!nname){
+        $('.m5').removeClass('d-none');
+        error++;
+    }
+    if (!bday){
+        $('.m6').removeClass('d-none');
+        error++;
+    }
+    if (!gender){
+        $('.m7').removeClass('d-none');
+        error++;
+    }
+    if (!status){
+        $('.m8').removeClass('d-none');
+        error++;
+    }
+    if (!empnum){
+        $('.m1').removeClass('d-none');
+        error++;
+    }
+    if (!username){
+        $('.m2').removeClass('d-none');
+        error++;
+    }
+    if (!group){
+        $('.m9').removeClass('d-none');
+        error++;
+    }
+    if (!dhired){
+        $('.m10').removeClass('d-none');
+        error++;
+    }
+    if (!position){
+        $('.m11').removeClass('d-none');
+        error++;
+    }
+    if(!email){
+        $('.m12').removeClass('d-none');
+        error++;
+    }
+    if(error>0){
+        // console.log('may kulang')
+        return;
+    }
+    if(iVal==0){
+        $.post("ajax/checkEmpExists.php",
+        {
+            username:username,
+            empnum:empnum,
+            email:email
+        },
+            function (data) {
+                // console.log(data)
+                if(data.trim()){
+                    if(data.includes('id')){
+                        eMsg+=' Employee Number';
+                    idInp=$('#addEmpnum').val('');
+                    }
+                    if(data.includes('user')){
+                        eMsg+=' Username';
+                    userInp=$('#addPCUser').val('');
+                    }
+                    if(data.includes('lotus')){
+                        eMsg+=' Lotus';
+                    userInp=$('#emailNaddLotusameInp').val('');
+                    }
+                    eMsg+=' taken';
+                    alert(eMsg);
+                    return;
+                }
+            }
+        );
+    }
+    $.post("ajax/addEmployee.php",
+    {
+        fname:fname, 
+        lname:lname,
+        nname:nname,
+        bday:bday,
+        gender:gender,
+        status:status,
+        empnum:empnum,
+        username:username,
+        group:group,
+        dhired:dhired,
+        position:position,
+        email:email,
+        mode:iVal
+    },
+        function (data) {
+            switch(iVal){
+                case 0:
+                    $('#xadd').click();
+                    break;
+                case 1:
+                    $('.btn-saveEmp').parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
+                    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+                    $('#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
+                    // $('.btn-close').click();
+                    $('.errMsg').addClass('d-none');
+                    break;
+            }
+            getEmployees();
+        }
+    );
+}
+function resetAdd(){
+    $('#addEmpnum').val('');
+    $('#addFirstname').val('');
+    $('#addSurname').val('');
+    $('#addNick').val('');
+    $('#addPCUser').val('');
+    $('#addGroup').val('');
+    $('#addPos').val('');
+    $('#addBday').val('');
+    $('#addGender').val('');
+    $('#addStatus').val('');
+    $('#addDatehired').val('');
+    $('#addLotus').val('');
+    $('.errMsg').addClass('d-none');
+}
+
 //#endregion
 // var projID=$($(this).find('option:selected')).attr('proj-id');
 
 
-
+//#region Easter Egg
 var knmCount = 0;
 
 document.addEventListener("keyup", (event) => {
@@ -307,3 +419,4 @@ document.addEventListener("keyup", (event) => {
         return;
     }
 })
+//#endregion
