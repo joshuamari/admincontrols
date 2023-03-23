@@ -134,6 +134,10 @@ function ifSmallScreen(){
 function getEmployees(){
     var employees=[];
     var searchWord=$('#searchWord').val();
+    var active = 0;
+    if ($('#activeOnly').is(':checked')){
+        active = 1;
+    }
     $('#empList').empty();
     $.post("ajax/getEmployees.php",
     {
