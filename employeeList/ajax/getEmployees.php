@@ -12,11 +12,19 @@ $searchWord='';
 if(!empty($_POST['searchWord'])){
     $searchWord=$_POST['searchWord'];
 }
+$active=0;
+if(!empty($_POST['active'])){
+    $active=$_POST['active'];
+}
+$activeStatement= "";
+if($active==1){
+    $activeStatement= " AND fldActive=1";
+}
 $output=array();
 #endregion
 
 #region main
-$empQ="SELECT * FROM emp_prof WHERE fldName LIKE '%$searchWord%' AND fldNick<>'' ORDER BY fldActive DESC,fldEmployeeNum";
+$empQ="SELECT * FROM emp_prof WHERE fldName LIKE '%$searchWord%' AND fldNick<>'' $activeStatement ORDER BY fldActive DESC,fldEmployeeNum";
 $empStmt=$connkdt->query($empQ);
 $empArr=$empStmt->fetchAll();
 foreach($empArr AS $emps){

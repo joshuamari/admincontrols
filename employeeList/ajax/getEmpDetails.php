@@ -13,18 +13,10 @@ $empNum='';
 if(!empty($_POST['empNum'])){
     $empNum=$_POST['empNum'];
 }
-$active=0;
-if(!empty($_POST['active'])){
-    $active=$_POST['active'];
-}
-$activeStatement= "";
-if($active==1){
-    $activeStatement= " AND fldActive=1";
-}
 #endregion
 
 #region main
-$empQ="SELECT * FROM emp_prof WHERE fldEmployeeNum='$empNum' $activeStatement";
+$empQ="SELECT * FROM emp_prof WHERE fldEmployeeNum='$empNum'";
 $empStmt=$connkdt->query($empQ);
 $empArr=$empStmt->fetchAll();
 foreach($empArr AS $emp){
