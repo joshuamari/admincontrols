@@ -322,34 +322,40 @@ function addEmployee(iVal){
         // console.log('may kulang')
         return;
     }
-    if(iVal==0){
-        $.post("ajax/checkEmpExists.php",
-        {
-            username:username,
-            empnum:empnum,
-            email:email
-        },
-            function (data) {
-                // console.log(data)
-                if(data.trim()){
-                    if(data.includes('id')){
-                        eMsg+=' Employee Number';
-                    idInp=$('#addEmpnum').val('');
-                    }
-                    if(data.includes('user')){
-                        eMsg+=' Username';
-                    userInp=$('#addPCUser').val('');
-                    }
-                    if(data.includes('lotus')){
-                        eMsg+=' Lotus';
-                    userInp=$('#emailNaddLotusameInp').val('');
-                    }
-                    eMsg+=' taken';
-                    alert(eMsg);
-                    return;
+    
+    $.ajaxSetup({async: false});
+    $.post("ajax/checkEmpExists.php",
+    {
+        username:username,
+        empnum:empnum,
+        email:email,
+        mode:iVal
+    },
+        function (data) {
+            // console.log(data)
+            if(data.trim()){
+                if(data.includes('id')){
+                    eMsg+=' Employee Number';
+                idInp=$('#addEmpnum').val('');
                 }
+                if(data.includes('user')){
+                    eMsg+=' Username';
+                userInp=$('#addPCUser').val('');
+                }
+                if(data.includes('lotus')){
+                    eMsg+=' Lotus';
+                userInp=$('#emailNaddLotusameInp').val('');
+                }
+                eMsg+=' taken';
+                alert(eMsg);
+                // return;
             }
-        );
+        }
+    );
+    
+    $.ajaxSetup({async: true});
+    if(eMsg!==""){
+        return;
     }
     $.post("ajax/addEmployee.php",
     {
