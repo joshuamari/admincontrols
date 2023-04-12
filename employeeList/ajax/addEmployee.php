@@ -74,12 +74,12 @@ if($mode==0){
     $insertQMSquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
     VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
     $insertQMSstmt = $connqms->prepare($insertQMSquery);
-    $insertQMSstmt->execute([":empnum"=>$empnum,":username"=>$username,":fullname"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nnam"=>$nname,":group"=>$group,":position"=>$position,":bday"=>$bday,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":addPic"=>$addPic,":gender"=>$gender]);
+    $insertQMSstmt->execute([":empnum"=>$empnum,":username"=>$username,":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":group"=>$group,":position"=>$position,":bday"=>$bday,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":addPic"=>$addPic,":gender"=>$gender]);
 
     $insertKDTquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
     VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
     $insertKDTstmt = $connkdt->prepare($insertKDTquery);
-    $insertKDTstmt->execute([":empnum"=>$empnum,":username"=>$username,":fullname"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nnam"=>$nname,":group"=>$group,":position"=>$position,":bday"=>$bday,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":addPic"=>$addPic,":gender"=>$gender]);
+    $insertKDTstmt->execute([":empnum"=>$empnum,":username"=>$username,":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":group"=>$group,":position"=>$position,":bday"=>$bday,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":addPic"=>$addPic,":gender"=>$gender]);
 
     $insertEntryLogs = "INSERT INTO entry_logs(fldEmployeeNum)  
     VALUES (:empnum)";
@@ -87,7 +87,7 @@ if($mode==0){
     $insertEntryLogsstmt->execute([":empnum"=>$empnum]);
 
     $insertKDTLoginquery = "INSERT INTO kdtlogin(fldUser,fldUserHash,fldPw,fldOutlook,fldLotus,fldEmployeeNum)  
-    VALUES (:username,:addHash,kdtpass,:addOutlook,:addLotus,:empnum)";
+    VALUES (:username,:addHash,'kdtpass',:addOutlook,:addLotus,:empnum)";
     $insertKDTLoginStmt = $connkdt->prepare($insertKDTLoginquery);
     $insertKDTLoginStmt->execute([":username"=>$username,":addHash"=>$addHash,":addOutlook"=>$addOutlook,":addLotus"=>$addLotus,":empnum"=>$empnum]);
 
@@ -101,13 +101,17 @@ if($mode==0){
     $insertLeaveFormCountStmt->execute([":empnum"=>$empnum]);
 }
 if($mode==1){
-    $editQMSQuery="UPDATE emp_prof SET fldName=:fullName,fldSurname=:lname,fldFirstname=:fname,fldNick=:nname,fldUser=:username,fldGroup=:group,fldDesig=:position,fldBirthDate=:bday,fldGender=:gender,fldStatus=:cstatus,fldDateHired=:dhired WHERE fldEmployeeNum=:empnum";
+    $editQMSQuery="UPDATE emp_prof SET fldName=:fullName,fldSurname=:lname,fldFirstname=:fname,fldNick=:nname,fldUser=:username,fldGroup=:group,fldDesig=:position,fldBirthDate=:bday,fldGender=:gender,fldStatus=:cstatus,fldDateHired=:dhired,fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
     $editQMSStmt=$connqms->prepare($editQMSQuery);
-    $editQMSStmt->execute([":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":username"=>$username,":group"=>$group,":position"=>$position,":bday"=>$bday,":gender"=>$gender,":cstatus"=>$status,":dhired"=>$dhired,":empnum"=>$empnum]);
+    $editQMSStmt->execute([":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":username"=>$username,":group"=>$group,":position"=>$position,":bday"=>$bday,":gender"=>$gender,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":empnum"=>$empnum]);
 
-    $editKDTQuery="UPDATE emp_prof SET fldName=:fullName,fldSurname=:lname,fldFirstname=:fname,fldNick=:nname,fldUser=:username,fldGroup=:group,fldDesig=:position,fldBirthDate=:bday,fldGender=:gender,fldStatus=:cstatus,fldDateHired=:dhired WHERE fldEmployeeNum=:empnum";
+    $editKDTQuery="UPDATE emp_prof SET fldName=:fullName,fldSurname=:lname,fldFirstname=:fname,fldNick=:nname,fldUser=:username,fldGroup=:group,fldDesig=:position,fldBirthDate=:bday,fldGender=:gender,fldStatus=:cstatus,fldDateHired=:dhired,fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
     $editKDTStmt=$connkdt->prepare($editKDTQuery);
-    $editKDTStmt->execute([":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":username"=>$username,":group"=>$group,":position"=>$position,":bday"=>$bday,":gender"=>$gender,":cstatus"=>$status,":dhired"=>$dhired,":empnum"=>$empnum]);
+    $editKDTStmt->execute([":fullName"=>$fullName,":lname"=>$lname,":fname"=>$fname,":nname"=>$nname,":username"=>$username,":group"=>$group,":position"=>$position,":bday"=>$bday,":gender"=>$gender,":cstatus"=>$status,":dhired"=>$dhired,":addLotus"=>$addLotus,":empnum"=>$empnum]);
+
+    $editKDTLoginQuery="UPDATE kdtlogin SET fldOutlook=:addOutlook,fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
+    $editKDTLoginStmt=$connkdt->prepare($editKDTLoginQuery);
+    $editKDTLoginStmt->execute([":addOutlook"=>$addOutlook,":addLotus"=>$addLotus,":empnum"=>$empnum]);
 }
 
 #endregion
