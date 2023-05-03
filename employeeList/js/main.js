@@ -114,13 +114,15 @@ $(document).on('click','#ac',function () {
 $(document).on('click','#activeOnly',function () {
     getEmployees();
 })
+$(document).on('click','#resDate',function(){
+    $('.r1').addClass('d-none');
+    $('#resDate').removeClass('border border-danger');
+})
 $(document).on('click','.btn-resEmp', function(){
     var resdate = $('#resDate').val();
-    
-  
 
     if(!resdate){
-        $('#r1').removeClass('d-none');
+        $('.r1').removeClass('d-none');
         $('#resDate').addClass('border border-danger');
         return;
     }
