@@ -22,6 +22,7 @@ $.ajax(
                 window.location.href=rootFolder+'/welcome'; //if result is 0, redirect to log in page
             }
             adminAccess();
+            // ifSmallScreen();
         }
     }
     );
@@ -30,7 +31,7 @@ $.ajaxSetup({async: true});
 
 //#region BINDS
 $(document).ready(function(){
-    ifSmallScreen();
+    
     $('.hello-user').text(empDetails['empFName']);
     let list = document.querySelectorAll('.navigation li');
     function activeLink(){
@@ -62,7 +63,9 @@ $(document).on('click', '.toggle', function(){
 });
 $(document).on('click', '.emp', function(){
     var eNum = $($(this).children()[0]).text();
+    var name = $($(this).children()[1]).text();
     $('#showEmployee').modal('show');
+    $('#empCon').val(name);
     getEmpDetails(eNum);
     // $(this).prop('dataid',eNum); 
 });
@@ -111,6 +114,46 @@ $(document).on('click','#ac',function () {
 $(document).on('click','#activeOnly',function () {
     getEmployees();
 })
+$(document).on('click','.btn-resEmp', function(){
+    var resdate = $('#resDate').val();
+    
+  
+
+    if(!resdate){
+        $('#r1').removeClass('d-none');
+        $('#resDate').addClass('border border-danger');
+        return;
+    }
+    else{
+       $('#resignEmployee').modal('hide');
+        $('#resConfirm').modal('show');
+        $('#dateCon').val(resdate); 
+    }
+        
+    
+
+})
+$(document).on('click','#resback', function(){
+    $('#resignEmployee').modal('show');
+    $('#resConfirm').modal('hide');
+})
+$(document).on('click','#resclose',function(){
+    $('.r1').addClass('d-none');
+    $('#resDate').removeClass('border border-danger');
+    $('#resDate').val("");
+    
+})
+$(document).on('click','#rescloseI',function(){
+    $('#resclose').click();   
+})
+$(document).on('click','.btn-cres',function(){
+    
+    
+    //if employee is resigned
+    $('.res').removeClass('d-none');
+    $('#empStat').html(`<label class="form-label" style="color: #333;">Employee Status</label><span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
+    data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span>`);
+})
 
 //#endregion
 
@@ -128,12 +171,13 @@ function adminAccess(){//check if user has access to jmc
     }
   );
 }
-function ifSmallScreen(){
-    if($(window).width() < 1150){
-       $('#addEmp').html("<i class='bx bxs-user-plus fs-3' ></i>"); 
-    }
+// function ifSmallScreen(){
+//     if($(window).width() < 1150){
+//        $('#addEmp').html("<i class='bx bxs-user-plus fs-3' ></i>"); 
+//        $('#resignEmp').html("<i class='bx bxs-tag-x bx-md' ></i>");
+//     }
 
-}
+// }
 function getEmployees(){
     var employees=[];
     var searchWord=$('#searchWord').val();
@@ -215,8 +259,10 @@ $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#edi
 function getGroups(){
     var grps=[];
     $('.empGroup').empty();
+    
     var addString=``;
     $('.empGroup').html(`<option value='' hidden>Select Group</option>`);
+
     $.ajax({
         url: "ajax/getGroups.php",
         success: function (data) {
@@ -224,6 +270,7 @@ function getGroups(){
             grps.forEach(element => {
                 addString=`<option style="color: #333;">${element}</option>`;
                 $('.empGroup').append(addString);
+                
             });
         }
     });

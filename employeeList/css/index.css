@@ -246,6 +246,15 @@ font-size: 20px;
     background: #09c46f;
     background: linear-gradient(45deg, #0dac64 0%, #27aa8e 100%);
 }
+.btn-resEmp,
+.btn-cres{
+    background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
+    color: #fff;
+}
+.btn-resEmp:hover,
+.btn-cres:hover{
+    background: linear-gradient(45deg, #FE5F75 0%, #FC9842 100%);
+}
 
 .table-cont{
     position: relative;
@@ -284,7 +293,7 @@ font-size: 20px;
 
 /*table*/
 .table-container{
-    height: 77%;
+    height: calc(100% - 180px);
     background-color: var(--text-color);
     
 }
@@ -351,6 +360,15 @@ tr td{
     color: #ce692f;
   }
 
+  #resignEmp{
+    border: 2px solid var(--secondary-color);
+    background: transparent !important;
+    color: #fff;
+  }
+  #resignEmp i{
+    color: #fff;
+  }
+
 
 @media (max-width:480px) {
     .navigation{
@@ -387,5 +405,27 @@ tr td{
     }
     .table-container table thead tr th{
         font-size: 15px;
+    }
+}
+
+@media screen and (max-width:1100px){
+    .table-title{
+        display: flex;
+        flex-direction: column;
+    }
+    .right{
+        margin-left: 0px !important;
+        width: 100%;
+        flex-direction: column;
+    }
+    #addEmp,
+    #resignEmp{
+        width: 100%;
+        white-space: nowrap;
+        margin-top: 10px;
+    }
+    .table-container{
+        height: calc(100% - 275px);
+        
     }
 }
