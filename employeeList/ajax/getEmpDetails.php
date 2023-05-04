@@ -32,7 +32,8 @@ foreach($empArr AS $emp){
     $employeeStatus=$emp['fldStatus'];
     $employeeDatehired=$emp['fldDateHired'];
     $employeeEmail=getEmail($employeeNum);
-    array_push($output,$employeeNum."||".$firstName."||".$surName."||".$nickName."||".$employeeUser."||".$employeeGroup."||".$employeePos."||".$employeeBday."||".$employeeGender."||".$employeeStatus."||".$employeeDatehired."||".$employeeEmail);
+    $employeeResDate=$emp['fldResignDate'];
+    array_push($output,$employeeNum."||".$firstName."||".$surName."||".$nickName."||".$employeeUser."||".$employeeGroup."||".$employeePos."||".$employeeBday."||".$employeeGender."||".$employeeStatus."||".$employeeDatehired."||".$employeeEmail."||".$employeeResDate);
 }
 #endregion
 

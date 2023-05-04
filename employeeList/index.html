@@ -244,23 +244,24 @@
             </div>
             
             <hr class="mb-3" style="color: #777;">
-            <div class="mb-3 col-12 col-md-6" id="empStat">
+            <div class="empStat row">
+              <div class="mb-3 col-12 col-md-6" id="empStat">
               <label class="form-label" style="color: #333;">Employee Status</label>
-              <!-- <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-              data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span> -->
               <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-              data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
+                 style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
+              </div>
+              <div class="mb-3 col-12 col-md-6 res d-none">
+                <label class="form-label" for="editDatehired" style="color: #333;" >Resignation Date</label>
+                <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+              </div>
             </div>
-            <div class="mb-3 col-12 col-md-6 res d-none">
-            <label class="form-label" for="editDatehired" style="color: #333;" >Resignation Date</label>
-            <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
-          </div>
+            
           </div>
           
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-editEmp">Edit</button>
-          <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" id="clos">Close</button>
           
         </div>
       </div>
@@ -309,12 +310,30 @@
         </div>
         <div class="modal-body ">
           
-          <h5 style="color: #333;">Are you sure about resigning <input type="text" class="form-control my-2" id="empCon" placeholder="Name" style="color: #333;" disabled> with effectivity date of
-            <input type="date" class="form-control my-2" id="dateCon"  style="color: #333;"disabled>
-            <!-- <span id="empCon" style="color: #333;">Name</span> with effectivity date <span id="dateCon" style="color: #333;">Date</span>?</h5> -->
+          <h5 style="color: #333;">Confirm resignation of this employee</h5>
+          <div class="row">
+            <div class="mb-3 col-6">
+              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee Name</label>
+              <input type="text" class="form-control my-2" id="empCon" placeholder="Name" style="color: #333;" disabled>
+            </div>
+            <div class="mb-3 col-6">
+              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee No.</label>
+              <input type="text" class="form-control  my-2" id="empConid" placeholder="Employee #" style="color: #333;" disabled> 
+            </div>
+            <div class="mb-3 col-12">
+              <label class="form-label mb-0" for="resDate" style="color: #333;">Effectivity Date</label>
+              <input type="date" class="form-control my-2" id="dateCon"  style="color: #333;"disabled> 
+            </div>
+          </div>
+          
+  
+          
+            
+
+
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-cres" data-bs-toggle="modal"  data-bs-dismiss="modal">Yes, I confirm</button>
+          <button type="button" class="btn btn-cres">Yes, I confirm</button>
           <!-- <button class="btn btn-secondary" id="resback" data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal">Close</button> -->
           <button class="btn btn-secondary" id="resback"  data-bs-dismiss="modal">Back to first</button>
         </div>

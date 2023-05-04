@@ -66,13 +66,16 @@ $(document).on('click', '.emp', function(){
     var name = $($(this).children()[1]).text();
     $('#showEmployee').modal('show');
     $('#empCon').val(name);
+    $('#empConid').val(eNum);
     getEmpDetails(eNum);
+
     // $(this).prop('dataid',eNum); 
 });
 $(document).on('click','#clos',function(){
     $(this).parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
         $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
+        $('#showEmployee').modal('hide');
 });
 $(document).on('click','#close',function(){
     $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
@@ -131,10 +134,9 @@ $(document).on('click','.btn-resEmp', function(){
         $('#resConfirm').modal('show');
         $('#dateCon').val(resdate); 
     }
-        
     
-
 })
+
 $(document).on('click','#resback', function(){
     $('#resignEmployee').modal('show');
     $('#resConfirm').modal('hide');
@@ -148,18 +150,39 @@ $(document).on('click','#resclose',function(){
 $(document).on('click','#rescloseI',function(){
     $('#resclose').click();   
 })
+$(document).on('click','#employeeStat',function(){
+    $('#clos').click();
+    $('#resignEmployee').modal('show');
+})
 $(document).on('click','.btn-cres',function(){
+    var empnum = $('#empConid').val();
+    var resdate = $('#resDate').val();
+
+    resignEmployee(empnum,resdate);
     
     
     //if employee is resigned
-    $('.res').removeClass('d-none');
-    $('#empStat').html(`<label class="form-label" style="color: #333;">Employee Status</label><span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-    data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span>`);
+    
+    // $('#empStat').html(`<label class="form-label" style="color: #333;">Employee Status</label><span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
+    // data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span>`);
 })
 
 //#endregion
 
 //#region FUNCTIONS
+function resignEmployee(empnum,resdate){
+    $.post("ajax/resignEmployee.php",
+    {
+        resdate:resdate,
+        empnum:empnum,
+    },
+        function (data) {
+            console.log(data)
+            $('#clos').click();
+            $('#resConfirm').modal('hide');
+        }
+    );
+}
 function adminAccess(){//check if user has access to jmc
   $.post("ajax/checkAdminAccess.php",
   {
@@ -244,6 +267,7 @@ var gender =iVal.split('||')[8];
 var status =iVal.split('||')[9];
 var dhired =iVal.split('||')[10];
 var empEmail=(iVal.split('||')[11]).split('/P/KHI')[0];
+var resDate =(iVal.split('||')[12]);
 $('#editEmpnum').val(empnum);
 $('#editFirstname').val(firstname);
 $('#editSurname').val(surname);
@@ -256,8 +280,34 @@ $('#editGender').val(gender);
 $('#editStatus').val(status);
 $('#editDatehired').val(dhired);
 $('#editLotus').val(empEmail);
+
 $('#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
+if(!resDate){
+    $('.empStat').html(`
+    <div class="mb-3 col-12 col-md-6" id="empStat">
+    <label class="form-label" style="color: #333;">Employee Status</label>
+    <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
+       style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
+    </div>
+    <div class="mb-3 col-12 col-md-6 res d-none">
+      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Date Effectivity</label>
+      <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+    </div>`);
+}else{
+    $('.empStat').html(`
+    <div class="mb-3 col-12 col-md-6" id="empStat">
+    <label class="form-label" style="color: #333;">Employee Status</label>
+    <span class="badge rounded-pill d-flex align-items-center justify-content-center" 
+     style="width:80%; height: 35px; background: red;  font-size: 15px;">Resigned</span>
+    </div>
+    <div class="mb-3 col-12 col-md-6 res">
+      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Date Effectivity</label>
+      <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+    </div>`);
+}$('#resigdate').val(resDate);
+
 }
+
 function getGroups(){
     var grps=[];
     $('.empGroup').empty();
