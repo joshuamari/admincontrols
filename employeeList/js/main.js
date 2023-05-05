@@ -290,7 +290,7 @@ if(!resDate){
        style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
     </div>
     <div class="mb-3 col-12 col-md-6 res d-none">
-      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Date Effectivity</label>
+      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Effectivity Date</label>
       <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
     </div>`);
 }else{
@@ -301,7 +301,7 @@ if(!resDate){
      style="width:80%; height: 35px; background: red;  font-size: 15px;">Resigned</span>
     </div>
     <div class="mb-3 col-12 col-md-6 res">
-      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Date Effectivity</label>
+      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Effectivity Date</label>
       <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
     </div>`);
 }$('#resigdate').val(resDate);
