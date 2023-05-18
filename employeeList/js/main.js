@@ -8,25 +8,12 @@ switch (document.location.hostname)
             rootFolder = '//localhost/'; 
             break;
         default : 
-            rootFolder = '//kdt-ph/update_test/';
+            rootFolder = '//kdt-ph/';
             break;
 }
 var empDetails=[];
-$.ajaxSetup({async: false});
-$.ajax(
-    {
-        url:"Includes/checkLogin.php",
-        success: function(data){ //ajax to check if user is logged in
-            empDetails=$.parseJSON(data);
-            if(empDetails.length<1){
-                window.location.href=rootFolder+'/welcome'; //if result is 0, redirect to log in page
-            }
-            adminAccess();
-            // ifSmallScreen();
-        }
-    }
-    );
-$.ajaxSetup({async: true});
+checkLogin();
+adminAccess();
 //#endregion
 
 //#region BINDS
@@ -170,6 +157,14 @@ $(document).on('click','.btn-cres',function(){
 //#endregion
 
 //#region FUNCTIONS
+function checkLogin(){//check if user is logged in
+    $.ajax({url:"Includes/checkLogin.php", success: function(data){ //ajax to check 9 is logged in
+        empDetails=$.parseJSON(data);
+        if(Object.keys(empDetails).length<1){//if result is 0, redirect to log in page
+          window.location.href=rootFolder+'/KDTPortalLogin'; 
+        }
+      },async:false});
+}
 function resignEmployee(empnum,resdate){
     $.post("ajax/resignEmployee.php",
     {
@@ -191,7 +186,7 @@ function adminAccess(){//check if user has access to jmc
     function (data) {
       if(data.trim()==0){
         alert('Access denied');
-        window.location.href=rootFolder+'/welcome';
+        window.location.href=rootFolder+'/KDTPortalLogin';
       }
     }
   );
