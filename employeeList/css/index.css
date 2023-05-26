@@ -8,9 +8,9 @@
     font-size: 15px;
 }
 :root{
-    --bg-color: #222831;
-    --card-color: #383c42;
-    --primary-color: #df873b;
+    --bg-color: #121212;
+    --card-color: #282828;
+    --primary-color: #cc7c35;
     --secondary-color: #f85e5e;
     --text-color: #EEEEEE;
 }
@@ -272,7 +272,7 @@ font-size: 20px;
 .table-title button{
     background: rgb(249,176,93);
     background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-    
+    opacity: 85%;
     color: var(--text-color);
     font-weight: 500;
 }
@@ -282,12 +282,14 @@ font-size: 20px;
 }
 .search input{
     padding-left: 40px;
+    background-color: var(--text-color);
+
 }
 .search i {
     position: absolute;
     
     font-size: 20px;
-    color: #555;
+    color: var(--card-color);
     padding: 10px 10px;
 }
 
@@ -295,10 +297,12 @@ font-size: 20px;
 .table-container{
     height: calc(100% - 180px);
     background-color: var(--text-color);
-    
+    opacity: 95%;
 }
 .table-container table{
     height: 500px;
+    
+    
     
 }
 .table-container table thead tr{

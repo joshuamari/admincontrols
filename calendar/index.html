@@ -352,7 +352,7 @@
                         <span class="title " style="font-size: 20px;" >Admin Controls</span>
                     </a>
                 </li>
-                <li class="startli" style="font-weight: 500;">
+                <li class="" style="font-weight: 500;">
                     <a href="../employeeList/index.html">
                         <span class="icon"><i class='bx bxs-user'></i></span>
                         <span class="title">Employee List</span>
@@ -371,7 +371,7 @@
                         <span class="title">Designation List</span>
                     </a>
                 </li>
-                <li class="" style="font-weight: 500;">
+                <li class="startli" style="font-weight: 500;">
                     <a href="../Calendar/">
                         <span class="icon"><i class='bx bx-calendar'></i></span>
                         <span class="title">Calendar</span>
@@ -390,76 +390,13 @@
                     <h5>Hello, <span class="hello-user">User</span></h5>
                 </div>
             </div>
-            <div class="content d-flex justify-content-center  row ">
-                <div class="table-cont  col-md-10 p-4 my-3">
-                    <div class="table-title  m-0 d-flex justify-content-between align-items-center">
-                        <h1 class="d-flex me-auto ">EMPLOYEE LIST</h1>
-                        <div class="right ms-auto d-flex justify-content-between">
-                          <button type="button" id="addEmp" class="btn mx-1" title="Add Employee"
-                        data-bs-toggle="modal" data-bs-target="#addEmployee" data-bs-dismiss="modal">
-                            <i class='bx bx-fw bxs-user-plus fs-3' ></i>
-                            ADD EMPLOYEE
-                        </button>
-                        <!-- <button type="button" id="resignEmp" class="btn mx-1 " title="Resign Employee"
-                        data-bs-toggle="modal" data-bs-target="#resignEmployee">
-                            <i class='bx bxs-tag-x fs-3 bx-fw' ></i>
-                            RESIGN EMPLOYEE
-                        </button> -->
-                        </div>
-                        
-                    </div>
-                    <div class="toggler">
-                      <div class="d-inline-flex mt-3">
-                        <input type="checkbox" class="checkbox" id="activeOnly" role="switch">
-                        <p class="d-inline px-2 h-100" style="color: #df873b;">Show active employees only</p>
-                    </div>
-                    </div>
-                    <div class="search mt-3">
-                        <i class='bx bx-search' ></i>
-                        <input type="search" id="searchWord" class="form-control text-dark" placeholder="Search Employee">
-                    </div>
-                    
-                    <div class="table-container overflow-auto mt-3">
-                        <table class="table table-striped ">
-                            <thead>
-                                <tr class="sticky-top ">
-                                    <th>Emp No.</th>
-                                    <th>Name</th>
-                                    <th>PC Username</th>
-                                    <th>Department</th>
-                                    <th>Group</th>
-                                    <th>Position</th> 
-                                    
-                                </tr>
-                            </thead>
-                            <tbody id="empList">
-                                <tr dataid="1" class="emp">
-                                    <td>8</td>
-                                    <td>Evangeline Panado</td>
-                                    <td>panado-kdt</td>
-                                    <td>Admin</td>
-                                    <td>Group</td>
-                                    <td>Position</td>
-                                   
-                                </tr>
-                                <tr dataid="2" class="emp">
-                                    <td>10</td>
-                                    <td>Erwin Tan</td>
-                                    <td>Solution</td>
-                                    <td>ANA</td>
-                                    <td>SM</td>
-                                </tr>
-                                <tr dataid="3">
-                                    <td>#</td>
-                                    <td>Name</td>
-                                    <td>dept</td>
-                                    <td>grp</td>
-                                    <td>pos</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="content ">
+              <div class="header">
+                <select class="form-select-lg">
+                  <option>KDT Calendar</option>
+                  <option>KOBE Calendar</option>
+                </select>
+              </div>
             </div>
         </div>
     </div>
