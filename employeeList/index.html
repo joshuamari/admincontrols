@@ -1,468 +1,858 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Admin Controls</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <meta charset='UTF-8'>
-    <link rel='stylesheet' href='css/neoBootstrap.css'><!--COMMON-->
-    <link rel='stylesheet' href='css/boxicons.css'><!--COMMON-->
-    <link rel='stylesheet' href='css/index.css'>
-    <script src='js/jquery.js'></script><!--COMMON-->
-    <script src='js/neoBootstrap.js'></script><!--COMMON-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/neoBootstrap.css" />
+    <!--COMMON-->
+    <link rel="stylesheet" href="css/boxicons.css" />
+    <!--COMMON-->
+    <link rel="stylesheet" href="css/index.css" />
+    <script src="js/jquery.js"></script>
+    <!--COMMON-->
+    <script src="js/neoBootstrap.js"></script>
+    <!--COMMON-->
 
     <!--#region BUSTER CALL  -->
     <script>
-        var busterCall = ["js/main.js","css/index.css"];
-        $.post("ajax/getVersion.php", {
-            busterCall : busterCall,
-            titleName: "Admin Controls"
+      var busterCall = ["js/main.js", "css/index.css"];
+      $.post(
+        "ajax/getVersion.php",
+        {
+          busterCall: busterCall,
+          titleName: "Admin Controls",
         },
-            function (data) {
-            $('head').html(data);
-            }
-        );
+        function (data) {
+          $("head").html(data);
+        }
+      );
     </script>
-    
+
     <!--#endregion -->
-</head>
+  </head>
 
-<body>
-
-
-
-  <!--#region Add Modal -->
-  <div class="modal fade" id="addEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Add New Employee</h1>
-          <button type="button" class="btn-close" id="xadd" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <!-- <hr class="mb-3" style="color: #777;"> -->
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addFirstname" style="color: #333;">First Name</label>
-              <input type="text" class="form-control" id="addFirstname" placeholder="eg. Juan" style="color: #333;">
-              <span class="m3 d-none errMsg" style="color:#f85e5e;">Input first name</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addSurname" style="color: #333;">Last Name</label>
-              <input type="text" class="form-control" id="addSurname" placeholder="eg. Delacruz" style="color: #333;">
-              <span class="m4 d-none errMsg" style="color:#f85e5e;">Input surname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addNick" style="color: #333;">Nickname</label>
-              <input type="text" class="form-control" id="addNick" placeholder="eg. jd" style="color: #333;">
-              <span class="m5 d-none errMsg" style="color:#f85e5e;">Input nickname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addBday" style="color: #333;">Birth Date</label>
-              <input type="date" class="form-control" id="addBday"  style="color: #333;">
-              <span class="m6 d-none errMsg" style="color:#f85e5e;">Input birthday</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addGender" style="color: #333;">Gender</label>
-              <select type="date" class="form-select" id="addGender"  style="color: #333;">
-                <option value="" selected hidden >Gender</option>
-                <option style="color: #333;" value="F">Female</option>
-                <option style="color: #333;" value="M">Male</option>
-                
-              </select>
-              <span class="m7 d-none errMsg" style="color:#f85e5e;">Select Gender</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addStatus" style="color: #333;">Civil Status</label>
-              <select type="date" class="form-select" id="addStatus"  style="color: #333;">
-                <option value="" selected hidden >Civil Status</option>
-                <option style="color: #333;">Single</option>
-                <option style="color: #333;">Married</option>
-                <option style="color: #333;">Separated</option>
-                <option style="color: #333;">Widowed</option>
-              </select>
-              <span class="m8 d-none errMsg" style="color:#f85e5e;">Select civil status</span>
-            </div>
-            <hr class="mb-3" style="color: #777;">
-            <div class="mb-3 col-12 col-md-6" >
-              <label class="form-label" for="addEmpnum" style="color: #333;">Employee No.</label>
-              <input type="number" class="form-control" id="addEmpnum" placeholder="eg. 123" style="color: #333;">
-              <span class="m1 d-none errMsg" style="color:#f85e5e;">Input employee no.</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addPCUser" style="color: #333;">PC Username</label>
-              <input type="text" class="form-control" id="addPCUser" placeholder="eg. juan" style="color: #333;">
-              <span class="m2 d-none errMsg" style="color:#f85e5e;">Input PC username</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addGroup" style="color: #333;">Group</label>
-              <select type="date" class="form-select empGroup" id="addGroup"  style="color: #333;">
-                <option value="" selected hidden >Select Group</option>
-                <option style="color: #333;">SYS</option>
-                <option style="color: #333;">ACT</option>
-                <option style="color: #333;">IT</option>
-              </select>
-              <span class="m9 d-none errMsg" style="color:#f85e5e;">Select group</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addDatehired" style="color: #333;">Date Hired</label>
-              <input type="date" class="form-control" id="addDatehired"  style="color: #333;">
-              <span class="m10 d-none errMsg" style="color:#f85e5e;">Input date hired</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="addPos" style="color: #333;">Position</label>
-              <select type="date" class="form-select empPos" id="addPos"  style="color: #333;">
-                <option value="" selected hidden >Select Position</option>
-                <option style="color: #333;">PDE</option>
-                <option style="color: #333;">PSE</option>
-                <option style="color: #333;">SE1</option>
-              </select>
-              <span class="m11 d-none errMsg" style="color:#f85e5e;">Select position</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="addLotus" style="color: #333;">Lotus E-mail</label>
-              
-                <div class="d-flex justify-content-around col-12">
-                  <input type="text" class="form-control col-8" id="addLotus" placeholder="eg. juan" style="color: #333; width: 70%;">
-                  <button class="btn btn-warning col-2" id="ac" style="width: 30%;">Autocomplete</button>
-                </div>
-                
-              <span class="m12 d-none errMsg" style="color:#f85e5e;">Input email</span>
-            </div>
-            
+  <body>
+    <!--#region Add Modal -->
+    <div
+      class="modal fade"
+      id="addEmployee"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-3" id="staticBackdropLabel">
+              Add New Employee
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              id="xadd"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-addEmp">Add Employee</button>
-          <button type="button" class="btn btn-secondary" id="close" data-bs-dismiss="modal">Close</button>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-<!--#endregion-->
-
-<!--#region Edit Modal-->
-  <div class="modal fade" id="showEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Employee Details</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <!-- <hr class="mb-3" style="color: #777;"> -->
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editFirstname" style="color: #333;">First Name</label>
-              <input type="text" class="form-control" id="editFirstname" placeholder="eg. Juan" style="color: #333;">
-              <span class="m3 d-none errMsg" style="color:#f85e5e;">Input first name</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editSurname" style="color: #333;">Last Name</label>
-              <input type="text" class="form-control" id="editSurname" placeholder="eg. Delacruz" style="color: #333;">
-              <span class="m4 d-none errMsg" style="color:#f85e5e;">Input surname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editNick" style="color: #333;">Nickname</label>
-              <input type="text" class="form-control" id="editNick" placeholder="eg. jd" style="color: #333;">
-              <span class="m5 d-none errMsg" style="color:#f85e5e;">Input nickname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editBday" style="color: #333;">Birth Date</label>
-              <input type="date" class="form-control" id="editBday"  style="color: #333;">
-              <span class="m6 d-none errMsg" style="color:#f85e5e;">Input birthday</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editGender" style="color: #333;">Gender</label>
-              <select  class="form-select" id="editGender"  style="color: #333;">
-                <option selected hidden >Gender</option>
-                <option style="color: #333;" value="F">Female</option>
-                <option style="color: #333;" value="M">Male</option>
-                <!-- <option style="color: #333;">Others</option> -->
-              </select>
-              <span class="m7 d-none errMsg" style="color:#f85e5e;">Select Gender</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editStatus" style="color: #333;">Civil Status</label>
-              <select type="date" class="form-select" id="editStatus"  style="color: #333;">
-                <option selected hidden >Civil Status</option>
-                <option style="color: #333;">Single</option>
-                <option style="color: #333;">Married</option>
-                <option style="color: #333;">Separated</option>
-                <option style="color: #333;">Widowed</option>
-              </select>
-              <span class="m8 d-none errMsg" style="color:#f85e5e;">Select civil status</span>
-            </div>
-            <hr class="mb-3" style="color: #777;">
-            <div class="mb-3 col-12 col-md-6" >
-              <label class="form-label" for="editEmpnum" style="color: #333;">Employee No.</label>
-              <input type="number" class="form-control" id="editEmpnum" placeholder="eg. 123" style="color: #333;">
-              <span class="m1 d-none errMsg" style="color:#f85e5e;">Input employee no.</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editPCUser" style="color: #333;">PC Username</label>
-              <input type="text" class="form-control" id="editPCUser" placeholder="eg. juan" style="color: #333;">
-              <span class="m2 d-none errMsg" style="color:#f85e5e;">Input PC username</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editGroup" style="color: #333;">Group</label>
-              <select type="date" class="form-select empGroup" id="editGroup"  style="color: #333;">
-                <option selected hidden >Select Group</option>
-                <option style="color: #333;">SYS</option>
-                <option style="color: #333;">ACT</option>
-                <option style="color: #333;">IT</option>
-              </select>
-              <span class="m10 d-none errMsg" style="color:#f85e5e;">Select group</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editDatehired" style="color: #333;">Date Hired</label>
-              <input type="date" class="form-control" id="editDatehired"  style="color: #333;">
-              <span class="m11 d-none errMsg" style="color:#f85e5e;">Input date hired</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="editPos" style="color: #333;">Position</label>
-              <select type="date" class="form-select empPos" id="editPos"  style="color: #333;">
-                <option selected hidden >Select Position</option>
-                <option style="color: #333;">PDE</option>
-                <option style="color: #333;">PSE</option>
-                <option style="color: #333;">SE1</option>
-              </select>
-              <span class="m12 d-none errMsg" style="color:#f85e5e;">Select position</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="editLotus" style="color: #333;">Lotus E-mail</label>
-              
-                <div class="d-flex justify-content-around col-12">
-                  <input type="text" class="form-control col-8" id="editLotus" placeholder="eg. juan" style="color: #333; width: 70%;">
-                  <button class="btn btn-warning col-2" id="ac" style="width: 30%;">Autocomplete</button>
-                </div>
-                
-              <span class="m13 d-none errMsg" style="color:#f85e5e;">Input email</span>
-            </div>
-            
-            <hr class="mb-3" style="color: #777;">
-            <div class="empStat row">
-              <div class="mb-3 col-12 col-md-6" id="empStat">
-              <label class="form-label" style="color: #333;">Employee Status</label>
-              <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-                 style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
+          <div class="modal-body">
+            <div class="row">
+              <!-- <hr class="mb-3" style="color: #777;"> -->
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addFirstname" style="color: #333"
+                  >First Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="addFirstname"
+                  placeholder="eg. Juan"
+                  style="color: #333"
+                />
+                <span class="m3 d-none errMsg" style="color: #f85e5e"
+                  >Input first name</span
+                >
               </div>
-              <div class="mb-3 col-12 col-md-6 res d-none">
-                <label class="form-label" for="editDatehired" style="color: #333;" >Resignation Date</label>
-                <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addSurname" style="color: #333"
+                  >Last Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="addSurname"
+                  placeholder="eg. Delacruz"
+                  style="color: #333"
+                />
+                <span class="m4 d-none errMsg" style="color: #f85e5e"
+                  >Input surname</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addNick" style="color: #333"
+                  >Nickname</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="addNick"
+                  placeholder="eg. jd"
+                  style="color: #333"
+                />
+                <span class="m5 d-none errMsg" style="color: #f85e5e"
+                  >Input nickname</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addBday" style="color: #333"
+                  >Birth Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="addBday"
+                  style="color: #333"
+                />
+                <span class="m6 d-none errMsg" style="color: #f85e5e"
+                  >Input birthday</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addGender" style="color: #333"
+                  >Gender</label
+                >
+                <select
+                  type="date"
+                  class="form-select"
+                  id="addGender"
+                  style="color: #333"
+                >
+                  <option value="" selected hidden>Gender</option>
+                  <option style="color: #333" value="F">Female</option>
+                  <option style="color: #333" value="M">Male</option>
+                </select>
+                <span class="m7 d-none errMsg" style="color: #f85e5e"
+                  >Select Gender</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addStatus" style="color: #333"
+                  >Civil Status</label
+                >
+                <select
+                  type="date"
+                  class="form-select"
+                  id="addStatus"
+                  style="color: #333"
+                >
+                  <option value="" selected hidden>Civil Status</option>
+                  <option style="color: #333">Single</option>
+                  <option style="color: #333">Married</option>
+                  <option style="color: #333">Separated</option>
+                  <option style="color: #333">Widowed</option>
+                </select>
+                <span class="m8 d-none errMsg" style="color: #f85e5e"
+                  >Select civil status</span
+                >
+              </div>
+              <hr class="mb-3" style="color: #777" />
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addEmpnum" style="color: #333"
+                  >Employee No.</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="addEmpnum"
+                  placeholder="eg. 123"
+                  style="color: #333"
+                />
+                <span class="m1 d-none errMsg" style="color: #f85e5e"
+                  >Input employee no.</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addPCUser" style="color: #333"
+                  >PC Username</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="addPCUser"
+                  placeholder="eg. juan"
+                  style="color: #333"
+                />
+                <span class="m2 d-none errMsg" style="color: #f85e5e"
+                  >Input PC username</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addGroup" style="color: #333"
+                  >Group</label
+                >
+                <select
+                  type="date"
+                  class="form-select empGroup"
+                  id="addGroup"
+                  style="color: #333"
+                >
+                  <option value="" selected hidden>Select Group</option>
+                  <option style="color: #333">SYS</option>
+                  <option style="color: #333">ACT</option>
+                  <option style="color: #333">IT</option>
+                </select>
+                <span class="m9 d-none errMsg" style="color: #f85e5e"
+                  >Select group</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="addDatehired" style="color: #333"
+                  >Date Hired</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="addDatehired"
+                  style="color: #333"
+                />
+                <span class="m10 d-none errMsg" style="color: #f85e5e"
+                  >Input date hired</span
+                >
+              </div>
+              <div class="mb-3 col-12">
+                <label class="form-label" for="addPos" style="color: #333"
+                  >Position</label
+                >
+                <select
+                  type="date"
+                  class="form-select empPos"
+                  id="addPos"
+                  style="color: #333"
+                >
+                  <option value="" selected hidden>Select Position</option>
+                  <option style="color: #333">PDE</option>
+                  <option style="color: #333">PSE</option>
+                  <option style="color: #333">SE1</option>
+                </select>
+                <span class="m11 d-none errMsg" style="color: #f85e5e"
+                  >Select position</span
+                >
+              </div>
+              <div class="mb-3 col-12">
+                <label class="form-label" for="addLotus" style="color: #333"
+                  >Lotus E-mail</label
+                >
+
+                <div class="d-flex justify-content-around col-12">
+                  <input
+                    type="text"
+                    class="form-control col-8"
+                    id="addLotus"
+                    placeholder="eg. juan"
+                    style="color: #333; width: 70%"
+                  />
+                  <button
+                    class="btn btn-warning col-2"
+                    id="ac"
+                    style="width: 30%"
+                  >
+                    Autocomplete
+                  </button>
+                </div>
+
+                <span class="m12 d-none errMsg" style="color: #f85e5e"
+                  >Input email</span
+                >
               </div>
             </div>
-            
           </div>
-          
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-editEmp">Edit</button>
-          <button type="button" class="btn btn-secondary" id="clos">Close</button>
-          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-addEmp">Add Employee</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="close"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    <!--#endregion-->
 
-  <!--#endregion-->
-  <!--#region resign employee-->
+    <!--#region Edit Modal-->
+    <div
+      class="modal fade"
+      id="showEmployee"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-3" id="staticBackdropLabel">
+              Employee Details
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <!-- <hr class="mb-3" style="color: #777;"> -->
+              <div class="mb-3 col-12 col-md-6">
+                <label
+                  class="form-label"
+                  for="editFirstname"
+                  style="color: #333"
+                  >First Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editFirstname"
+                  placeholder="eg. Juan"
+                  style="color: #333"
+                />
+                <span class="m3 d-none errMsg" style="color: #f85e5e"
+                  >Input first name</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editSurname" style="color: #333"
+                  >Last Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editSurname"
+                  placeholder="eg. Delacruz"
+                  style="color: #333"
+                />
+                <span class="m4 d-none errMsg" style="color: #f85e5e"
+                  >Input surname</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editNick" style="color: #333"
+                  >Nickname</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editNick"
+                  placeholder="eg. jd"
+                  style="color: #333"
+                />
+                <span class="m5 d-none errMsg" style="color: #f85e5e"
+                  >Input nickname</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editBday" style="color: #333"
+                  >Birth Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editBday"
+                  style="color: #333"
+                />
+                <span class="m6 d-none errMsg" style="color: #f85e5e"
+                  >Input birthday</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editGender" style="color: #333"
+                  >Gender</label
+                >
+                <select class="form-select" id="editGender" style="color: #333">
+                  <option selected hidden>Gender</option>
+                  <option style="color: #333" value="F">Female</option>
+                  <option style="color: #333" value="M">Male</option>
+                  <!-- <option style="color: #333;">Others</option> -->
+                </select>
+                <span class="m7 d-none errMsg" style="color: #f85e5e"
+                  >Select Gender</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editStatus" style="color: #333"
+                  >Civil Status</label
+                >
+                <select
+                  type="date"
+                  class="form-select"
+                  id="editStatus"
+                  style="color: #333"
+                >
+                  <option selected hidden>Civil Status</option>
+                  <option style="color: #333">Single</option>
+                  <option style="color: #333">Married</option>
+                  <option style="color: #333">Separated</option>
+                  <option style="color: #333">Widowed</option>
+                </select>
+                <span class="m8 d-none errMsg" style="color: #f85e5e"
+                  >Select civil status</span
+                >
+              </div>
+              <hr class="mb-3" style="color: #777" />
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editEmpnum" style="color: #333"
+                  >Employee No.</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editEmpnum"
+                  placeholder="eg. 123"
+                  style="color: #333"
+                />
+                <span class="m1 d-none errMsg" style="color: #f85e5e"
+                  >Input employee no.</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editPCUser" style="color: #333"
+                  >PC Username</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editPCUser"
+                  placeholder="eg. juan"
+                  style="color: #333"
+                />
+                <span class="m2 d-none errMsg" style="color: #f85e5e"
+                  >Input PC username</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label class="form-label" for="editGroup" style="color: #333"
+                  >Group</label
+                >
+                <select
+                  type="date"
+                  class="form-select empGroup"
+                  id="editGroup"
+                  style="color: #333"
+                >
+                  <option selected hidden>Select Group</option>
+                  <option style="color: #333">SYS</option>
+                  <option style="color: #333">ACT</option>
+                  <option style="color: #333">IT</option>
+                </select>
+                <span class="m10 d-none errMsg" style="color: #f85e5e"
+                  >Select group</span
+                >
+              </div>
+              <div class="mb-3 col-12 col-md-6">
+                <label
+                  class="form-label"
+                  for="editDatehired"
+                  style="color: #333"
+                  >Date Hired</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editDatehired"
+                  style="color: #333"
+                />
+                <span class="m11 d-none errMsg" style="color: #f85e5e"
+                  >Input date hired</span
+                >
+              </div>
+              <div class="mb-3 col-12">
+                <label class="form-label" for="editPos" style="color: #333"
+                  >Position</label
+                >
+                <select
+                  type="date"
+                  class="form-select empPos"
+                  id="editPos"
+                  style="color: #333"
+                >
+                  <option selected hidden>Select Position</option>
+                  <option style="color: #333">PDE</option>
+                  <option style="color: #333">PSE</option>
+                  <option style="color: #333">SE1</option>
+                </select>
+                <span class="m12 d-none errMsg" style="color: #f85e5e"
+                  >Select position</span
+                >
+              </div>
+              <div class="mb-3 col-12">
+                <label class="form-label" for="editLotus" style="color: #333"
+                  >Lotus E-mail</label
+                >
 
-  <div class="modal fade" id="resignEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Resign Employee</h1>
-          <button type="button" class="btn-close" id="rescloseI" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <div class="mb-3 col-12">
-              <label class="form-label" for="resDate" style="color: #333;">Effectivity Date</label>
-              <input type="date" class="form-control" id="resDate"  style="color: #333;">
-              <span class="r1 d-none errMsg" style="color:red;">Input effectivity date</span>
+                <div class="d-flex justify-content-around col-12">
+                  <input
+                    type="text"
+                    class="form-control col-8"
+                    id="editLotus"
+                    placeholder="eg. juan"
+                    style="color: #333; width: 70%"
+                  />
+                  <button
+                    class="btn btn-warning col-2"
+                    id="ac"
+                    style="width: 30%"
+                  >
+                    Autocomplete
+                  </button>
+                </div>
+
+                <span class="m13 d-none errMsg" style="color: #f85e5e"
+                  >Input email</span
+                >
+              </div>
+
+              <hr class="mb-3" style="color: #777" />
+              <div class="empStat row">
+                <div class="mb-3 col-12 col-md-6" id="empStat">
+                  <label class="form-label" style="color: #333"
+                    >Employee Status</label
+                  >
+                  <span
+                    class="badge rounded-pill d-flex align-items-center justify-content-center"
+                    id="employeeStat"
+                    style="
+                      width: 80%;
+                      height: 35px;
+                      background: #09c46f;
+                      cursor: pointer;
+                      font-size: 15px;
+                    "
+                    >Active</span
+                  >
+                </div>
+                <div class="mb-3 col-12 col-md-6 res d-none">
+                  <label
+                    class="form-label"
+                    for="editDatehired"
+                    style="color: #333"
+                    >Resignation Date</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="resigdate"
+                    style="color: #333"
+                    disabled
+                  />
+                </div>
+              </div>
             </div>
-
           </div>
-        </div>
-        <div class="modal-footer">
-          <!-- <button class="btn btn-resEmp" data-bs-toggle="modal" data-bs-target="#resConfirm" data-bs-dismiss="modal">Resign Employee</button> -->
-          <button class="btn btn-resEmp">Resign Employee</button>
-          <button type="button" class="btn btn-secondary" id="resclose" data-bs-dismiss="modal">Close</button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-editEmp">Edit</button>
+            <button type="button" class="btn btn-secondary" id="clos">
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
     <!--#endregion-->
-      <!--#region resign employee-->
+    <!--#region resign employee-->
 
-  <div class="modal fade" id="resConfirm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Admin Controls: Resign Employee</h1>
-          <button type="button" class="btn-close" id="rescloseI" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          
-          <h5 style="color: #333;">Confirm resignation of this employee</h5>
-          <div class="row">
-            <div class="mb-3 col-6">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee Name</label>
-              <input type="text" class="form-control my-2" id="empCon" placeholder="Name" style="color: #333;" disabled>
-            </div>
-            <div class="mb-3 col-6">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee No.</label>
-              <input type="text" class="form-control  my-2" id="empConid" placeholder="Employee #" style="color: #333;" disabled> 
-            </div>
-            <div class="mb-3 col-12">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Effectivity Date</label>
-              <input type="date" class="form-control my-2" id="dateCon"  style="color: #333;"disabled> 
+    <div
+      class="modal fade"
+      id="resignEmployee"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-3" id="staticBackdropLabel">
+              Resign Employee
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              id="rescloseI"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="mb-3 col-12">
+                <label class="form-label" for="resDate" style="color: #333"
+                  >Effectivity Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="resDate"
+                  style="color: #333"
+                />
+                <span class="r1 d-none errMsg" style="color: red"
+                  >Input effectivity date</span
+                >
+              </div>
             </div>
           </div>
-          
-  
-          
-            
-
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-cres">Yes, I confirm</button>
-          <!-- <button class="btn btn-secondary" id="resback" data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal">Close</button> -->
-          <button class="btn btn-secondary" id="resback"  data-bs-dismiss="modal">Back to first</button>
+          <div class="modal-footer">
+            <!-- <button class="btn btn-resEmp" data-bs-toggle="modal" data-bs-target="#resConfirm" data-bs-dismiss="modal">Resign Employee</button> -->
+            <button class="btn btn-resEmp">Resign Employee</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="resclose"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!--#endregion-->
+    <!--#region resign employee-->
+
+    <div
+      class="modal fade"
+      id="resConfirm"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-3" id="staticBackdropLabel">
+              Admin Controls: Resign Employee
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              id="rescloseI"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h5 style="color: #333">Confirm resignation of this employee</h5>
+            <div class="row">
+              <div class="mb-3 col-6">
+                <label class="form-label mb-0" for="resDate" style="color: #333"
+                  >Employee Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control my-2"
+                  id="empCon"
+                  placeholder="Name"
+                  style="color: #333"
+                  disabled
+                />
+              </div>
+              <div class="mb-3 col-6">
+                <label class="form-label mb-0" for="resDate" style="color: #333"
+                  >Employee No.</label
+                >
+                <input
+                  type="text"
+                  class="form-control my-2"
+                  id="empConid"
+                  placeholder="Employee #"
+                  style="color: #333"
+                  disabled
+                />
+              </div>
+              <div class="mb-3 col-12">
+                <label class="form-label mb-0" for="resDate" style="color: #333"
+                  >Effectivity Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control my-2"
+                  id="dateCon"
+                  style="color: #333"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-cres">Yes, I confirm</button>
+            <!-- <button class="btn btn-secondary" id="resback" data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal">Close</button> -->
+            <button
+              class="btn btn-secondary"
+              id="resback"
+              data-bs-dismiss="modal"
+            >
+              Back to first
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!--#endregion-->
 
     <div class="containerr">
-        <div class="navigation">
-            <ul>
-                <li class="fw-bolder">
-                    <a href="#">
-                        <span class="icon"><i class='bx bxs-lock-open' ></i></span>
-                        <span class="title " style="font-size: 20px;" >Admin Controls</span>
-                    </a>
-                </li>
-                <li class="startli" style="font-weight: 500;">
-                    <a href="../employeeList/index.html">
-                        <span class="icon"><i class='bx bxs-user'></i></span>
-                        <span class="title">Employee List</span>
-                    </a>
+      <div class="navigation">
+        <ul>
+          <li class="fw-bolder">
+            <a href="#">
+              <span class="icon"><i class="bx bxs-lock-open"></i></span>
+              <span class="title" style="font-size: 20px">Admin Controls</span>
+            </a>
+          </li>
+          <li class="startli" style="font-weight: 500">
+            <a href="../employeeList/index.html">
+              <span class="icon"><i class="bx bxs-user"></i></span>
+              <span class="title">Employee List</span>
+            </a>
+          </li>
+          <li class="d-none" style="font-weight: 500">
+            <a href="../groupList/index.html">
+              <span class="icon"><i class="bx bxs-group"></i></span>
+              <span class="title">Group List</span>
+            </a>
+          </li>
+          <li class="d-none" style="font-weight: 500">
+            <a href="../designationList/index.html">
+              <span class="icon"><i class="bx bxs-award"></i></span>
+              <span class="title">Designation List</span>
+            </a>
+          </li>
+          <li class="d-none" style="font-weight: 500">
+            <a href="../Calendar/">
+              <span class="icon"><i class="bx bx-calendar"></i></span>
+              <span class="title">Calendar</span>
+            </a>
+          </li>
+          <li class="" style="font-weight: 500">
+            <a href="../userPermission/">
+              <span class="icon"><i class="bx bxs-user-badge"></i></span>
+              <span class="title">User Permission</span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
-                </li>
-                <li class="d-none" style="font-weight: 500;">
-                    <a href="../groupList/index.html">
-                        <span class="icon"><i class='bx bxs-group' ></i></span>
-                        <span class="title">Group List</span>
-                    </a>
-                </li>
-                <li class="d-none" style="font-weight: 500;">
-                    <a href="../designationList/index.html">
-                        <span class="icon"><i class='bx bxs-award' ></i></span>
-                        <span class="title">Designation List</span>
-                    </a>
-                </li>
-                <li class="" style="font-weight: 500;">
-                    <a href="../Calendar/">
-                        <span class="icon"><i class='bx bx-calendar'></i></span>
-                        <span class="title">Calendar</span>
-                    </a>
-                    
-                </li>
-            </ul>
+      <div class="main">
+        <div class="topbar">
+          <div class="toggle">
+            <i class="bx bx-menu fs-1"></i>
+          </div>
+          <div class="user pe-2">
+            <h5>Hello, <span class="hello-user">User</span></h5>
+          </div>
         </div>
-
-        <div class="main ">
-            <div class="topbar">
-                <div class="toggle">
-                    <i class='bx bx-menu fs-1'></i>
-                </div>
-                <div class="user pe-2">
-                    <h5>Hello, <span class="hello-user">User</span></h5>
-                </div>
-            </div>
-            <div class="content d-flex justify-content-center  row ">
-                <div class="table-cont  col-md-10 p-4 my-3">
-                    <div class="table-title  m-0 d-flex justify-content-between align-items-center">
-                        <h1 class="d-flex me-auto ">EMPLOYEE LIST</h1>
-                        <div class="right ms-auto d-flex justify-content-between">
-                          <button type="button" id="addEmp" class="btn mx-1" title="Add Employee"
-                        data-bs-toggle="modal" data-bs-target="#addEmployee" data-bs-dismiss="modal">
-                            <i class='bx bx-fw bxs-user-plus fs-3' ></i>
-                            ADD EMPLOYEE
-                        </button>
-                        <!-- <button type="button" id="resignEmp" class="btn mx-1 " title="Resign Employee"
+        <div class="content d-flex justify-content-center row">
+          <div class="table-cont col-md-10 p-4 my-3">
+            <div
+              class="table-title m-0 d-flex justify-content-between align-items-center"
+            >
+              <h1 class="d-flex me-auto">EMPLOYEE LIST</h1>
+              <div class="right ms-auto d-flex justify-content-between">
+                <button
+                  type="button"
+                  id="addEmp"
+                  class="btn mx-1"
+                  title="Add Employee"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addEmployee"
+                  data-bs-dismiss="modal"
+                >
+                  <i class="bx bx-fw bxs-user-plus fs-3"></i>
+                  ADD EMPLOYEE
+                </button>
+                <!-- <button type="button" id="resignEmp" class="btn mx-1 " title="Resign Employee"
                         data-bs-toggle="modal" data-bs-target="#resignEmployee">
                             <i class='bx bxs-tag-x fs-3 bx-fw' ></i>
                             RESIGN EMPLOYEE
                         </button> -->
-                        </div>
-                        
-                    </div>
-                    <div class="toggler">
-                      <div class="d-inline-flex mt-3">
-                        <input type="checkbox" class="checkbox" id="activeOnly" role="switch">
-                        <p class="d-inline px-2 h-100" style="color: #df873b;">Show active employees only</p>
-                    </div>
-                    </div>
-                    <div class="search mt-3">
-                        <i class='bx bx-search' ></i>
-                        <input type="search" id="searchWord" class="form-control text-dark" placeholder="Search Employee">
-                    </div>
-                    
-                    <div class="table-container overflow-auto mt-3">
-                        <table class="table table-striped ">
-                            <thead>
-                                <tr class="sticky-top ">
-                                    <th>Emp No.</th>
-                                    <th>Name</th>
-                                    <th>PC Username</th>
-                                    <th>Department</th>
-                                    <th>Group</th>
-                                    <th>Position</th> 
-                                    
-                                </tr>
-                            </thead>
-                            <tbody id="empList">
-                                <tr dataid="1" class="emp">
-                                    <td>8</td>
-                                    <td>Evangeline Panado</td>
-                                    <td>panado-kdt</td>
-                                    <td>Admin</td>
-                                    <td>Group</td>
-                                    <td>Position</td>
-                                   
-                                </tr>
-                                <tr dataid="2" class="emp">
-                                    <td>10</td>
-                                    <td>Erwin Tan</td>
-                                    <td>Solution</td>
-                                    <td>ANA</td>
-                                    <td>SM</td>
-                                </tr>
-                                <tr dataid="3">
-                                    <td>#</td>
-                                    <td>Name</td>
-                                    <td>dept</td>
-                                    <td>grp</td>
-                                    <td>pos</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+              </div>
             </div>
-        </div>
-    </div>
-</body>
-</html>
+            <div class="toggler">
+              <div class="d-inline-flex mt-3">
+                <input
+                  type="checkbox"
+                  class="checkbox"
+                  id="activeOnly"
+                  role="switch"
+                />
+                <p class="d-inline px-2 h-100" style="color: #df873b">
+                  Show active employees only
+                </p>
+              </div>
+            </div>
+            <div class="search mt-3">
+              <i class="bx bx-search"></i>
+              <input
+                type="search"
+                id="searchWord"
+                class="form-control text-dark"
+                placeholder="Search Employee"
+              />
+            </div>
 
+            <div class="table-container overflow-auto mt-3">
+              <table class="table table-striped">
+                <thead>
+                  <tr class="sticky-top">
+                    <th>Emp No.</th>
+                    <th>Name</th>
+                    <th>PC Username</th>
+                    <th>Department</th>
+                    <th>Group</th>
+                    <th>Position</th>
+                  </tr>
+                </thead>
+                <tbody id="empList">
+                  <tr dataid="1" class="emp">
+                    <td>8</td>
+                    <td>Evangeline Panado</td>
+                    <td>panado-kdt</td>
+                    <td>Admin</td>
+                    <td>Group</td>
+                    <td>Position</td>
+                  </tr>
+                  <tr dataid="2" class="emp">
+                    <td>10</td>
+                    <td>Erwin Tan</td>
+                    <td>Solution</td>
+                    <td>ANA</td>
+                    <td>SM</td>
+                  </tr>
+                  <tr dataid="3">
+                    <td>#</td>
+                    <td>Name</td>
+                    <td>dept</td>
+                    <td>grp</td>
+                    <td>pos</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
