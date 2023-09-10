@@ -62,7 +62,7 @@ if(!empty($_POST['email'])){
 $addHash=password_hash($username, PASSWORD_DEFAULT);
 $addPic="pic_".$empnum.".jpg";
 $addLotus=$email."/P/KHI";
-$addOutlook=$email."@corp.khi.co.jp";
+$addOutlook=$email."@global.kawasaki.com";
 $mode=0;
 if(isset($_POST['mode'])){
     $mode=$_POST['mode'];
@@ -120,4 +120,3 @@ if($mode==1){
 
 #endregion
 //$.ajaxSetup({async: false});
-?>
