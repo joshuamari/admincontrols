@@ -4,7 +4,7 @@ $username = "root";
 $password = "";
 try {
   $connkdt = new PDO("mysql:host=localhost;dbname=kdtphdb", $username, $password);
-  $gods=["464","465","487"];
+  $gods=["464","487"];
 
   $itMembers=array();
   $itQ="SELECT fldEmployeeNum FROM emp_prof WHERE fldGroup='IT' AND fldActive=1";
@@ -23,5 +23,3 @@ try {
 } catch(PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
 }
-?>
-
