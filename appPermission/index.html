@@ -33,277 +33,140 @@
   </head>
 
   <body>
-    <!--#region Add user Modal -->
-    <div class="modal fade" data-bs-backdrop="static" id="addEmpAccess">
+    <!--#region View permission Modal -->
+    <div class="modal fade" data-bs-backdrop="static" id="viewPermissions">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-3">Add access to employee</h1>
+            <h1 class="modal-title fs-3">JMR</h1>
             <button
               type="button"
               class="btn-close"
-              id="xadd"
+              id=""
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
           </div>
           <div class="modal-body">
-            <div class="row">
-              <div class="mb-3 col-12 col-md-8">
-                <label class="form-label" for="groupSel">Group</label>
-                <select name="" id="groupSel" class="form-select">
-                  <option value="" hidden selected>Select group</option>
-                  <option value="0">SYS</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select group</span
-                >
-              </div>
-              <div class="mb-3 col-12 col-md-6">
-                <label class="form-label" for="empSel">Employee Name</label>
-                <select name="" id="empSel" class="form-select">
-                  <option value="" hidden selected>Select employee</option>
-                  <option value="0">Joshua Coquia</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select employee</span
-                >
-              </div>
-              <div class="mb-3 col-12 col-md-6">
-                <label class="form-label" for="empID">Emp ID</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="empID"
-                  placeholder="000"
-                  style="color: #333"
-                  disabled
-                />
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="appSel">Web Application</label>
-                <select name="" id="appSel" class="form-select">
-                  <option value="" hidden selected>
-                    Select web application
-                  </option>
-                  <option value="0">JMR</option>
-                  <option value="1">Forms</option>
-                  <option value="2">MRRS</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select web application</span
-                >
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="moduleSel">Module</label>
-                <select
-                  name="module selection"
-                  id="moduleSel"
-                  class="form-select"
-                >
-                  <option value="" hidden selected>Select module</option>
-                  <option value="0">Daily Report</option>
-                  <option value="1">JMC</option>
-                  <option value="2">Planning</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select module</span
-                >
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="accessType">Access Type</label>
-                <select name="access type" id="accessType" class="form-select">
-                  <option value="" hidden>Select access type</option>
-                  <option value="0">View only</option>
-                  <option value="1">View and edit</option>
-                  <option value="2">View all groups</option>
-                </select>
-                <div class="p-2 border-1 col-12 mt-2 m-0 accesscont">
-                  <p class="m-0 w-100 position-relative p-2"></p>
-                </div>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select module</span
-                >
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-0">
-            <button type="button" class="btn btn-addEmp">Add Access</button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              id="close"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--#endregion-->
-    <!--#region Add permission Modal -->
-    <div class="modal fade" data-bs-backdrop="static" id="addPermission">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Add User Permission</h1>
-            <button
-              type="button"
-              class="btn-close"
-              id="mclose"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="mb-3 col-12 col-md-8">
-                <label class="form-label" for="empNamePermission"
-                  >Employee Name</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="empNamePermission"
-                  placeholder="Joshua Coquia"
-                  style="pointer-events: none"
-                />
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select employee</span
-                >
-              </div>
-              <div class="mb-3 col-12 col-md-4">
-                <label class="form-label" for="empIDPermission">Emp ID</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="empIDPermission"
-                  placeholder="000"
-                  style="color: #333; pointer-events: none"
-                />
-              </div>
-              <div class="col-12 d-flex permissiontab mb-2">
-                <div class="sidenav h-100 rounded">
-                  <div class="title d-flex">
-                    <span>App Permissions</span>
-                  </div>
-                  <ul class="app-items p-0 mt-4" style="list-style: none">
-                    <li class="app-item active" mod-id="">JMR</li>
-                    <li class="app-item" mod-id="">Forms</li>
+            <div class="row"></div>
+              <div class="col-12 d-flex permissiontab  mb-2">
+                <div class="sidenav rounded d-flex justify-content-between flex-column">
+                  <ul class="app-items p-0 " style="list-style: none">
+                    <li class="app-item active" mod-id="">Daily Report</li>
+                    <li class="app-item" mod-id="">JMC</li>
+                    <li class="app-item" mod-id="">Planning</li>
+                    <li class="app-item" mod-id="">MS Report</li>
                   </ul>
+                  <button class="btn btn-secondary">Add Module</button>
                 </div>
-                <div class="right h-100 rounded">
-                  <div class="title d-flex justify-content-between">
-                    <span>JMR Permissions</span>
-                    <button class="btn" id="modPermission">
-                      Modify permissions
-                    </button>
-                    <button class="btn d-none" id="savePermission">
-                      Save permissions
-                    </button>
-                  </div>
-                  <div class="permission-items my-2">
-                    <div class="permission-item my-3">
-                      <span class="title mb-1">Daily Report Module</span>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="dr1"
-                          checked
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          View and edit
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="dr2"
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          Overwrite
-                        </label>
-                      </div>
-                    </div>
-                    <div class="permission-item my-3">
-                      <span class="title mb-1">JMC Module</span>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="jmc1"
-                          checked
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          View and edit
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="jmc2"
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          Can view all groups
-                        </label>
-                      </div>
-                    </div>
-                    <div class="permission-item my-3">
-                      <span class="title mb-1">Planning Module</span>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="planning1"
-                          checked
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          View and edit
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="planning2"
-                          disabled
-                        />
-                        <label class="form-check-label" for="flexCheckDefault">
-                          Can view all groups
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <div class="right h-100 w-100 rounded">
+                  
+                
               </div>
             </div>
           </div>
           <!-- <div class="modal-footer">
-            <button type="button" class="btn btn-addEmp">Add Access</button>
+        <button type="button" class="btn btn-addEmp">Add Access</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="close"
+          data-bs-dismiss="modal"
+        >
+          Close
+        </button>
+      </div> -->
+        </div>
+      </div>
+    </div>
+    <!--#endregion-->
+
+    <!--#region Add Application Modal -->
+    <div class="modal fade" data-bs-backdrop="static" id="addApp">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-3">Add New Application</h1>
+            <button
+              type="button"
+              class="btn-close"
+              id=""
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body ">
+            <div class=" col-12 col-md-6 mb-3 color">
+              <label class="form-label" for="appName">Color</label>
+              <div class="colorpick">
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="color1" >
+                  <label class="form-check-label color1 radio" for="inlineRadio1"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="color2">
+                  <label class="form-check-label color2 radio" for="inlineRadio2"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="color3" >
+                  <label class="form-check-label color3 radio" for="inlineRadio3"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="color4" >
+                  <label class="form-check-label color4 radio" for="inlineRadio4"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio5" value="color5" >
+                  <label class="form-check-label color5 radio" for="inlineRadio5"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio6" value="color6" >
+                  <label class="form-check-label color6 radio" for="inlineRadio6"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio7" value="color7" >
+                  <label class="form-check-label color7 radio" for="inlineRadio7"></label>
+                </div>
+                <div class="form-check form-check-inline p-0">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio8" value="color8" >
+                  <label class="form-check-label color8 radio" for="inlineRadio8"></label>
+                </div>
+              
+              </div>
+              <small class="text-danger d-none">Please select a color</small>
+              
+            </div>
+            <div class="mb-3 col-12">
+              <label class="form-label" for="appName">Application Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="appName"
+                placeholder="Application 1"
+                style="color: #333"
+                disabled
+              />
+              <small class="text-danger d-none">Please input application name</small>
+            </div>
+            
+            <div class="mb-3 col-12 ">
+              <label class="form-label" for="appName">Preview</label>
+              <div class="badgePrev"></div>
+            </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-conAddApp" id="confirmaddApp">
+              Add
+            </button>
             <button
               type="button"
               class="btn btn-secondary"
               id="close"
-              data-bs-dismiss="modal"
             >
-              Close
+              Cancel
             </button>
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -324,7 +187,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <h5>Delete all access for this user?</h5>
+            <h5>Do you want to delete this access type?</h5>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" id="btn-delPermission">
@@ -402,28 +265,28 @@
           </div>
         </div>
         <div class="content d-flex justify-content-center row">
-          <div class="table-cont col-md-10 p-4 my-3">
+          <div class="table-cont col-md-10 p-4 my-3 overflow-hidden">
             <div
               class="table-title m-0 d-flex justify-content-between align-items-center"
             >
-              <h1 class="d-flex me-auto">User Permission</h1>
+              <h1 class="d-flex me-auto">Application Permission</h1>
               <div class="right ms-auto d-flex justify-content-between">
                 <button
                   type="button"
-                  id="addEmp"
+                  id="btn-addApp"
                   class="btn mx-1"
-                  title="Add Employee"
+                  title="Add Application"
                   data-bs-toggle="modal"
-                  data-bs-target="#addEmpAccess"
+                  data-bs-target="#addApp"
                   data-bs-dismiss="modal"
                 >
                   <i class="bx bx-fw bxs-user-plus fs-3"></i>
-                  ADD NEW USER
+                  ADD NEW APPLICATION
                 </button>
               </div>
             </div>
 
-            <div class="search mt-3">
+            <!-- <div class="search mt-3">
               <i class="bx bx-search"></i>
               <input
                 type="search"
@@ -431,92 +294,42 @@
                 class="form-control text-dark"
                 placeholder="Search Employee"
               />
-            </div>
+            </div> -->
 
-            <div class="table-container overflow-auto mt-3">
-              <table class="table table-striped">
-                <thead>
-                  <tr class="sticky-top">
-                    <th>Emp No.</th>
-                    <th>Name</th>
-                    <th>App Permissions</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="empList">
-                  <tr trid="487">
-                    <td>487</td>
-                    <td>Collene Medrano</td>
-                    <td class="apps">
-                      <span class="badge forms-badge">Forms</span>
-                      <span class="badge jmr-badge">JMR</span>
-                      <span class="badge mrrs-badge">MRRS</span>
-                      <span class="badge qms-badge">QMS</span>
-                      <span class="badge admin-badge">Admin Controls</span>
-                    </td>
-                    <td class="d-flex gap-1">
-                      <button class="btn btn-view" title="view">
-                        <i class="bx bxs-folder-open"></i>
-                      </button>
-                      <button
-                        class="btn btn-del"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delPermission"
-                        data-bs-dismiss="modal"
-                      >
-                        <i class="bx bx-x fs-5"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr trid="123">
-                    <td>487</td>
-                    <td>Collene Medrano</td>
-                    <td>
-                      <span class="badge text-bg-primary">Forms</span>
-                      <span class="badge text-bg-primary">JMR</span>
-                    </td>
-                    <td class="d-flex gap-1">
-                      <button class="btn btn-view" title="view">
-                        <i class="bx bxs-folder-open"></i>
-                      </button>
-                      <button
-                        class="btn btn-del"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delPermission"
-                        data-bs-dismiss="modal"
-                      >
-                        <i class="bx bx-x fs-5"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr trid="456">
-                    <td>487</td>
-                    <td>Collene Medrano</td>
-                    <td>
-                      <span class="badge text-bg-primary">Forms</span>
-                      <span class="badge text-bg-primary">JMR</span>
-                      <span class="badge text-bg-secondary" title="qms sample2"
-                        >+2 other</span
-                      >
-                    </td>
-                    <td class="d-flex gap-1">
-                      <button class="btn btn-view" title="view">
-                        <i class="bx bxs-folder-open"></i>
-                      </button>
-                      <button
-                        class="btn btn-del"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delPermission"
-                        data-bs-dismiss="modal"
-                      >
-                        <i class="bx bx-x fs-5"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="mt-4 card-cont">
+              <div class="position-relative  d-flex row m-0">
+                <div class="col-md-6  col-xl-3 col-12  mb-3">
+                  <div class="shadow  card-item">
+                    <div class="card-title d-flex  align-items-center gap-2">
+                      <span class="try color1"></span>
+                      <span>JMR</span>
+                      
+                    </div>
+               
+                    <ul class="list-unstyled module-list mt-3 px-3">
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                    </ul>
+                   
+                 
+                  </div>
+              
+                </div>
+               
+                
+                
+              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>

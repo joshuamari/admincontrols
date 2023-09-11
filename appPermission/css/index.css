@@ -12,11 +12,12 @@
   --dark-color: #212529;
   --dark-color2: #23272b;
   --light-color: #333a40;
+  --lightest-color: #585861;
   --card-color: #2f3236;
   --primary-color: #e67b42;
   --secondary-color: #f85e5e;
-
   --text-color: #eee;
+  --green-color: #01b636;
 }
 
 body {
@@ -349,6 +350,22 @@ body {
     font-size: 15px;
   }
 }
+.sidenav {
+  background: var(--light-color);
+  padding: 16px;
+}
+
+.sidenav .app-items .app-item {
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.sidenav .app-items .app-item:hover {
+  background-color: #d9713592;
+}
+.sidenav .app-items .app-item.active {
+  background-color: var(--primary-color);
+}
 
 @media screen and (max-width: 1100px) {
   .table-title {
@@ -370,71 +387,40 @@ body {
     height: calc(100% - 275px);
   }
 }
+@media screen and (max-width: 991px) {
+  .right .title {
+    flex-direction: column;
+  }
+}
 
 /* SPECIFIC CONTENTS */
-.accesscont {
-  position: relative;
-  max-height: 150px;
-  width: 766px;
+.card-cont {
+  height: 90%;
   overflow-y: auto;
-  border: 0.5px solid #585861;
-  border-radius: 6px;
 }
-.accesscont p {
-  line-height: 250%;
+.card-title span {
+  font-size: 24px;
 }
-.accesscont p span {
-  background-color: var(--primary-color);
-  border-radius: 6px;
-  position: relative;
-}
-.accesscont p span .rmv {
+.card-item {
+  background-color: var(--light-color);
+  border-radius: 8px;
+  padding: 16px;
+  height: 320px;
+  overflow: hidden;
   cursor: pointer;
 }
-
-.sidenav {
-  background: var(--light-color);
-  padding: 16px;
-}
-.sidenav .title span,
-.right .title span {
-  font-size: 20px;
-  font-weight: 400;
-  white-space: nowrap;
-}
-
-.sidenav .app-items .app-item {
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.sidenav .app-items .app-item:hover {
-  background-color: #d9713592;
-}
-.sidenav .app-items .app-item.active {
-  background-color: var(--primary-color);
-}
-.permissiontab .right {
-  background: var(--light-color);
-  width: 100%;
-  margin-left: 5px;
-  padding: 16px;
-}
-.permissiontab .right .title #modPermission {
-  background-color: var(--primary-color);
-  color: #e7e7e7;
-}
-.permissiontab .right .title #savePermission {
-  background-color: #01b636;
-  color: #e7e7e7;
-}
-.permission-item span {
-  font-size: 18px;
-}
-.permission-items,
-.app-items {
-  max-height: 450px;
+.module-list {
   overflow-y: auto;
+  height: 80%;
+}
+.module-list li {
+  padding: 6px 0;
+}
+.module-list li:not(:last-child) {
+  border-bottom: 1px solid #485159;
+}
+.module-list {
+  background-color: #3f474e;
 }
 
 .btn-del {
@@ -461,25 +447,96 @@ body {
 .btn-view:hover {
   background-color: #be5c24;
 }
-.forms-badge {
-  background-color: #009688;
-}
 
-.mrrs-badge {
+.color1 {
   background-color: #e27084;
 }
-.qms-badge {
-  background-color: #ffd666;
-  color: #212529 !important;
+.color2 {
+  background-color: #f25c5f;
 }
-.admin-badge {
-  background-color: #e8644d;
+.color3 {
+  background-color: #f48668;
+  color: #333 !important;
 }
-.jmr-badge {
-  background-color: #396299;
+.color4 {
+  background-color: #ffc971;
+  color: #333 !important;
 }
-@media screen and (max-width: 991px) {
-  .right .title {
-    flex-direction: column;
-  }
+.color5 {
+  background-color: #90be6d;
+  color: #333 !important;
+}
+.color6 {
+  background-color: #43aa8b;
+}
+.color7 {
+  background-color: #5e8ba8;
+}
+.color8 {
+  background-color: #9593d9;
+  color: #333 !important;
+}
+.colorpick {
+  display: flex;
+}
+.colorpick .radio {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+.try {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+.sidenav {
+  background: var(--light-color);
+  padding: 16px;
+}
+.sidenav button {
+  white-space: nowrap;
+}
+.sidenav .app-items .app-item {
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sidenav .app-items .app-item:hover {
+  background-color: #d9713592;
+}
+.sidenav .app-items .app-item.active {
+  background-color: var(--primary-color);
+}
+
+.colorpick input:checked + .radio {
+  border: 2px solid var(--text-color);
+}
+.colorpick input {
+  display: none;
+}
+.badgePrev span {
+  font-size: 20px;
+}
+.btn-conAddApp {
+  background-color: var(--primary-color);
+}
+.btn-conAddApp:hover,
+.btn-conAddApp:active {
+  background-color: #be5c24;
+}
+.permissiontab .right {
+  background: var(--light-color);
+  width: 100%;
+  margin-left: 5px;
+  padding: 16px;
+}
+.permissiontab .right .title #modPermission {
+  background-color: var(--primary-color);
+  color: #e7e7e7;
+}
+.permissiontab .right .title #savePermission {
+  background-color: #01b636;
+  color: #e7e7e7;
 }
