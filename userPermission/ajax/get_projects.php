@@ -13,7 +13,7 @@ $projectsArray = array();
 #endregion
 
 #region Entries Query
-$permissionQ = "SELECT kp.project_name,kp.project_id,km.module_name,km.module_id,p.permission_name,p.permission_id FROM  p_permissions AS p JOIN kdtwebprojects AS kp ON p.project_id=kp.project_id JOIN kdtproject_modules AS km ON p.module_id=km.module_id ORDER BY kp.project_id,km.module_id,p.permission_id";
+$permissionQ = "SELECT kp.project_name,kp.project_id,km.module_name,km.module_id,p.permission_name,p.permission_id FROM  p_permissions AS p JOIN kdtproject_modules AS km ON p.module_id=km.module_id JOIN kdtwebprojects AS kp ON kp.project_id=km.project_id ORDER BY kp.project_id,km.module_id,p.permission_id";
 $permissionStmt = $connkdt->query($permissionQ);
 if ($permissionStmt->rowCount() > 0) {
     $permissionArr = $permissionStmt->fetchAll();

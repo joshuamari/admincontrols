@@ -134,7 +134,7 @@ function getBadges(projArray) {
   var addString = ``;
   Object.keys(projArray).forEach((proj) => {
     const myClass = projArray[proj];
-    addString += `<span class="badge ${myClass}-badge">${proj}</span>`;
+    addString += `<span class="badge ${myClass}">${proj}</span>`;
   });
   return addString;
 }
