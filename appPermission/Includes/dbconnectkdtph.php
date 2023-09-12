@@ -1,27 +1,20 @@
-<?php 
+<?php
 $servername = "localhost";
 $username = "root";
 $password = "";
 try {
   $connkdt = new PDO("mysql:host=localhost;dbname=kdtphdb", $username, $password);
-  $gods=["464","465","487"];
+  $gods = ["464", "487"];
 
-  $itMembers=array();
-  $itQ="SELECT fldEmployeeNum FROM emp_prof WHERE fldGroup='IT' AND fldActive=1";
-  $itStmt=$connkdt->query($itQ);
-  $itArr=$itStmt->fetchAll();
-  foreach($itArr AS $its){
-    array_push($itMembers,$its['fldEmployeeNum']);
+  $sysMembers = array();
+  $sysQ = "SELECT fldEmployeeNum FROM emp_prof WHERE fldGroup='SYS' AND fldActive=1";
+  $sysStmt = $connkdt->query($sysQ);
+  $sysArr = $sysStmt->fetchAll();
+  foreach ($sysArr as $sys) {
+    array_push($sysMembers, $sys['fldEmployeeNum']);
   }
-  $allAccess=array();
-  $allAccess=array_merge($gods,$itMembers);
-  
-  if(isset($_COOKIE["userID"]))
-  $userHash=$_COOKIE["userID"];
-  else
-  $userHash='';
-} catch(PDOException $e) {
+  $allAccess = array();
+  $allAccess = array_merge($gods, $sysMembers);
+} catch (PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
 }
-?>
-

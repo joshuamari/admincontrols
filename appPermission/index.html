@@ -18,7 +18,7 @@
     <script>
       var busterCall = ["js/main.js", "css/index.css"];
       $.post(
-        "ajax/getVersion.php",
+        "ajax/get_version.php",
         {
           busterCall: busterCall,
           titleName: "App Permission",
@@ -38,7 +38,7 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-3">JMR</h1>
+            <h1 class="modal-title fs-3" id="viewProjTitle">JMR</h1>
             <button
               type="button"
               class="btn-close"
@@ -68,7 +68,7 @@
                 <div class="overflow-auto mt-3" style="height: 90%">
                   <table class="table table-hover ">
                     
-                    <tbody>
+                    <tbody id="permList">
                       <tr >
                         <td colspan="2" style="vertical-align: middle;">View and Edit</td>
                         
@@ -321,6 +321,30 @@
 
             <div class="mt-4 card-cont">
               <div class="position-relative  d-flex row m-0" id="cardContainer">
+                <div class="col-md-6  col-xl-3 col-12  mb-3" >
+                  <div class="shadow  card-item">
+                    <div class="card-title d-flex align-items-center gap-2">
+                      <span class="try color1"></span>
+                      <span>JMR</span>
+                    </div>
+               
+                    <ul class="list-unstyled module-list mt-3 px-3">
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                      <li>Daily Report</li>
+                      <li>JMC</li>
+                      <li>Planning</li>
+                      <li>MH Report</li>
+                    </ul>
+                  </div>
+                </div>
+
                 <div class="col-md-6  col-xl-3 col-12  mb-3" >
                   <div class="shadow  card-item">
                     <div class="card-title d-flex align-items-center gap-2">

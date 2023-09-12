@@ -8,22 +8,21 @@ date_default_timezone_set('Asia/Manila');
 #endregion
 
 #region initialize variables
-$empNum='';
-if(!empty($_POST['empNum'])){
-    $empNum=$_POST['empNum'];
+$empNum = NULL;
+if (!empty($_POST['empNum'])) {
+    $empNum = $_POST['empNum'];
 }
-$output=0;
+$access = FALSE;
 #endregion
 
-#region main
-if(in_array($empNum,$allAccess)){
-    $output=1;
+#region main query
+if (in_array($empNum, $sysMembers)) {
+    $access = TRUE;
 }
 #endregion
 
 #region function
 
 #endregion
-//$.ajaxSetup({async: false});
-echo $output;
-?>
+
+echo json_encode($access);

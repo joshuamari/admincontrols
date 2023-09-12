@@ -11,12 +11,9 @@ switch (document.location.hostname) {
     break;
 }
 var empDetails = [];
-var accessType = [];
-var eid;
-checkLogin();
-adminAccess();
+var projects = [];
 //#endregion
-
+checkLogin();
 //#region BINDS
 $(document).ready(function () {
   $(".hello-user").text(empDetails["empFName"]);
@@ -28,6 +25,7 @@ $(document).ready(function () {
   list.forEach((item) => item.addEventListener("click", activeLink));
 
   $(".startli").click();
+  getProjects();
 });
 
 $(document).on("click", ".toggle", function () {
@@ -56,6 +54,8 @@ $(document).on("click", "#close", function () {
 });
 $(document).on("click", ".card-item", function () {
   $("#viewPermissions").modal("show");
+  var projID = parseInt($(this).attr("proj-id"));
+  openProject(projID);
 });
 $(document).on("click", "#btn-addAccessType", function () {
   var newAT = `
@@ -92,6 +92,7 @@ $(document).on("click", ".mod-item", function () {
   $(".right .title span").text(txt + " Access Types");
   $("#btn-cancelAddTR").click();
   $("#row-addAT").removeClass("d-none");
+  clickModule();
 });
 $(document).on("click", "#confirmaddApp", function () {
   var val = $("input[type='radio']:checked").val();
@@ -135,6 +136,111 @@ $(document).on("click", "#btn-saveModule", function () {
 //#endregion
 
 //#region FUNCTIONS
+function checkLogin() {
+  $.ajax({
+    url: "Includes/check_login.php",
+    success: function (data) {
+      empDetails = $.parseJSON(data);
+      if (Object.keys(empDetails).length < 1) {
+        window.location.href = rootFolder + "/KDTPortalLogin";
+      }
+      adminAccess();
+    },
+    async: false,
+  });
+}
+function adminAccess() {
+  $.post(
+    "ajax/check_admin.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (!access) {
+        alert("Access denied");
+        window.location.href = `${rootFolder}`;
+      }
+    }
+  );
+}
+function getProjects() {
+  $("#cardContainer").empty();
+  $.ajax({
+    url: "ajax/get_projects.php",
+    success: function (response) {
+      projects = $.parseJSON(response);
+      displayProjects();
+      console.log(projects);
+    },
+  });
+}
+function displayProjects() {
+  var addString = "";
+  Object.keys(projects).forEach((projectName) => {
+    const projectDetails = projects[projectName];
+    const projectId = projectDetails.project_id;
+    const projColor = projectDetails.project_color;
+    addString += `<div class="col-md-6  col-xl-3 col-12  mb-3" >
+    <div class="shadow  card-item" proj-id="${projectId}">
+      <div class="card-title d-flex align-items-center gap-2">
+        <span class="try ${projColor}"></span>
+        <span>${projectName}</span>
+      </div><ul class="list-unstyled module-list mt-3 px-3">`;
+    Object.keys(projectDetails.modules).forEach((moduleName) => {
+      const moduleDetails = projectDetails.modules[moduleName];
+      const moduleId = moduleDetails.module_id;
+      addString += `<li>${moduleName}</li>`;
+    });
+    addString += `</ul></div></div>`;
+  });
+  $("#cardContainer").html(addString);
+}
+function openProject(projID) {
+  $(".mod-items").empty();
+  var addString = "";
+  Object.entries(projects).forEach(([projectName, projectDetails]) => {
+    if (projectDetails.project_id === projID) {
+      const modules = projectDetails.modules;
+      $("#viewProjTitle").text(projectName);
+      Object.keys(modules).forEach((moduleName) => {
+        const moduleId = modules[moduleName].module_id;
+        addString += `<li class="mod-item" mod-id=${moduleId}>${moduleName}</li>`;
+      });
+    }
+  });
+  $(".mod-items").html(addString);
+  $(".mod-items li:first-child").click();
+}
+function clickModule() {
+  $("#permList").empty();
+  var addString = "";
+  var modID = parseInt($(".mod-item.active").attr("mod-id"));
+  Object.values(projects).forEach((projectDetails) => {
+    const modules = projectDetails.modules;
+
+    Object.keys(modules).forEach((moduleName) => {
+      const module = modules[moduleName];
+
+      if (module.module_id === modID) {
+        const permissions = module.permissions;
+        Object.entries(permissions).forEach(
+          ([permissionName, permissionValue]) => {
+            console.log(
+              `Permission: ${permissionName}, Value: ${permissionValue}`
+            );
+            addString += `<tr><td colspan="2" style="vertical-align: middle;">${permissionName}</td></tr>`;
+          }
+        );
+      }
+    });
+  });
+  addString += `<tr id="row-addAT">
+  <td colspan="2" style="text-align: center; background-color: #293134;"><button class="btn text-center w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
+</tr>`;
+
+  $("#permList").html(addString);
+}
 function addApp(name, color) {
   var str = `
   <div class="col-md-6  col-xl-3 col-12  mb-3" >
@@ -154,39 +260,4 @@ function addApp(name, color) {
 
   $("#cardContainer").append(str);
 }
-function checkLogin() {
-  //check if user is logged in
-  $.ajax({
-    url: "Includes/checkLogin.php",
-    success: function (data) {
-      //ajax to check 9 is logged in
-      empDetails = $.parseJSON(data);
-      if (Object.keys(empDetails).length < 1) {
-        //if result is 0, redirect to log in page
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    },
-    async: false,
-  });
-}
-
-function adminAccess() {
-  //check if user has access to jmc
-  $.post(
-    "ajax/checkAdminAccess.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      if (data.trim() == 0) {
-        alert("Access denied");
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    }
-  );
-}
-
-//#endregion
-// var projID=$($(this).find('option:selected')).attr('proj-id');
-
 //#endregion
