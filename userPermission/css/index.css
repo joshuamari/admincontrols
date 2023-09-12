@@ -18,6 +18,34 @@
 
   --text-color: #eee;
 }
+.color1 {
+  background-color: #e27084;
+}
+.color2 {
+  background-color: #f25c5f;
+}
+.color3 {
+  background-color: #f48668;
+  color: #333 !important;
+}
+.color4 {
+  background-color: #ffc971;
+  color: #333 !important;
+}
+.color5 {
+  background-color: #90be6d;
+  color: #333 !important;
+}
+.color6 {
+  background-color: #43aa8b;
+}
+.color7 {
+  background-color: #5e8ba8;
+}
+.color8 {
+  background-color: #9593d9;
+  color: #333 !important;
+}
 
 body {
   height: 100vh;
