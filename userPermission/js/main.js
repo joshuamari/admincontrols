@@ -10,16 +10,13 @@ switch (document.location.hostname) {
     rootFolder = "//kdt-ph/";
     break;
 }
+var devs = [464, 487];
 var empDetails = [];
-var accessType = [];
-var eid;
-checkLogin();
-adminAccess();
+var permissions = [];
 //#endregion
-
+checkLogin();
 //#region BINDS
 $(document).ready(function () {
-  $(".hello-user").text(empDetails["empFName"]);
   let list = document.querySelectorAll(".navigation li");
   function activeLink() {
     list.forEach((item) => item.classList.remove("active"));
@@ -29,13 +26,10 @@ $(document).ready(function () {
 
   $(".startli").click();
 
-  getGroups();
+  getEmployees();
+  getProjects();
 });
 
-$(document).on("click", ".btn-addEmp", function () {
-  addEmpAccess();
-});
-$(document).on("click", "#addEmp", function () {});
 $(document).on("click", ".toggle", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
@@ -47,55 +41,23 @@ $(document).on("click", ".btn-view", function () {
   $("#addPermission").modal("show");
   $("#empNamePermission").val(name);
   $("#empIDPermission").val(eNum);
-  getEmpDetails(eNum);
+  $(".app-items li:first-child").click();
 });
-
-$(document).on("click", "#close", function () {
-  resetAdd();
-});
-$(document).on("click", "#xadd", function () {
-  $("#close").click();
-  resetAdd();
-});
-$(document).on("click", ".btn-close", function () {
-  $("#clos").click();
-  resetAdd();
-});
-
-$(document).on("keyup", "#searchWord", function () {
+$(document).on("input", "#searchWord", function () {
   getEmployees();
-});
-$(document).on("search", "#searchWord", function () {
-  getEmployees();
-});
-$(document).on("click", ".rmv", function () {
-  var removeID = $($(this).parent()).attr("val");
-  var index = accessType.indexOf(removeID);
-  if (index !== -1) {
-    accessType.splice(index, 1);
-  }
-  console.log(accessType);
-  $(this).parent().remove();
-});
-$(document).on("change", "#accessType", function () {
-  var access = $("#accessType option:selected").val();
-  var txt = $(`#accessType option:selected`).text();
-  var badge = `<span class="mx-1 p-1 w-100 " val=${access} >
-      ${txt} <i class="bx bx-x ps-1 rmv"></i>
-    </span>`;
-
-  accessType.push(access);
-
-  $(".accesscont p").append(badge);
 });
 $(document).on("click", ".app-item", function () {
   var tab = $(this).text();
+  var projID = $(this).attr("mod-id");
   $(".app-item").removeClass("active");
   $(this).addClass("active");
 
   $(".right .title span").text(tab + " Permissions");
   $("#savePermission").addClass("d-none");
   $("#modPermission").removeClass("d-none");
+  viewModules(projID);
+  getPermissions(projID);
+  $(".permission-items .form-check-input").attr("disabled", true);
 });
 $(document).on("click", "#modPermission", function () {
   $(this).toggleClass("d-none");
@@ -105,6 +67,7 @@ $(document).on("click", "#modPermission", function () {
 $(document).on("click", "#savePermission", function () {
   $(this).toggleClass("d-none");
   $("#modPermission").toggleClass("d-none");
+  savePermissions();
   $(".permission-items .form-check-input").attr("disabled", true);
 });
 $(document).on("click", "#mclose", function () {
@@ -112,63 +75,34 @@ $(document).on("click", "#mclose", function () {
   $("#modPermission").removeClass("d-none");
 });
 
-$(document).on("click", ".btn-del", function () {
-  eid = $(this).closest("tr").attr("trid");
-  console.log(eid);
-});
-$(document).on("click", "#btn-delPermission", function () {
-  $("#empList tr[trid='" + eid + "']").remove();
-  $(".btn-close").click();
-});
-
 //#endregion
 
 //#region FUNCTIONS
 function checkLogin() {
-  //check if user is logged in
   $.ajax({
     url: "Includes/checkLogin.php",
     success: function (data) {
-      //ajax to check 9 is logged in
       empDetails = $.parseJSON(data);
       if (Object.keys(empDetails).length < 1) {
-        //if result is 0, redirect to log in page
         window.location.href = rootFolder + "/KDTPortalLogin";
+      } else {
+        if (!devs.includes(parseInt(empDetails["empNum"]))) {
+          window.location.href = rootFolder + "/KDTPortalLogin";
+        }
+        $(`.hello-user`).text(`${empDetails["empFName"]}`);
       }
     },
     async: false,
   });
 }
-
-function adminAccess() {
-  //check if user has access to jmc
-  $.post(
-    "ajax/checkAdminAccess.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      if (data.trim() == 0) {
-        alert("Access denied");
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    }
-  );
-}
-
 function getEmployees() {
   var employees = [];
   var searchWord = $("#searchWord").val();
-  var active = 0;
-  if ($("#activeOnly").is(":checked")) {
-    active = 1;
-  }
   $("#empList").empty();
   $.post(
-    "ajax/getEmployees.php",
+    "ajax/get_employees.php",
     {
       searchWord: searchWord,
-      active: active,
     },
     function (data) {
       employees = $.parseJSON(data);
@@ -176,70 +110,119 @@ function getEmployees() {
     }
   );
 }
-function fillEmployees(iVal) {
-  var addString = ``;
-  var employeeNumber = iVal.split("||")[0];
-  var employeeName = iVal.split("||")[1];
-  var employeeUser = iVal.split("||")[2];
-  var employeeDepartment = iVal.split("||")[3];
-  var employeeGroup = iVal.split("||")[4];
-  var employeePosition = iVal.split("||")[5];
-  addString = `<tr class='emp'>
-<td>${employeeNumber}</td>
-<td>${employeeName}</td>
-<td>${employeeUser}</td>
-<td>${employeeDepartment}</td>
-<td>${employeeGroup}</td>
-<td>${employeePosition}</td>
-</tr>`;
+function fillEmployees(empDeets) {
+  var emp_id = empDeets["emp_id"];
+  var emp_name = empDeets["emp_name"];
+  var projs = empDeets["projs"];
+  var projData = getBadges(projs);
+  var addString = `
+  <tr trid='${emp_id}'>
+  <td>${emp_id}</td>
+  <td>${emp_name}</td>
+  <td class='apps'>
+  ${projData}
+  </td>
+  <td class="d-flex gap-1">
+                      <button class="btn btn-view" title="view">
+                        <i class="bx bxs-folder-open"></i>
+                      </button>
+                    </td>
+  </tr>`;
   $("#empList").append(addString);
 }
-function getEmpDetails(iVal) {
-  var empDeetsArray = [];
-  $.post(
-    "ajax/getEmpDetails.php",
-    {
-      empNum: iVal,
-    },
-    function (data) {
-      empDeetsArray = $.parseJSON(data);
-      // console.log(empDeetsArray)
-    }
-  );
-}
-
-function getGroups() {
-  var grps = [];
-  $(".empGroup").empty();
-
+function getBadges(projArray) {
   var addString = ``;
-  $(".empGroup").html(`<option value='' hidden>Select Group</option>`);
-
+  Object.keys(projArray).forEach((proj) => {
+    const myClass = projArray[proj];
+    addString += `<span class="badge ${myClass}-badge">${proj}</span>`;
+  });
+  return addString;
+}
+function getProjects() {
+  $(".app-items").empty();
   $.ajax({
-    url: "ajax/getGroups.php",
-    success: function (data) {
-      grps = $.parseJSON(data);
-      grps.forEach((element) => {
-        addString = `<option style="color: #333;">${element}</option>`;
-        $(".empGroup").append(addString);
-      });
+    url: "ajax/get_projects.php",
+    success: function (response) {
+      permissions = $.parseJSON(response);
+      fillProjects();
     },
   });
 }
-
-function addEmpAccess() {
-  var grp = $("#groupSel").val();
-  var empid = $("#empID").val();
-  var app = $("#appSel").val();
-  var module = $("#moduleSel").val();
-  var access = $;
+function fillProjects() {
+  var addString = "";
+  Object.keys(permissions).forEach((proj) => {
+    const projName = permissions[proj]["project_name"];
+    addString += `<li class="app-item" mod-id="${proj}">${projName}</li>`;
+  });
+  $(".app-items").html(`${addString}`);
 }
-function resetAdd() {
-  $("#addEmpnum").val("");
-  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("d-none");
-}
+function viewModules(projID) {
+  $(".permission-items").empty();
+  var addString = "";
+  const filteredData = permissions[projID].modules;
+  Object.keys(filteredData).forEach((outerKey) => {
+    const innerObject = filteredData[outerKey];
+    addString += `<div class="permission-item my-3">
+    <span class="title mb-1">${outerKey} Module</span>`;
 
-//#endregion
-// var projID=$($(this).find('option:selected')).attr('proj-id');
+    Object.keys(innerObject).forEach((innerKey) => {
+      const innerValue = innerObject[innerKey];
+      addString += `<div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        value=""
+        perm-id="${innerKey}"
+      />
+      <label class="form-check-label" for="flexCheckDefault">
+        ${innerValue}
+      </label></div>`;
+    });
+    addString += `</div>`;
+  });
+  $(".permission-items").html(addString);
+}
+function getPermissions(projID) {
+  var empID = $("#empIDPermission").val();
+  $.post(
+    "ajax/get_permissions.php",
+    {
+      projID: projID,
+      empID: empID,
+    },
+    function (data) {
+      var perms = $.parseJSON(data);
+      perms.forEach(function (projectId) {
+        $(`.form-check input[type="checkbox"][perm-id="${projectId}"]`).prop(
+          "checked",
+          true
+        );
+      });
+    }
+  );
+}
+function savePermissions() {
+  var projID = $(".app-item.active").attr("mod-id");
+  var empID = $("#empIDPermission").val();
+  var perm = [];
+  $(".form-check-input:checked").each(function () {
+    perm.push(parseInt($(this).attr("perm-id")));
+  });
+  $.post(
+    "ajax/save_permissions.php",
+    {
+      empID: empID,
+      projID: projID,
+      perm: perm,
+    },
+    function (data) {
+      if ($.parseJSON(data)) {
+        alert(`Save failed: ${data}`);
+      }
+      getPermissions(projID);
+      getEmployees();
+    }
+  );
+}
 
 //#endregion
