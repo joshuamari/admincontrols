@@ -48,6 +48,7 @@ $(document).on("keyup", "#appName", function () {
 $(document).on("click", ".btn-close", function () {
   $(".badgePrev").empty();
   $("#appName").val("");
+  $("#appName").prop("disabled", true);
   $("input[type='radio']").prop("checked", false);
 });
 $(document).on("click", "#close", function () {
@@ -74,6 +75,7 @@ $(document).on("click", "#btn-addAccessType", function () {
 $(document).on("click", "#btn-cancelAddTR", function () {
   $(this).closest("tr").remove();
   $(this).closest("tr").find("input").val("");
+  $("#row-addAT").removeClass("d-none");
 });
 $(document).on("click", "#btn-saveAccessType", function () {
   $("#btn-addAccessType").closest("tr").removeClass("d-none");
@@ -113,6 +115,22 @@ $(document).on("click", "#confirmaddApp", function () {
 });
 $(document).on("click", "input[type='radio']", function () {
   $(".colorpick").siblings("small").addClass("d-none");
+});
+$(document).on("click", "#btn-addModule", function () {
+  $(".mod-items").append(`
+  
+  <li class="mod-item eto" mod-id=""><input style="border: 1px solid #ccc; "  type="text" class="form-control" placeholder="module name"/></li>`);
+  $("#btn-saveModule, #btn-addModule").toggleClass("d-none");
+});
+$(document).on("click", "#btn-saveModule", function () {
+  var val = $(".mod-item:last input").val();
+  $("#btn-saveModule, #btn-addModule").toggleClass("d-none");
+
+  if (!val) {
+    $(".mod-items").find("li:last").remove();
+  } else {
+    $(".mod-item:last").html(val);
+  }
 });
 //#endregion
 
