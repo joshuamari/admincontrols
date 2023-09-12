@@ -42,26 +42,48 @@
             <button
               type="button"
               class="btn-close"
-              id=""
+              id="closeAppModal"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
           </div>
           <div class="modal-body">
-            <div class="row"></div>
+            
               <div class="col-12 d-flex permissiontab  mb-2">
                 <div class="sidenav rounded d-flex justify-content-between flex-column">
-                  <ul class="app-items p-0 " style="list-style: none">
-                    <li class="app-item active" mod-id="">Daily Report</li>
-                    <li class="app-item" mod-id="">JMC</li>
-                    <li class="app-item" mod-id="">Planning</li>
-                    <li class="app-item" mod-id="">MS Report</li>
+                  <ul class="mod-items p-0 " style="list-style: none">
+                    <li class="mod-item active" mod-id="">Daily Report</li>
+                    <li class="mod-item" mod-id="">JMC</li>
+                    <li class="mod-item" mod-id="">Planning</li>
+                    <li class="mod-item" mod-id="">MS Report</li>
                   </ul>
                   <button class="btn btn-secondary">Add Module</button>
                 </div>
-                <div class="right h-100 w-100 rounded">
+                <div class="right  w-100 rounded">
                   
-                
+                <div class="title">
+                  <span>Daily Report Access Types</span>
+                </div>
+                <div class="overflow-auto mt-3" style="height: 90%">
+                  <table class="table table-hover ">
+                    
+                    <tbody>
+                      <tr >
+                        <td colspan="2" style="vertical-align: middle;">View and Edit</td>
+                        
+                      </tr>
+                      <tr >
+                        <td colspan="2" style="vertical-align: middle;">View and Edit</td>
+                        
+                      </tr>
+                     
+                      <tr id="row-addAT">
+                        <td colspan="2" style="text-align: center; background-color: #293134;"><button class="btn text-center w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
+                      </tr>
+                     
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -297,13 +319,12 @@
             </div> -->
 
             <div class="mt-4 card-cont">
-              <div class="position-relative  d-flex row m-0">
-                <div class="col-md-6  col-xl-3 col-12  mb-3">
+              <div class="position-relative  d-flex row m-0" id="cardContainer">
+                <div class="col-md-6  col-xl-3 col-12  mb-3" >
                   <div class="shadow  card-item">
-                    <div class="card-title d-flex  align-items-center gap-2">
+                    <div class="card-title d-flex align-items-center gap-2">
                       <span class="try color1"></span>
                       <span>JMR</span>
-                      
                     </div>
                
                     <ul class="list-unstyled module-list mt-3 px-3">
@@ -320,14 +341,9 @@
                       <li>Planning</li>
                       <li>MH Report</li>
                     </ul>
-                   
-                 
                   </div>
-              
                 </div>
                
-                
-                
               </div>
             </div>
         </div>

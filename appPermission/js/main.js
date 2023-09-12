@@ -56,9 +56,86 @@ $(document).on("click", "#close", function () {
 $(document).on("click", ".card-item", function () {
   $("#viewPermissions").modal("show");
 });
+$(document).on("click", "#btn-addAccessType", function () {
+  var newAT = `
+  <tr style="background-color:#2f363b;">
+    <td colspan="1" style="vertical-align: middle;">
+     <input type="text" class="form-control" placeholder="Access name"/>
+    </td>
+    <td style="text-align: end;" colspan="1">
+      <button id="btn-saveAccessType" class="btn d-inline-block justify-content-center p-0 me-1" title="Save" style="height: 35px; width: 35px; background-color: var(--green-color);"><i class='bx bx-save m-0' ></i></button>
+      <button class="btn btn-danger d-inline-block justify-content-center p-0" title="Cancel" id="btn-cancelAddTR" style="height: 35px; width: 35px;"><i class='bx bx-x m-0' ></i></i></button>
+    </td>
+  </tr>`;
+
+  $(newAT).insertBefore("#row-addAT");
+  $(this).closest("tr").addClass("d-none");
+});
+$(document).on("click", "#btn-cancelAddTR", function () {
+  $(this).closest("tr").remove();
+  $(this).closest("tr").find("input").val("");
+});
+$(document).on("click", "#btn-saveAccessType", function () {
+  $("#btn-addAccessType").closest("tr").removeClass("d-none");
+  // SAVE ACCESS TYPE
+});
+$(document).on("click", "#closeAppModal", function () {
+  $("#btn-cancelAddTR").click();
+});
+$(document).on("click", ".mod-item", function () {
+  $(".mod-item").removeClass("active");
+  $(this).addClass("active");
+
+  var txt = $(this).text();
+  $(".right .title span").text(txt + " Access Types");
+  $("#btn-cancelAddTR").click();
+  $("#row-addAT").removeClass("d-none");
+});
+$(document).on("click", "#confirmaddApp", function () {
+  var val = $("input[type='radio']:checked").val();
+  var name = $("#appName").val();
+  var err;
+  if (!val) {
+    $(".colorpick").siblings("small").removeClass("d-none");
+    err++;
+  }
+  if (!name) {
+    $("#appName").siblings("small").removeClass("d-none");
+    err++;
+  }
+
+  if (err > 0) {
+    return;
+  } else {
+    addApp(name, val);
+    $("#close").click();
+  }
+});
+$(document).on("click", "input[type='radio']", function () {
+  $(".colorpick").siblings("small").addClass("d-none");
+});
 //#endregion
 
 //#region FUNCTIONS
+function addApp(name, color) {
+  var str = `
+  <div class="col-md-6  col-xl-3 col-12  mb-3" >
+    <div class="shadow  card-item">
+      <div class="card-title d-flex align-items-center gap-2">
+        <span class="try ${color}"></span>
+        <span>${name}</span>
+      </div>
+  
+      <ul class="list-unstyled module-list mt-3 px-3">
+       <li class="w-100 h-100 text-center justify-self-center "
+       style="    color: rgba(255, 255, 255, 0.6) !important;">
+       No modules found. Please click to add module</li>
+      </ul>
+    </div>
+  </div>`;
+
+  $("#cardContainer").append(str);
+}
 function checkLogin() {
   //check if user is logged in
   $.ajax({
