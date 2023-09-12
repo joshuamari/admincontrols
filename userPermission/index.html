@@ -32,116 +32,7 @@
     <!--#endregion -->
   </head>
 
-  <body>
-    <!--#region Add user Modal -->
-    <div class="modal fade" data-bs-backdrop="static" id="addEmpAccess">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Add access to employee</h1>
-            <button
-              type="button"
-              class="btn-close"
-              id="xadd"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="mb-3 col-12 col-md-8">
-                <label class="form-label" for="groupSel">Group</label>
-                <select name="" id="groupSel" class="form-select">
-                  <option value="" hidden selected>Select group</option>
-                  <option value="0">SYS</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select group</span
-                >
-              </div>
-              <div class="mb-3 col-12 col-md-6">
-                <label class="form-label" for="empSel">Employee Name</label>
-                <select name="" id="empSel" class="form-select">
-                  <option value="" hidden selected>Select employee</option>
-                  <option value="0">Joshua Coquia</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select employee</span
-                >
-              </div>
-              <div class="mb-3 col-12 col-md-6">
-                <label class="form-label" for="empID">Emp ID</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="empID"
-                  placeholder="000"
-                  style="color: #333"
-                  disabled
-                />
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="appSel">Web Application</label>
-                <select name="" id="appSel" class="form-select">
-                  <option value="" hidden selected>
-                    Select web application
-                  </option>
-                  <option value="0">JMR</option>
-                  <option value="1">Forms</option>
-                  <option value="2">MRRS</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select web application</span
-                >
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="moduleSel">Module</label>
-                <select
-                  name="module selection"
-                  id="moduleSel"
-                  class="form-select"
-                >
-                  <option value="" hidden selected>Select module</option>
-                  <option value="0">Daily Report</option>
-                  <option value="1">JMC</option>
-                  <option value="2">Planning</option>
-                </select>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select module</span
-                >
-              </div>
-              <div class="mb-3 col-12">
-                <label class="form-label" for="accessType">Access Type</label>
-                <select name="access type" id="accessType" class="form-select">
-                  <option value="" hidden>Select access type</option>
-                  <option value="0">View only</option>
-                  <option value="1">View and edit</option>
-                  <option value="2">View all groups</option>
-                </select>
-                <div class="p-2 border-1 col-12 mt-2 m-0 accesscont">
-                  <p class="m-0 w-100 position-relative p-2"></p>
-                </div>
-                <span class="d-none errMsg" style="color: #f85e5e"
-                  >Please select module</span
-                >
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-0">
-            <button type="button" class="btn btn-addEmp">Add Access</button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              id="close"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--#endregion-->
+  <body>    
     <!--#region Add permission Modal -->
     <div class="modal fade" data-bs-backdrop="static" id="addPermission">
       <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -308,42 +199,6 @@
       </div>
     </div>
     <!--#endregion-->
-
-    <!--#region delete permission Modal -->
-    <div class="modal fade" data-bs-backdrop="static" id="delPermission">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Delete Access</h1>
-            <button
-              type="button"
-              class="btn-close"
-              id=""
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <h5>Delete all access for this user?</h5>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" id="btn-delPermission">
-              Delete
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              id="close"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--#endregion-->
-
     <div class="containerr">
       <div class="navigation">
         <ul>
@@ -408,18 +263,6 @@
             >
               <h1 class="d-flex me-auto">User Permission</h1>
               <div class="right ms-auto d-flex justify-content-between">
-                <button
-                  type="button"
-                  id="addEmp"
-                  class="btn mx-1"
-                  title="Add Employee"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addEmpAccess"
-                  data-bs-dismiss="modal"
-                >
-                  <i class="bx bx-fw bxs-user-plus fs-3"></i>
-                  ADD NEW USER
-                </button>
               </div>
             </div>
 
