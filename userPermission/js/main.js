@@ -86,14 +86,27 @@ function checkLogin() {
       if (Object.keys(empDetails).length < 1) {
         window.location.href = rootFolder + "/KDTPortalLogin";
       } else {
-        if (!devs.includes(parseInt(empDetails["empNum"]))) {
-          window.location.href = rootFolder + "/KDTPortalLogin";
-        }
+        adminAccess();
         $(`.hello-user`).text(`${empDetails["empFName"]}`);
       }
     },
     async: false,
   });
+}
+function adminAccess() {
+  $.post(
+    "ajax/check_admin.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (!access) {
+        alert("Access denied");
+        window.location.href = `${rootFolder}`;
+      }
+    }
+  );
 }
 function getEmployees() {
   var employees = [];

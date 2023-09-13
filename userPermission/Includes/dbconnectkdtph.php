@@ -21,6 +21,13 @@ try {
     PDO::ATTR_AUTOCOMMIT => false
 
   ]);
+  $sysItMembers = array();
+  $sysItQ = "SELECT fldEmployeeNum FROM emp_prof WHERE fldGroup IN ('IT','SYS') AND fldActive=1";
+  $sysItStmt = $connkdt->query($sysItQ);
+  $sysItArr = $sysItStmt->fetchAll();
+  foreach ($sysItArr as $sis) {
+    array_push($sysItMembers, $sis['fldEmployeeNum']);
+  }
 } catch (PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
 }
