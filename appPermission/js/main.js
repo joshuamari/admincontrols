@@ -12,6 +12,7 @@ switch (document.location.hostname) {
 }
 var empDetails = [];
 var projects = [];
+var project_id = "";
 //#endregion
 checkLogin();
 //#region BINDS
@@ -54,14 +55,15 @@ $(document).on("click", "#close", function () {
 });
 $(document).on("click", ".card-item", function () {
   $("#viewPermissions").modal("show");
-  var projID = parseInt($(this).attr("proj-id"));
-  openProject(projID);
+  project_id = parseInt($(this).attr("proj-id"));
+  $(".right .title span").text("");
+  openProject(project_id);
 });
 $(document).on("click", "#btn-addAccessType", function () {
   var newAT = `
   <tr style="background-color:#2f363b;">
     <td colspan="1" style="vertical-align: middle;">
-     <input type="text" class="form-control" placeholder="Access name"/>
+     <input id="accName" type="text" class="form-control" placeholder="Access name"/>
     </td>
     <td style="text-align: end;" colspan="1">
       <button id="btn-saveAccessType" class="btn d-inline-block justify-content-center p-0 me-1" title="Save" style="height: 35px; width: 35px; background-color: var(--green-color);"><i class='bx bx-save m-0' ></i></button>
@@ -71,6 +73,7 @@ $(document).on("click", "#btn-addAccessType", function () {
 
   $(newAT).insertBefore("#row-addAT");
   $(this).closest("tr").addClass("d-none");
+  cancelModule();
 });
 $(document).on("click", "#btn-cancelAddTR", function () {
   $(this).closest("tr").remove();
@@ -78,21 +81,24 @@ $(document).on("click", "#btn-cancelAddTR", function () {
   $("#row-addAT").removeClass("d-none");
 });
 $(document).on("click", "#btn-saveAccessType", function () {
-  $("#btn-addAccessType").closest("tr").removeClass("d-none");
-  // SAVE ACCESS TYPE
+  var accname = $("#accName").val();
+  saveAccess(accname);
 });
 $(document).on("click", "#closeAppModal", function () {
-  $("#btn-cancelAddTR").click();
+  cancelModule();
+  project_id = "";
 });
 $(document).on("click", ".mod-item", function () {
   $(".mod-item").removeClass("active");
   $(this).addClass("active");
 
   var txt = $(this).text();
-  $(".right .title span").text(txt + " Access Types");
-  $("#btn-cancelAddTR").click();
-  $("#row-addAT").removeClass("d-none");
-  clickModule();
+  if (txt) {
+    $(".right .title span").text(txt + " Access Types");
+    cancelAccessType();
+    $("#row-addAT").removeClass("d-none");
+    clickModule();
+  }
 });
 $(document).on("click", "#confirmaddApp", function () {
   var val = $("input[type='radio']:checked").val();
@@ -111,7 +117,6 @@ $(document).on("click", "#confirmaddApp", function () {
     return;
   } else {
     addApp(name, val);
-    $("#close").click();
   }
 });
 $(document).on("click", "input[type='radio']", function () {
@@ -120,8 +125,13 @@ $(document).on("click", "input[type='radio']", function () {
 $(document).on("click", "#btn-addModule", function () {
   $(".mod-items").append(`
   
-  <li class="mod-item eto" mod-id=""><input style="border: 1px solid #ccc; "  type="text" class="form-control" placeholder="module name"/></li>`);
+  <li class="mod-item eto" mod-id=""><input id="modInput" style="border: 1px solid #ccc; "  type="text" class="form-control" placeholder="module name"/></li>`);
   $("#btn-saveModule, #btn-addModule").toggleClass("d-none");
+  cancelAccessType();
+  $(".right .title span").text("");
+  $("#permList").empty();
+  $("#modInput").click();
+  $("#modInput").focus();
 });
 $(document).on("click", "#btn-saveModule", function () {
   var val = $(".mod-item:last input").val();
@@ -129,9 +139,9 @@ $(document).on("click", "#btn-saveModule", function () {
 
   if (!val) {
     $(".mod-items").find("li:last").remove();
-  } else {
-    $(".mod-item:last").html(val);
+    return;
   }
+  saveModule(val);
 });
 //#endregion
 
@@ -171,7 +181,6 @@ function getProjects() {
     success: function (response) {
       projects = $.parseJSON(response);
       displayProjects();
-      console.log(projects);
     },
   });
 }
@@ -185,34 +194,47 @@ function displayProjects() {
     <div class="shadow  card-item" proj-id="${projectId}">
       <div class="card-title d-flex align-items-center gap-2">
         <span class="try ${projColor}"></span>
-        <span>${projectName}</span>
+        <span class="proj-title">${projectName}</span>
       </div><ul class="list-unstyled module-list mt-3 px-3">`;
     Object.keys(projectDetails.modules).forEach((moduleName) => {
       const moduleDetails = projectDetails.modules[moduleName];
       const moduleId = moduleDetails.module_id;
       addString += `<li>${moduleName}</li>`;
     });
+    if (Object.keys(projectDetails.modules).length < 1) {
+      addString += `<li class="w-100 h-100 text-center justify-self-center "
+      style="    color: rgba(255, 255, 255, 0.6) !important;">
+      No modules found. Please click to add module</li>`;
+    }
     addString += `</ul></div></div>`;
   });
   $("#cardContainer").html(addString);
 }
 function openProject(projID) {
+  const projectName = Object.keys(projects).find(
+    (projectName) => projects[projectName].project_id === projID
+  );
+  $("#viewProjTitle").text(projectName);
+  getModules(projID);
+}
+function getModules(projID) {
   $(".mod-items").empty();
   var addString = "";
-  Object.entries(projects).forEach(([projectName, projectDetails]) => {
-    if (projectDetails.project_id === projID) {
-      const modules = projectDetails.modules;
-      $("#viewProjTitle").text(projectName);
+  Object.keys(projects)
+    .filter((projectName) => projects[projectName].project_id === projID)
+    .forEach((projectName) => {
+      const modules = projects[projectName].modules;
       Object.keys(modules).forEach((moduleName) => {
         const moduleId = modules[moduleName].module_id;
         addString += `<li class="mod-item" mod-id=${moduleId}>${moduleName}</li>`;
       });
-    }
-  });
+    });
   $(".mod-items").html(addString);
+  $("#permList").html(`No modules found`);
   $(".mod-items li:first-child").click();
 }
 function clickModule() {
+  cancelModule();
   $("#permList").empty();
   var addString = "";
   var modID = parseInt($(".mod-item.active").attr("mod-id"));
@@ -226,9 +248,6 @@ function clickModule() {
         const permissions = module.permissions;
         Object.entries(permissions).forEach(
           ([permissionName, permissionValue]) => {
-            console.log(
-              `Permission: ${permissionName}, Value: ${permissionValue}`
-            );
             addString += `<tr><td colspan="2" style="vertical-align: middle;">${permissionName}</td></tr>`;
           }
         );
@@ -241,23 +260,68 @@ function clickModule() {
 
   $("#permList").html(addString);
 }
+function cancelModule() {
+  $("#btn-saveModule").addClass("d-none");
+  $("#btn-addModule").removeClass("d-none");
+  $(".mod-item.eto").remove();
+}
+function cancelAccessType() {
+  $("#btn-cancelAddTR").click();
+}
 function addApp(name, color) {
-  var str = `
-  <div class="col-md-6  col-xl-3 col-12  mb-3" >
-    <div class="shadow  card-item">
-      <div class="card-title d-flex align-items-center gap-2">
-        <span class="try ${color}"></span>
-        <span>${name}</span>
-      </div>
-  
-      <ul class="list-unstyled module-list mt-3 px-3">
-       <li class="w-100 h-100 text-center justify-self-center "
-       style="    color: rgba(255, 255, 255, 0.6) !important;">
-       No modules found. Please click to add module</li>
-      </ul>
-    </div>
-  </div>`;
-
-  $("#cardContainer").append(str);
+  $.post(
+    "ajax/add_app.php",
+    {
+      appName: name,
+      appColor: color,
+    },
+    function (data) {
+      if ($.parseJSON(data)) {
+        alert(`Add failed: ${data}`);
+        return;
+      }
+      getProjects();
+      $("#close").click();
+    }
+  );
+}
+function saveModule(modName) {
+  $.post(
+    "ajax/add_module.php",
+    {
+      modName: modName,
+      projID: project_id,
+    },
+    function (data) {
+      if ($.parseJSON(data)) {
+        alert(`Add failed: ${data}`);
+        return;
+      }
+      $.ajaxSetup({ async: false });
+      getProjects();
+      $.ajaxSetup({ async: true });
+      getModules(project_id);
+    }
+  );
+}
+function saveAccess(accName) {
+  var modID = parseInt($(".mod-item.active").attr("mod-id"));
+  $.post(
+    "ajax/add_access.php",
+    {
+      modID: modID,
+      accName: accName,
+    },
+    function (data) {
+      if ($.parseJSON(data)) {
+        alert(`Add failed: ${data}`);
+        return;
+      }
+      $.ajaxSetup({ async: false });
+      getProjects();
+      $.ajaxSetup({ async: true });
+      $(".mod-item.active").click();
+    }
+  );
 }
 //#endregion

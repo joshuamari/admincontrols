@@ -13,7 +13,7 @@ $projectsArray = array();
 #endregion
 
 #region Entries Query
-$permissionQ = "SELECT kp.project_name,kp.project_id,kp.project_css_class,km.module_name,km.module_id,p.permission_name,p.permission_id FROM  p_permissions AS p JOIN kdtproject_modules AS km ON p.module_id=km.module_id JOIN kdtwebprojects AS kp ON kp.project_id=km.project_id ORDER BY kp.project_id,km.module_id,p.permission_id";
+$permissionQ = "SELECT kp.project_name,kp.project_id,kp.project_css_class,km.module_name,km.module_id,p.permission_name,p.permission_id FROM kdtwebprojects AS kp LEFT JOIN kdtproject_modules AS km ON kp.project_id=km.project_id LEFT JOIN p_permissions AS p ON km.module_id=p.module_id";
 $permissionStmt = $connkdt->query($permissionQ);
 if ($permissionStmt->rowCount() > 0) {
     $permissionArr = $permissionStmt->fetchAll();
@@ -27,8 +27,16 @@ if ($permissionStmt->rowCount() > 0) {
         $permName = $perm['permission_name'];
         $projectsArray[$projName]['project_id'] = $projID;
         $projectsArray[$projName]['project_color'] = $projColor;
-        $projectsArray[$projName]['modules'][$modName]['module_id'] = $modID;
-        $projectsArray[$projName]['modules'][$modName]['permissions'][$permName] = $permID;
+        if ($modID) {
+            $projectsArray[$projName]['modules'][$modName]['module_id'] = $modID;
+            if ($permID) {
+                $projectsArray[$projName]['modules'][$modName]['permissions'][$permName] = $permID;
+            } else {
+                $projectsArray[$projName]['modules'][$modName]['permissions'] = array();
+            }
+        } else {
+            $projectsArray[$projName]['modules'] = array();
+        }
     }
 }
 #endregion
