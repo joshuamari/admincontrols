@@ -1,17 +1,26 @@
 <?php
-date_default_timezone_set("Asia/Manila");
+$config = [
+    'host' => 'localhost',
+    'port' => 3306,
+    'dbname' => 'formsdb',
+    'charset' => 'utf8mb4'
+];
+$username = 'root';
+$password = '';
+$dsn = 'mysql:' . http_build_query($config, '', ';');
+try {
+    $connforms = new PDO($dsn, $username, $password, [
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
+    $connDisableForms = new PDO($dsn, $username, $password, [
 
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 
-    try{
-        $connforms = new PDO ("mysql:host=$servername;
-        dbname=formsdb", $username, $password);
-        $connforms->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
-    catch(PDOException $e) {
-        echo "Connection failed: ". $e->getMessage();
-    }
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 
-?>
+        PDO::ATTR_AUTOCOMMIT => false
+
+    ]);
+} catch (PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}

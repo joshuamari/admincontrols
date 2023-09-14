@@ -1,11 +1,26 @@
-<?php 
-$servername = "localhost";
-$username = "root";
-$password = "";
+<?php
+$config = [
+  'host' => 'localhost',
+  'port' => 3306,
+  'dbname' => 'qmsmaindb',
+  'charset' => 'utf8mb4'
+];
+$username = 'root';
+$password = '';
+$dsn = 'mysql:' . http_build_query($config, '', ';');
 try {
-  $connqms = new PDO("mysql:host=localhost;dbname=qmsmaindb", $username, $password);
-  
-} catch(PDOException $e) {
+  $connqms = new PDO($dsn, $username, $password, [
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+  ]);
+  $connDisableQMS = new PDO($dsn, $username, $password, [
+
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+
+    PDO::ATTR_AUTOCOMMIT => false
+
+  ]);
+} catch (PDOException $e) {
   echo "Connection failed: " . $e->getMessage();
 }
-?>

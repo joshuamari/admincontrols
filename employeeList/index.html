@@ -18,7 +18,7 @@
     <script>
       var busterCall = ["js/main.js", "css/index.css"];
       $.post(
-        "ajax/getVersion.php",
+        "ajax/get_version.php",
         {
           busterCall: busterCall,
           titleName: "Admin Controls",
@@ -242,7 +242,7 @@
               </div>
               <div class="mb-3 col-12">
                 <label class="form-label" for="addLotus" style="color: #333"
-                  >Lotus E-mail</label
+                  >Outlook Email</label
                 >
 
                 <div class="d-flex justify-content-around col-12">
@@ -251,15 +251,15 @@
                     class="form-control col-8"
                     id="addLotus"
                     placeholder="eg. juan"
-                    style="color: #333; width: 70%"
+                    style="color: #333; width: 60%"
                   />
-                  <button
-                    class="btn btn-warning col-2"
-                    id="ac"
-                    style="width: 30%"
-                  >
-                    Autocomplete
-                  </button>
+                  <input
+                    type="text"
+                    class="form-control col-8"
+                    style="color: #333;width: 40%"
+                    value="@global.kawasaki.com"
+                    disabled
+                  />
                 </div>
 
                 <span class="m12 d-none errMsg" style="color: #f85e5e"
@@ -494,7 +494,7 @@
               </div>
               <div class="mb-3 col-12">
                 <label class="form-label" for="editLotus" style="color: #333"
-                  >Lotus E-mail</label
+                  >Outlook Email</label
                 >
 
                 <div class="d-flex justify-content-around col-12">
@@ -503,15 +503,15 @@
                     class="form-control col-8"
                     id="editLotus"
                     placeholder="eg. juan"
-                    style="color: #333; width: 70%"
+                    style="color: #333; width: 60%"
                   />
-                  <button
-                    class="btn btn-warning col-2"
-                    id="ac"
-                    style="width: 30%"
-                  >
-                    Autocomplete
-                  </button>
+                  <input
+                    type="text"
+                    class="form-control col-8"
+                    style="color: #333;width: 40%"
+                    value="@global.kawasaki.com"
+                    disabled
+                  />
                 </div>
 
                 <span class="m13 d-none errMsg" style="color: #f85e5e"
@@ -722,7 +722,7 @@
             </a>
           </li>
           <li class="startli" style="font-weight: 500">
-            <a href="../employeeList/index.html">
+            <a href="../employeeList/">
               <span class="icon"><i class="bx bxs-user"></i></span>
               <span class="title">Employee List</span>
             </a>

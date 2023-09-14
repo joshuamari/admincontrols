@@ -11,10 +11,9 @@ switch (document.location.hostname) {
     break;
 }
 var empDetails = [];
-checkLogin();
-adminAccess();
-//#endregion
 
+//#endregion
+checkLogin();
 //#region BINDS
 $(document).ready(function () {
   $(".hello-user").text(empDetails["empFName"]);
@@ -32,13 +31,7 @@ $(document).ready(function () {
 });
 
 $(document).on("click", ".btn-addEmp", function () {
-  addEmployee(0);
-  // $('.m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12').addClass('d-none');
-
-  // console.log(position+' '+email);
-});
-$(document).on("click", "#addEmp", function () {
-  $("#ac").prop("disabled", false);
+  addEmployee();
 });
 $(document).on("click", ".toggle", function () {
   $(".navigation").toggleClass("actived");
@@ -84,21 +77,13 @@ $(document).on("click", ".btn-editEmp", function () {
   ).prop("disabled", false);
 });
 $(document).on("click", ".btn-saveEmp", function () {
-  // $('.btn-saveEmp').parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
-  // <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
-  // $('#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac').prop('disabled',true);
-  addEmployee(1);
+  saveEdit();
 });
 $(document).on("keyup", "#searchWord", function () {
   getEmployees();
 });
 $(document).on("search", "#searchWord", function () {
   getEmployees();
-});
-$(document).on("click", "#ac", function () {
-  var lname = $("#addSurname").val();
-
-  $("#addLotus").val(lname + `-kdt`);
 });
 $(document).on("click", "#activeOnly", function () {
   getEmployees();
@@ -163,46 +148,45 @@ function checkLogin() {
         //if result is 0, redirect to log in page
         window.location.href = rootFolder + "/KDTPortalLogin";
       }
+      adminAccess();
     },
     async: false,
   });
 }
+function adminAccess() {
+  //check if user has access to jmc
+  $.post(
+    "ajax/check_admin.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (!access) {
+        alert("Access denied");
+        window.location.href = `${rootFolder}`;
+      }
+    }
+  );
+}
 function resignEmployee(empnum, resdate) {
   $.post(
-    "ajax/resignEmployee.php",
+    "ajax/resign_employee.php",
     {
       resdate: resdate,
       empnum: empnum,
     },
     function (data) {
-      console.log(data);
+      if ($.parseJSON(data)) {
+        alert(`Save failed: ${data}`);
+        return;
+      }
       $("#clos").click();
       $("#resConfirm").modal("hide");
+      getEmployees();
     }
   );
 }
-function adminAccess() {
-  //check if user has access to jmc
-  $.post(
-    "ajax/checkAdminAccess.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      if (data.trim() == 0) {
-        alert("Access denied");
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    }
-  );
-}
-// function ifSmallScreen(){
-//     if($(window).width() < 1150){
-//        $('#addEmp').html("<i class='bx bxs-user-plus fs-3' ></i>");
-//        $('#resignEmp').html("<i class='bx bxs-tag-x bx-md' ></i>");
-//     }
-
-// }
 function getEmployees() {
   var employees = [];
   var searchWord = $("#searchWord").val();
@@ -212,7 +196,7 @@ function getEmployees() {
   }
   $("#empList").empty();
   $.post(
-    "ajax/getEmployees.php",
+    "ajax/get_employees.php",
     {
       searchWord: searchWord,
       active: active,
@@ -223,14 +207,14 @@ function getEmployees() {
     }
   );
 }
-function fillEmployees(iVal) {
+function fillEmployees(empDetails) {
   var addString = ``;
-  var employeeNumber = iVal.split("||")[0];
-  var employeeName = iVal.split("||")[1];
-  var employeeUser = iVal.split("||")[2];
-  var employeeDepartment = iVal.split("||")[3];
-  var employeeGroup = iVal.split("||")[4];
-  var employeePosition = iVal.split("||")[5];
+  var employeeNumber = empDetails["emp_num"];
+  var employeeName = empDetails["emp_name"];
+  var employeeUser = empDetails["emp_user"];
+  var employeeDepartment = empDetails["emp_dept"];
+  var employeeGroup = empDetails["emp_group"];
+  var employeePosition = empDetails["emp_pos"];
   addString = `<tr class='emp'>
 <td>${employeeNumber}</td>
 <td>${employeeName}</td>
@@ -244,32 +228,30 @@ function fillEmployees(iVal) {
 function getEmpDetails(iVal) {
   var empDeetsArray = [];
   $.post(
-    "ajax/getEmpDetails.php",
+    "ajax/get_empDetails.php",
     {
       empNum: iVal,
     },
     function (data) {
       empDeetsArray = $.parseJSON(data);
-      // console.log(empDeetsArray)
-      empDeetsArray.map(fillModal);
+      fillModal(empDeetsArray);
     }
   );
 }
-function fillModal(iVal) {
-  // empNum||firstname||surname||nickname||username||group||position||bday||gender||civilstatus||datehired
-  var empnum = iVal.split("||")[0];
-  var firstname = iVal.split("||")[1];
-  var surname = iVal.split("||")[2];
-  var nname = iVal.split("||")[3];
-  var uname = iVal.split("||")[4];
-  var group = iVal.split("||")[5];
-  var position = iVal.split("||")[6];
-  var bday = iVal.split("||")[7];
-  var gender = iVal.split("||")[8];
-  var status = iVal.split("||")[9];
-  var dhired = iVal.split("||")[10];
-  var empEmail = iVal.split("||")[11].split("/P/KHI")[0];
-  var resDate = iVal.split("||")[12];
+function fillModal(empDeets) {
+  var empnum = empDeets["emp_num"];
+  var firstname = empDeets["emp_fname"];
+  var surname = empDeets["emp_sname"];
+  var nname = empDeets["emp_nick"];
+  var uname = empDeets["emp_user"];
+  var group = empDeets["emp_group"];
+  var position = empDeets["emp_pos"];
+  var bday = empDeets["emp_bday"];
+  var gender = empDeets["emp_gender"];
+  var status = empDeets["emp_status"];
+  var dhired = empDeets["emp_dhired"];
+  var empEmail = empDeets["emp_outlook"];
+  var resDate = empDeets["emp_resdate"];
   $("#editEmpnum").val(empnum);
   $("#editFirstname").val(firstname);
   $("#editSurname").val(surname);
@@ -284,7 +266,7 @@ function fillModal(iVal) {
   $("#editLotus").val(empEmail);
 
   $(
-    "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
+    "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
   ).prop("disabled", true);
   if (!resDate) {
     $(".empStat").html(`
@@ -320,7 +302,7 @@ function getGroups() {
   $(".empGroup").html(`<option value='' hidden>Select Group</option>`);
 
   $.ajax({
-    url: "ajax/getGroups.php",
+    url: "ajax/get_groups.php",
     success: function (data) {
       grps = $.parseJSON(data);
       grps.forEach((element) => {
@@ -335,41 +317,34 @@ function getPos() {
   $(".empPos").empty();
   $(".empPos").html(`<option value='' hidden>Select Position</option>`);
   $.ajax({
-    url: "ajax/getPos.php",
+    url: "ajax/get_pos.php",
     success: function (data) {
       pos = $.parseJSON(data);
-      pos.map(fillPos);
-      // pos.forEach(element => {
-      //     addString=`<option style="color: #333;">${element}</option>`;
-      //     $('.empPos').append(addString);
-      // });
+      fillPos(pos);
     },
   });
 }
-function fillPos(iVal) {
+function fillPos(posDetails) {
   var addString = ``;
-  var acroPos = iVal.split("||")[0];
-  var fullPos = iVal.split("||")[1];
-  addString = `<option style='color: #333;' value='${acroPos}'>${acroPos}(${fullPos})</option>`;
+  Object.keys(posDetails).forEach((posAcro) => {
+    const posFull = posDetails[posAcro];
+    addString += `<option style='color: #333;' value='${posAcro}'>${posAcro}(${posFull})</option>`;
+  });
   $(".empPos").append(addString);
 }
-function addEmployee(iVal) {
-  var modeStr = `add`;
-  if (iVal == "1") {
-    modeStr = `edit`;
-  }
-  var fname = $(`#${modeStr}Firstname`).val();
-  var lname = $(`#${modeStr}Surname`).val();
-  var nname = $(`#${modeStr}Nick`).val();
-  var bday = $(`#${modeStr}Bday`).val();
-  var gender = $(`#${modeStr}Gender`).find(`:selected`).val();
-  var status = $(`#${modeStr}Status`).find(`:selected`).val();
-  var empnum = $(`#${modeStr}Empnum`).val();
-  var username = $(`#${modeStr}PCUser`).val();
-  var group = $(`#${modeStr}Group`).find(`:selected`).val();
-  var dhired = $(`#${modeStr}Datehired`).val();
-  var position = $(`#${modeStr}Pos`).find(`:selected`).val();
-  var email = $(`#${modeStr}Lotus`).val();
+function addEmployee() {
+  var fname = $(`#addFirstname`).val();
+  var lname = $(`#addSurname`).val();
+  var nname = $(`#addNick`).val();
+  var bday = $(`#addBday`).val();
+  var gender = $(`#addGender`).find(`:selected`).val();
+  var status = $(`#addStatus`).find(`:selected`).val();
+  var empnum = $(`#addEmpnum`).val();
+  var username = $(`#addPCUser`).val();
+  var group = $(`#addGroup`).find(`:selected`).val();
+  var dhired = $(`#addDatehired`).val();
+  var position = $(`#addPos`).find(`:selected`).val();
+  var email = $(`#addLotus`).val();
   var error = 0;
   var eMsg = ``;
   if (!fname) {
@@ -421,37 +396,32 @@ function addEmployee(iVal) {
     error++;
   }
   if (error > 0) {
-    // console.log('may kulang')
     return;
   }
 
   $.ajaxSetup({ async: false });
   $.post(
-    "ajax/checkEmpExists.php",
+    "ajax/check_exists_add.php",
     {
       username: username,
       empnum: empnum,
       email: email,
-      mode: iVal,
     },
     function (data) {
-      // console.log(data)
-      if (data.trim()) {
-        if (data.includes("id")) {
-          eMsg += " Employee Number";
-          idInp = $("#addEmpnum").val("");
-        }
-        if (data.includes("user")) {
-          eMsg += " Username";
-          userInp = $("#addPCUser").val("");
-        }
-        if (data.includes("lotus")) {
-          eMsg += " Lotus";
-          userInp = $("#emailNaddLotusameInp").val("");
-        }
+      var err = $.parseJSON(data);
+      if (Object.keys(err).length !== 0) {
+        eMsg = err.join(", ");
         eMsg += " taken";
+        if (err.includes("Employee Number")) {
+          $("#addEmpnum").val("");
+        }
+        if (err.includes("Username")) {
+          $("#addPCUser").val("");
+        }
+        if (err.includes("Email")) {
+          $("#addLotus").val("");
+        }
         alert(eMsg);
-        // return;
       }
     }
   );
@@ -461,7 +431,7 @@ function addEmployee(iVal) {
     return;
   }
   $.post(
-    "ajax/addEmployee.php",
+    "ajax/add_employee.php",
     {
       fname: fname,
       lname: lname,
@@ -475,24 +445,143 @@ function addEmployee(iVal) {
       dhired: dhired,
       position: position,
       email: email,
-      mode: iVal,
     },
     function (data) {
-      switch (iVal) {
-        case 0:
-          $("#xadd").click();
-          break;
-        case 1:
-          $(".btn-saveEmp").parent()
-            .html(`<button type="button" class="btn btn-editEmp">Edit</button>
-                    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
-          $(
-            "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
-          ).prop("disabled", true);
-          // $('.btn-close').click();
-          $(".errMsg").addClass("d-none");
-          break;
+      if ($.parseJSON(data)) {
+        alert(`Save failed: ${data}`);
+        return;
       }
+      $("#xadd").click();
+      getEmployees();
+    }
+  );
+}
+function saveEdit() {
+  var fname = $(`#editFirstname`).val();
+  var lname = $(`#editSurname`).val();
+  var nname = $(`#editNick`).val();
+  var bday = $(`#editBday`).val();
+  var gender = $(`#editGender`).find(`:selected`).val();
+  var status = $(`#editStatus`).find(`:selected`).val();
+  var empnum = $(`#editEmpnum`).val();
+  var username = $(`#editPCUser`).val();
+  var group = $(`#editGroup`).find(`:selected`).val();
+  var dhired = $(`#editDatehired`).val();
+  var position = $(`#editPos`).find(`:selected`).val();
+  var email = $(`#editLotus`).val();
+  var error = 0;
+  var eMsg = ``;
+  if (!fname) {
+    $(".m3").removeClass("d-none");
+    error++;
+  }
+  if (!lname) {
+    $(".m4").removeClass("d-none");
+    error++;
+  }
+  if (!nname) {
+    $(".m5").removeClass("d-none");
+    error++;
+  }
+  if (!bday) {
+    $(".m6").removeClass("d-none");
+    error++;
+  }
+  if (!gender) {
+    $(".m7").removeClass("d-none");
+    error++;
+  }
+  if (!status) {
+    $(".m8").removeClass("d-none");
+    error++;
+  }
+  if (!empnum) {
+    $(".m1").removeClass("d-none");
+    error++;
+  }
+  if (!username) {
+    $(".m2").removeClass("d-none");
+    error++;
+  }
+  if (!group) {
+    $(".m9").removeClass("d-none");
+    error++;
+  }
+  if (!dhired) {
+    $(".m10").removeClass("d-none");
+    error++;
+  }
+  if (!position) {
+    $(".m11").removeClass("d-none");
+    error++;
+  }
+  if (!email) {
+    $(".m12").removeClass("d-none");
+    error++;
+  }
+  if (error > 0) {
+    return;
+  }
+
+  $.ajaxSetup({ async: false });
+  $.post(
+    "ajax/check_exists_edit.php",
+    {
+      username: username,
+      empnum: empnum,
+      email: email,
+    },
+    function (data) {
+      var err = $.parseJSON(data);
+      if (Object.keys(err).length !== 0) {
+        eMsg = err.join(", ");
+        eMsg += " taken";
+        if (err.includes("Username")) {
+          idInp = "";
+          $("#editPCUser").val("");
+        }
+        if (err.includes("Email")) {
+          $("#editLotus").val("");
+        }
+        alert(eMsg);
+      }
+    }
+  );
+
+  $.ajaxSetup({ async: true });
+  if (eMsg !== "") {
+    return;
+  }
+  $.post(
+    "ajax/edit_employee.php",
+    {
+      fname: fname,
+      lname: lname,
+      nname: nname,
+      bday: bday,
+      gender: gender,
+      status: status,
+      empnum: empnum,
+      username: username,
+      group: group,
+      dhired: dhired,
+      position: position,
+      email: email,
+    },
+    function (data) {
+      if ($.parseJSON(data)) {
+        alert(`Save failed: ${data}`);
+        return;
+      }
+
+      $(".btn-saveEmp").parent()
+        .html(`<button type="button" class="btn btn-editEmp">Edit</button>
+                    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+      $(
+        "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
+      ).prop("disabled", true);
+      $(".errMsg").addClass("d-none");
+
       getEmployees();
     }
   );
