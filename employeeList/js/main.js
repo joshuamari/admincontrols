@@ -151,6 +151,7 @@ function checkLogin() {
       adminAccess();
       checkModify();
       checkUserP();
+      checkAppP();
     },
     async: false,
   });
@@ -214,6 +215,25 @@ function checkUserP() {
         <a href="../userPermission/">
           <span class="icon"><i class="bx bxs-user-badge"></i></span>
           <span class="title">User Permission</span>
+        </a>
+      </li>`);
+      }
+    }
+  );
+}
+function checkAppP() {
+  $.post(
+    "ajax/check_appp.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (access) {
+        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+        <a href="../appPermission/">
+          <span class="icon"><i class="bx bxs-window-alt"></i></span>
+          <span class="title">App Permission</span>
         </a>
       </li>`);
       }

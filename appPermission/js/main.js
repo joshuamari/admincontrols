@@ -154,14 +154,14 @@ function checkLogin() {
       if (Object.keys(empDetails).length < 1) {
         window.location.href = rootFolder + "/KDTPortalLogin";
       }
-      adminAccess();
+      checkAppP();
     },
     async: false,
   });
 }
-function adminAccess() {
+function checkAppP() {
   $.post(
-    "ajax/check_admin.php",
+    "ajax/check_appp.php",
     {
       empNum: empDetails["empNum"],
     },

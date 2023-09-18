@@ -86,7 +86,7 @@ function checkLogin() {
       if (Object.keys(empDetails).length < 1) {
         window.location.href = rootFolder + "/KDTPortalLogin";
       } else {
-        adminAccess();
+        checkUserP();
         checkModify();
         checkAppP();
         $(`.hello-user`).text(`${empDetails["empFName"]}`);
@@ -95,9 +95,9 @@ function checkLogin() {
     async: false,
   });
 }
-function adminAccess() {
+function checkUserP() {
   $.post(
-    "ajax/check_admin.php",
+    "ajax/check_userp.php",
     {
       empNum: empDetails["empNum"],
     },

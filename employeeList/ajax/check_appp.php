@@ -12,11 +12,16 @@ $empNum = NULL;
 if (!empty($_POST['empNum'])) {
     $empNum = $_POST['empNum'];
 }
+$pID = 20; //appp view MODULE PERMISSION ID kdtphdb>>>>p_permissions
 $access = FALSE;
 #endregion
 
 #region main query
-if (in_array($empNum, $sysMembers)) {
+$accessQ = "SELECT COUNT(*) FROM `user_permissions` WHERE `fldEmployeeNum` = :empNum AND `permission_id` =:pID;";
+$accessStmt = $connkdt->prepare($accessQ);
+$accessStmt->execute([":empNum" => $empNum, ":pID" => $pID]);
+$ac = $accessStmt->fetchColumn();
+if ($ac) {
     $access = TRUE;
 }
 #endregion
