@@ -149,12 +149,13 @@ function checkLogin() {
         window.location.href = rootFolder + "/KDTPortalLogin";
       }
       adminAccess();
+      checkModify();
+      checkUserP();
     },
     async: false,
   });
 }
 function adminAccess() {
-  //check if user has access to jmc
   $.post(
     "ajax/check_admin.php",
     {
@@ -164,7 +165,56 @@ function adminAccess() {
       var access = $.parseJSON(data);
       if (!access) {
         alert("Access denied");
-        window.location.href = `${rootFolder}`;
+        window.location.href = rootFolder;
+      }
+    }
+  );
+}
+function checkModify() {
+  $.post(
+    "ajax/check_modify.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (access) {
+        $("#aeDiv").html(`<button
+        type="button"
+        id="addEmp"
+        class="btn mx-1"
+        title="Add Employee"
+        data-bs-toggle="modal"
+        data-bs-target="#addEmployee"
+        data-bs-dismiss="modal"
+      >
+        <i class="bx bx-fw bxs-user-plus fs-3"></i>
+        ADD EMPLOYEE
+      </button>`);
+      } else {
+        $(".btn-editEmp").prop("disabled", "true");
+        $(document).off("click", ".btn-editEmp");
+        // $("#employeeStat").css("cursor", "");
+        $(document).off("click", "#employeeStat");
+      }
+    }
+  );
+}
+function checkUserP() {
+  $.post(
+    "ajax/check_userp.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (access) {
+        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+        <a href="../userPermission/">
+          <span class="icon"><i class="bx bxs-user-badge"></i></span>
+          <span class="title">User Permission</span>
+        </a>
+      </li>`);
       }
     }
   );
