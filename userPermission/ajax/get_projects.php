@@ -18,11 +18,11 @@ $permissionStmt = $connkdt->query($permissionQ);
 if ($permissionStmt->rowCount() > 0) {
     $permissionArr = $permissionStmt->fetchAll();
     foreach ($permissionArr as $perm) {
-        $projID = $perm['project_id'];
+        $projID = (int)$perm['project_id'];
         $projName = $perm['project_name'];
-        $modID = $perm['module_id'];
+        $modID = (int)$perm['module_id'];
         $modName = $perm['module_name'];
-        $permID = $perm['permission_id'];
+        $permID = (int)$perm['permission_id'];
         $permName = $perm['permission_name'];
         $projectsArray[$projID]['project_name'] = $projName;
         $projectsArray[$projID]['modules'][$modName][$permID] = $permName;
