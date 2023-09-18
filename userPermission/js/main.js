@@ -87,6 +87,8 @@ function checkLogin() {
         window.location.href = rootFolder + "/KDTPortalLogin";
       } else {
         adminAccess();
+        checkModify();
+        checkAppP();
         $(`.hello-user`).text(`${empDetails["empFName"]}`);
       }
     },
@@ -104,6 +106,41 @@ function adminAccess() {
       if (!access) {
         alert("Access denied");
         window.location.href = `${rootFolder}`;
+      }
+    }
+  );
+}
+function checkModify() {
+  $.post(
+    "ajax/check_modify.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (!access) {
+        $("#modPermission").prop("disabled", "true");
+        $(document).off("click", "#savePermission");
+        $(document).off("click", "#modPermission");
+      }
+    }
+  );
+}
+function checkAppP() {
+  $.post(
+    "ajax/check_appp.php",
+    {
+      empNum: empDetails["empNum"],
+    },
+    function (data) {
+      var access = $.parseJSON(data);
+      if (access) {
+        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+        <a href="../appPermission/">
+          <span class="icon"><i class="bx bxs-window-alt"></i></span>
+          <span class="title">App Permission</span>
+        </a>
+      </li>`);
       }
     }
   );
@@ -234,6 +271,8 @@ function savePermissions() {
       }
       getPermissions(projID);
       getEmployees();
+      adminAccess();
+      checkModify();
     }
   );
 }

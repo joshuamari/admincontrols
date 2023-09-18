@@ -194,8 +194,9 @@ function checkModify() {
       } else {
         $(".btn-editEmp").prop("disabled", "true");
         $(document).off("click", ".btn-editEmp");
-        // $("#employeeStat").css("cursor", "");
         $(document).off("click", "#employeeStat");
+        $(document).off("click", ".btn-cres");
+        $(document).off("click", ".btn-resEmp");
       }
     }
   );

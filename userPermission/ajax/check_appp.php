@@ -12,7 +12,7 @@ $empNum = NULL;
 if (!empty($_POST['empNum'])) {
     $empNum = $_POST['empNum'];
 }
-$pID = 18; //userp view and access MODULE PERMISSION ID kdtphdb>>>>p_permissions
+$pID = 20; //appp view MODULE PERMISSION ID kdtphdb>>>>p_permissions
 $access = FALSE;
 #endregion
 
