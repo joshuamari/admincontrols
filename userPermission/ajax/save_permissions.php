@@ -48,17 +48,13 @@ $addStmt = $connDisable->prepare($addQ);
 
 #region Entries Query
 try {
-    if (!empty($removePermissions)) {
-        foreach ($removePermissions as $rmp) {
-            //deletemoto
-            $removeStmt->execute([":empID" => $empID, ":permID" => $rmp]);
-        }
+    foreach ($removePermissions as $rmp) {
+        //deletemoto
+        $removeStmt->execute([":empID" => $empID, ":permID" => $rmp]);
     }
-    if (!empty($newPermissions)) {
-        foreach ($newPermissions as $nmp) {
-            //addmoto
-            $addStmt->execute([":empID" => $empID, ":permID" => $nmp]);
-        }
+    foreach ($newPermissions as $nmp) {
+        //addmoto
+        $addStmt->execute([":empID" => $empID, ":permID" => $nmp]);
     }
     $connDisable->commit();
 } catch (Exception $e) {
