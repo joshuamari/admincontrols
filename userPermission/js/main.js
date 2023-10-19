@@ -13,6 +13,7 @@ switch (document.location.hostname) {
 var devs = [464, 487];
 var empDetails = [];
 var permissions = [];
+const cloudNaviAllControl = 31;
 //#endregion
 checkLogin();
 //#region BINDS
@@ -63,6 +64,13 @@ $(document).on("click", "#modPermission", function () {
   $(this).toggleClass("d-none");
   $("#savePermission").toggleClass("d-none");
   $(".permission-items .form-check-input").attr("disabled", false);
+  var permid = $('input[type="checkbox"]:checked').attr("perm-id");
+
+  if (permid == cloudNaviAllControl) {
+    $('input[type="checkbox"]').prop("disabled", true);
+
+    $('input[type="checkbox"]:checked').prop("disabled", false);
+  }
 });
 $(document).on("click", "#savePermission", function () {
   $(this).toggleClass("d-none");
@@ -73,6 +81,18 @@ $(document).on("click", "#savePermission", function () {
 $(document).on("click", "#mclose", function () {
   $("#savePermission").addClass("d-none");
   $("#modPermission").removeClass("d-none");
+});
+$(document).on("change", "input[type='checkbox']", function () {
+  //cloud navi pa-special amp
+  if ($(this).attr("perm-id") == cloudNaviAllControl) {
+    $('input[type="checkbox"]').prop("disabled", false);
+    if ($(this).is(":checked")) {
+      $('input[type="checkbox"]').prop("checked", false);
+      $('input[type="checkbox"]').prop("disabled", true);
+      $(this).prop("checked", true);
+      $(this).prop("disabled", false);
+    }
+  }
 });
 
 //#endregion
