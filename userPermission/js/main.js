@@ -13,7 +13,7 @@ switch (document.location.hostname) {
 var devs = [464, 487];
 var empDetails = [];
 var permissions = [];
-const cloudNaviAllControl = 31;
+const cloudNaviAllControl = 33;
 //#endregion
 checkLogin();
 //#region BINDS
