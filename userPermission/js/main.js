@@ -15,22 +15,63 @@ var empDetails = [];
 var permissions = [];
 const cloudNaviAllControl = 33;
 //#endregion
-checkLogin();
+checkLogin()
+  .then((emp) => {
+    if (emp) {
+      empDetails = emp;
+      checkUserP().then((userp) => {
+        if (userp) {
+          $(document).ready(function () {
+            $(".hello-user").text(empDetails["empFName"]);
+            let list = document.querySelectorAll(".navigation li");
+            function activeLink() {
+              list.forEach((item) => item.classList.remove("active"));
+              this.classList.add("active");
+            }
+            list.forEach((item) => item.addEventListener("click", activeLink));
+
+            $(".startli").click();
+            Promise.all([
+              checkModify(),
+              checkAppP(),
+              getEmployees(),
+              getProjects(),
+            ])
+              .then(([modi, appp, emps, projs]) => {
+                if (!modi) {
+                  $("#modPermission").prop("disabled", "true");
+                  $(document).off("click", "#savePermission");
+                  $(document).off("click", "#modPermission");
+                }
+                if (appp) {
+                  $("#acNavLinks")
+                    .append(`<li class="" style="font-weight: 500">
+                  <a href="../appPermission/">
+                    <span class="icon"><i class="bx bxs-window-alt"></i></span>
+                    <span class="title">App Permission</span>
+                  </a>
+                </li>`);
+                }
+                $("#empList").empty();
+                emps.map(fillEmployees);
+                permissions = projs;
+                fillProjects();
+              })
+              .catch((error) => {
+                alert(`${error}`);
+              });
+          });
+        } else {
+          alert("Access denied");
+          window.location.href = rootFolder;
+        }
+      });
+    }
+  })
+  .catch((error) => {
+    alert(`${error}`);
+  });
 //#region BINDS
-$(document).ready(function () {
-  let list = document.querySelectorAll(".navigation li");
-  function activeLink() {
-    list.forEach((item) => item.classList.remove("active"));
-    this.classList.add("active");
-  }
-  list.forEach((item) => item.addEventListener("click", activeLink));
-
-  $(".startli").click();
-
-  getEmployees();
-  getProjects();
-});
-
 $(document).on("click", ".toggle", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
@@ -44,8 +85,17 @@ $(document).on("click", ".btn-view", function () {
   $("#empIDPermission").val(eNum);
   $(".app-items li:first-child").click();
 });
-$(document).on("input", "#searchWord", function () {
-  getEmployees();
+$(document).on("keyup", "#searchWord", function () {
+  getEmployees().then((emps) => {
+    $("#empList").empty();
+    emps.map(fillEmployees);
+  });
+});
+$(document).on("search", "#searchWord", function () {
+  getEmployees().then((emps) => {
+    $("#empList").empty();
+    emps.map(fillEmployees);
+  });
 });
 $(document).on("click", ".app-item", function () {
   var tab = $(this).text();
@@ -99,86 +149,127 @@ $(document).on("change", "input[type='checkbox']", function () {
 
 //#region FUNCTIONS
 function checkLogin() {
-  $.ajax({
-    url: "Includes/checkLogin.php",
-    success: function (data) {
-      empDetails = $.parseJSON(data);
-      if (Object.keys(empDetails).length < 1) {
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      } else {
-        checkUserP();
-        checkModify();
-        checkAppP();
-        $(`.hello-user`).text(`${empDetails["empFName"]}`);
-      }
-    },
-    async: false,
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "Includes/checkLogin.php",
+      dataType: "json",
+      success: function (data) {
+        const emp = data;
+        resolve(emp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function checkUserP() {
-  $.post(
-    "ajax/check_userp.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (!access) {
-        alert("Access denied");
-        window.location.href = `${rootFolder}`;
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_userp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function checkModify() {
-  $.post(
-    "ajax/check_modify.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (!access) {
-        $("#modPermission").prop("disabled", "true");
-        $(document).off("click", "#savePermission");
-        $(document).off("click", "#modPermission");
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_modify.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const modi = data;
+        resolve(modi);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function checkAppP() {
-  $.post(
-    "ajax/check_appp.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (access) {
-        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
-        <a href="../appPermission/">
-          <span class="icon"><i class="bx bxs-window-alt"></i></span>
-          <span class="title">App Permission</span>
-        </a>
-      </li>`);
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_appp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const appp = data;
+        resolve(appp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function getEmployees() {
-  var employees = [];
-  var searchWord = $("#searchWord").val();
-  $("#empList").empty();
-  $.post(
-    "ajax/get_employees.php",
-    {
-      searchWord: searchWord,
-    },
-    function (data) {
-      employees = $.parseJSON(data);
-      employees.map(fillEmployees);
-    }
-  );
+  return new Promise((resolve, reject) => {
+    const searchWord = $("#searchWord").val();
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_employees.php",
+      data: {
+        searchWord: searchWord,
+      },
+      dataType: "json",
+      success: function (data) {
+        const emplist = data;
+        resolve(emplist);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function fillEmployees(empDeets) {
   var emp_id = empDeets["emp_id"];
@@ -210,12 +301,25 @@ function getBadges(projArray) {
 }
 function getProjects() {
   $(".app-items").empty();
-  $.ajax({
-    url: "ajax/get_projects.php",
-    success: function (response) {
-      permissions = $.parseJSON(response);
-      fillProjects();
-    },
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "ajax/get_projects.php",
+      dataType: "json",
+      success: function (data) {
+        const projs = data;
+        resolve(projs);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function fillProjects() {
@@ -290,9 +394,10 @@ function savePermissions() {
         alert(`Save failed: ${data}`);
       }
       getPermissions(projID);
-      getEmployees();
-      adminAccess();
-      checkModify();
+      getEmployees().then((emps) => {
+        $("#empList").empty();
+        emps.map(fillEmployees);
+      });
     }
   );
 }

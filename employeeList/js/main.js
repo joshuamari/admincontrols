@@ -13,32 +13,33 @@ switch (document.location.hostname) {
 let empDetails = [];
 
 //#endregion
-checkLogin().then((emp) => {
-  if (emp) {
-    empDetails = emp;
-    adminAccess().then((acc) => {
-      if (acc) {
-        $(document).ready(function () {
-          $(".hello-user").text(empDetails["empFName"]);
-          let list = document.querySelectorAll(".navigation li");
-          function activeLink() {
-            list.forEach((item) => item.classList.remove("active"));
-            this.classList.add("active");
-          }
-          list.forEach((item) => item.addEventListener("click", activeLink));
+checkLogin()
+  .then((emp) => {
+    if (emp) {
+      empDetails = emp;
+      adminAccess().then((acc) => {
+        if (acc) {
+          $(document).ready(function () {
+            $(".hello-user").text(empDetails["empFName"]);
+            let list = document.querySelectorAll(".navigation li");
+            function activeLink() {
+              list.forEach((item) => item.classList.remove("active"));
+              this.classList.add("active");
+            }
+            list.forEach((item) => item.addEventListener("click", activeLink));
 
-          $(".startli").click();
-          Promise.all([
-            checkModify(),
-            checkUserP(),
-            checkAppP(),
-            getEmployees(),
-            getGroups(),
-            getPos(),
-          ])
-            .then(([modi, usrp, appp, emps, grps, pos]) => {
-              if (modi) {
-                $("#aeDiv").html(`<button
+            $(".startli").click();
+            Promise.all([
+              checkModify(),
+              checkUserP(),
+              checkAppP(),
+              getEmployees(),
+              getGroups(),
+              getPos(),
+            ])
+              .then(([modi, usrp, appp, emps, grps, pos]) => {
+                if (modi) {
+                  $("#aeDiv").html(`<button
                 type="button"
                 id="addEmp"
                 class="btn mx-1"
@@ -50,49 +51,54 @@ checkLogin().then((emp) => {
                 <i class="bx bx-fw bxs-user-plus fs-3"></i>
                 ADD EMPLOYEE
               </button>`);
-              } else {
-                $(".btn-editEmp").prop("disabled", "true");
-                $(document).off("click", ".btn-editEmp");
-                $(document).off("click", "#employeeStat");
-                $(document).off("click", ".btn-cres");
-                $(document).off("click", ".btn-resEmp");
-              }
+                } else {
+                  $(".btn-editEmp").prop("disabled", "true");
+                  $(document).off("click", ".btn-editEmp");
+                  $(document).off("click", "#employeeStat");
+                  $(document).off("click", ".btn-cres");
+                  $(document).off("click", ".btn-resEmp");
+                }
 
-              if (usrp) {
-                $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+                if (usrp) {
+                  $("#acNavLinks")
+                    .append(`<li class="" style="font-weight: 500">
                     <a href="../userPermission/">
                       <span class="icon"><i class="bx bxs-user-badge"></i></span>
                       <span class="title">User Permission</span>
                     </a>
                   </li>`);
-              }
-              if (appp) {
-                $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+                }
+                if (appp) {
+                  $("#acNavLinks")
+                    .append(`<li class="" style="font-weight: 500">
                 <a href="../appPermission/">
                   <span class="icon"><i class="bx bxs-window-alt"></i></span>
                   <span class="title">App Permission</span>
                 </a>
               </li>`);
-              }
-              $("#empList").empty();
-              emps.map(fillEmployees);
-              fillGroups(grps);
-              fillPos(pos);
-            })
-            .catch((error) => {
-              alert(`${error}`);
-            });
-        });
-      } else {
-        alert("Access denied");
-        window.location.href = rootFolder;
-      }
-    });
-  } else {
-    alert("Not logged in");
-    window.location.href = `${rootFolder}`;
-  }
-});
+                }
+                $("#empList").empty();
+                emps.map(fillEmployees);
+                fillGroups(grps);
+                fillPos(pos);
+              })
+              .catch((error) => {
+                alert(`${error}`);
+              });
+          });
+        } else {
+          alert("Access denied");
+          window.location.href = rootFolder;
+        }
+      });
+    } else {
+      alert("Not logged in");
+      window.location.href = `${rootFolder}`;
+    }
+  })
+  .catch((error) => {
+    alert(`${error}`);
+  });
 //#region BINDS
 
 $(document).on("click", ".btn-addEmp", function () {
