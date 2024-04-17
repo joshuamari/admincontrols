@@ -10,25 +10,90 @@ switch (document.location.hostname) {
     rootFolder = "//kdt-ph/";
     break;
 }
-var empDetails = [];
+let empDetails = [];
 
 //#endregion
-checkLogin();
-//#region BINDS
-$(document).ready(function () {
-  $(".hello-user").text(empDetails["empFName"]);
-  let list = document.querySelectorAll(".navigation li");
-  function activeLink() {
-    list.forEach((item) => item.classList.remove("active"));
-    this.classList.add("active");
-  }
-  list.forEach((item) => item.addEventListener("click", activeLink));
+checkLogin().then((emp) => {
+  if (emp) {
+    empDetails = emp;
+    adminAccess().then((acc) => {
+      if (acc) {
+        $(document).ready(function () {
+          $(".hello-user").text(empDetails["empFName"]);
+          let list = document.querySelectorAll(".navigation li");
+          function activeLink() {
+            list.forEach((item) => item.classList.remove("active"));
+            this.classList.add("active");
+          }
+          list.forEach((item) => item.addEventListener("click", activeLink));
 
-  $(".startli").click();
-  getEmployees();
-  getGroups();
-  getPos();
+          $(".startli").click();
+          Promise.all([
+            checkModify(),
+            checkUserP(),
+            checkAppP(),
+            getEmployees(),
+            getGroups(),
+            getPos(),
+          ])
+            .then(([modi, usrp, appp, emps, grps, pos]) => {
+              if (modi) {
+                $("#aeDiv").html(`<button
+                type="button"
+                id="addEmp"
+                class="btn mx-1"
+                title="Add Employee"
+                data-bs-toggle="modal"
+                data-bs-target="#addEmployee"
+                data-bs-dismiss="modal"
+              >
+                <i class="bx bx-fw bxs-user-plus fs-3"></i>
+                ADD EMPLOYEE
+              </button>`);
+              } else {
+                $(".btn-editEmp").prop("disabled", "true");
+                $(document).off("click", ".btn-editEmp");
+                $(document).off("click", "#employeeStat");
+                $(document).off("click", ".btn-cres");
+                $(document).off("click", ".btn-resEmp");
+              }
+
+              if (usrp) {
+                $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+                    <a href="../userPermission/">
+                      <span class="icon"><i class="bx bxs-user-badge"></i></span>
+                      <span class="title">User Permission</span>
+                    </a>
+                  </li>`);
+              }
+              if (appp) {
+                $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+                <a href="../appPermission/">
+                  <span class="icon"><i class="bx bxs-window-alt"></i></span>
+                  <span class="title">App Permission</span>
+                </a>
+              </li>`);
+              }
+              $("#empList").empty();
+              emps.map(fillEmployees);
+              fillGroups(grps);
+              fillPos(pos);
+            })
+            .catch((error) => {
+              alert(`${error}`);
+            });
+        });
+      } else {
+        alert("Access denied");
+        window.location.href = rootFolder;
+      }
+    });
+  } else {
+    alert("Not logged in");
+    window.location.href = `${rootFolder}`;
+  }
 });
+//#region BINDS
 
 $(document).on("click", ".btn-addEmp", function () {
   addEmployee();
@@ -80,13 +145,22 @@ $(document).on("click", ".btn-saveEmp", function () {
   saveEdit();
 });
 $(document).on("keyup", "#searchWord", function () {
-  getEmployees();
+  getEmployees().then((emps) => {
+    $("#empList").empty();
+    emps.map(fillEmployees);
+  });
 });
 $(document).on("search", "#searchWord", function () {
-  getEmployees();
+  getEmployees().then((emps) => {
+    $("#empList").empty();
+    emps.map(fillEmployees);
+  });
 });
 $(document).on("click", "#activeOnly", function () {
-  getEmployees();
+  getEmployees().then((emps) => {
+    $("#empList").empty();
+    emps.map(fillEmployees);
+  });
 });
 $(document).on("click", "#resDate", function () {
   $(".r1").addClass("d-none");
@@ -138,107 +212,126 @@ $(document).on("click", ".btn-cres", function () {
 
 //#region FUNCTIONS
 function checkLogin() {
-  //check if user is logged in
-  $.ajax({
-    url: "Includes/checkLogin.php",
-    success: function (data) {
-      //ajax to check 9 is logged in
-      empDetails = $.parseJSON(data);
-      if (Object.keys(empDetails).length < 1) {
-        //if result is 0, redirect to log in page
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-      adminAccess();
-      checkModify();
-      checkUserP();
-      checkAppP();
-    },
-    async: false,
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "Includes/checkLogin.php",
+      dataType: "json",
+      success: function (data) {
+        const emp = data;
+        resolve(emp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function adminAccess() {
-  $.post(
-    "ajax/check_admin.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (!access) {
-        alert("Access denied");
-        window.location.href = rootFolder;
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_admin.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (response) {
+        const admin = response;
+        resolve(admin);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Not Found Error: The requested resource was not found.");
+        } else if (xhr.status === 500) {
+          reject("Internal Server Error: There was a server error.");
+        } else {
+          reject("An unspecified error occurred.3");
+        }
+      },
+    });
+  });
 }
 function checkModify() {
-  $.post(
-    "ajax/check_modify.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (access) {
-        $("#aeDiv").html(`<button
-        type="button"
-        id="addEmp"
-        class="btn mx-1"
-        title="Add Employee"
-        data-bs-toggle="modal"
-        data-bs-target="#addEmployee"
-        data-bs-dismiss="modal"
-      >
-        <i class="bx bx-fw bxs-user-plus fs-3"></i>
-        ADD EMPLOYEE
-      </button>`);
-      } else {
-        $(".btn-editEmp").prop("disabled", "true");
-        $(document).off("click", ".btn-editEmp");
-        $(document).off("click", "#employeeStat");
-        $(document).off("click", ".btn-cres");
-        $(document).off("click", ".btn-resEmp");
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_modify.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const modi = data;
+        resolve(modi);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function checkUserP() {
-  $.post(
-    "ajax/check_userp.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (access) {
-        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
-        <a href="../userPermission/">
-          <span class="icon"><i class="bx bxs-user-badge"></i></span>
-          <span class="title">User Permission</span>
-        </a>
-      </li>`);
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_userp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function checkAppP() {
-  $.post(
-    "ajax/check_appp.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (access) {
-        $("#acNavLinks").append(`<li class="" style="font-weight: 500">
-        <a href="../appPermission/">
-          <span class="icon"><i class="bx bxs-window-alt"></i></span>
-          <span class="title">App Permission</span>
-        </a>
-      </li>`);
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_appp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const appp = data;
+        resolve(appp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function resignEmployee(empnum, resdate) {
   $.post(
@@ -254,29 +347,43 @@ function resignEmployee(empnum, resdate) {
       }
       $("#clos").click();
       $("#resConfirm").modal("hide");
-      getEmployees();
+      getEmployees().then((emps) => {
+        $("#empList").empty();
+        emps.map(fillEmployees);
+      });
     }
   );
 }
 function getEmployees() {
-  var employees = [];
-  var searchWord = $("#searchWord").val();
-  var active = 0;
+  const searchWord = $("#searchWord").val();
+  let active = 0;
   if ($("#activeOnly").is(":checked")) {
     active = 1;
   }
-  $("#empList").empty();
-  $.post(
-    "ajax/get_employees.php",
-    {
-      searchWord: searchWord,
-      active: active,
-    },
-    function (data) {
-      employees = $.parseJSON(data);
-      employees.map(fillEmployees);
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_employees.php",
+      data: {
+        searchWord: searchWord,
+        active: active,
+      },
+      dataType: "json",
+      success: function (data) {
+        const emplist = data;
+        resolve(emplist);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function fillEmployees(empDetails) {
   var addString = ``;
@@ -366,33 +473,58 @@ function fillModal(empDeets) {
 }
 
 function getGroups() {
-  var grps = [];
   $(".empGroup").empty();
-
-  var addString = ``;
+  let addString = ``;
   $(".empGroup").html(`<option value='' hidden>Select Group</option>`);
-
-  $.ajax({
-    url: "ajax/get_groups.php",
-    success: function (data) {
-      grps = $.parseJSON(data);
-      grps.forEach((element) => {
-        addString = `<option style="color: #333;">${element}</option>`;
-        $(".empGroup").append(addString);
-      });
-    },
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "ajax/get_groups.php",
+      dataType: "json",
+      success: function (data) {
+        const grp = data;
+        resolve(grp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function fillGroups(groups) {
+  groups.forEach((element) => {
+    addString = `<option style="color: #333;">${element}</option>`;
+    $(".empGroup").append(addString);
   });
 }
 function getPos() {
-  var pos = [];
   $(".empPos").empty();
   $(".empPos").html(`<option value='' hidden>Select Position</option>`);
-  $.ajax({
-    url: "ajax/get_pos.php",
-    success: function (data) {
-      pos = $.parseJSON(data);
-      fillPos(pos);
-    },
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "ajax/get_pos.php",
+      dataType: "json",
+      success: function (data) {
+        const pos = data;
+        resolve(pos);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function fillPos(posDetails) {
@@ -523,7 +655,10 @@ function addEmployee() {
         return;
       }
       $("#xadd").click();
-      getEmployees();
+      getEmployees().then((emps) => {
+        $("#empList").empty();
+        emps.map(fillEmployees);
+      });
     }
   );
 }
@@ -653,7 +788,10 @@ function saveEdit() {
       ).prop("disabled", true);
       $(".errMsg").addClass("d-none");
 
-      getEmployees();
+      getEmployees().then((emps) => {
+        $("#empList").empty();
+        emps.map(fillEmployees);
+      });
     }
   );
 }
