@@ -13,17 +13,19 @@
     <script src="js/main.js"></script>
 
     <!--#region BUSTER CALL  -->
-    <!-- <script>
-        var busterCall = ["js/main.js","css/index.css"];
-        $.post("ajax/getVersion.php", {
-            busterCall : busterCall,
-            titleName: "Admin Controls"
+    <script>
+      var busterCall = ["js/main.js", "css/index.css"];
+      $.post(
+        "ajax/get_version.php",
+        {
+          busterCall: busterCall,
+          titleName: "Admin Controls",
         },
-            function (data) {
-            $('head').html(data);
-            }
-        );
-    </script> -->
+        function (data) {
+          $("head").html(data);
+        }
+      );
+    </script>
     
     <!--#endregion -->
 </head>
@@ -91,7 +93,7 @@
                         <span class="title " style="font-size: 20px;" >Admin Controls</span>
                     </a>
                 </li>
-                <li class="startli" style="font-weight: 500;">
+                <li class="" style="font-weight: 500;">
                     <a href="../employeeList/">
                         <span class="icon"><i class='bx bxs-user'></i></span>
                         <span class="title">Employee List</span>
@@ -104,8 +106,8 @@
                         <span class="title">Group List</span>
                     </a>
                 </li>
-                <li style="font-weight: 500;">
-                    <a href="../designationList/index.html">
+                <li class="startli" style="font-weight: 500;">
+                    <a href="../designationList/">
                         <span class="icon"><i class='bx bxs-award' ></i></span>
                         <span class="title">Designation List</span>
                     </a>
@@ -149,15 +151,7 @@
                             <thead>
                                 <tr class="sticky-top ">
                                     <th>#</th>
-                                    <th>
-                                        <select >
-                                            <option selected >Position Name</option>
-                                            <option >Manager</option>
-                                            <option >Engineering</option>
-                                            <option >IT</option>
-                                            <option >System</option>
-                                            <option >Admin</option>
-                                        </select>
+                                    <th>Position Name
                                     </th>
                                     <th>Position Acronym</th>
                                     <th>Manpower Summary</th>
