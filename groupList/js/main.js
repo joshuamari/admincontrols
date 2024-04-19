@@ -27,7 +27,7 @@ checkLogin().then((emp) => {
           }
           list.forEach((item) => item.addEventListener("click", activeLink));
 
-          $(".startli").next("li").click();
+          $(".startli").click();
         });
         Promise.all([
           checkDesigP(),
@@ -42,7 +42,7 @@ checkLogin().then((emp) => {
             // if (desigp) {
             //   $("#acNavLinks").append(`<li class="" style="font-weight: 500">
             //     <a href="../designationList/">
-            //       <span class="icon"><i class="bx bxs-user-badge"></i></span>
+            //       <span class="icon"><i class='bx bxs-award' ></i></span>
             //       <span class="title">Designation List</span>
             //     </a>
             //   </li>`);
@@ -66,7 +66,7 @@ checkLogin().then((emp) => {
             //   if (clndr) {
             //     $("#acNavLinks").append(`<li class="" style="font-weight: 500">
             //   <a href="../calendar/">
-            //     <span class="icon"><i class="bx bxs-window-alt"></i></span>
+            //     <span class="icon"><i class='bx bx-calendar'></i></span>
             //     <span class="title">Calendar</span>
             //   </a>
             // </li>`);
