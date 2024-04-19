@@ -90,9 +90,10 @@ checkLogin().then((emp) => {
   }
 });
 //#region BINDS
-$(document).on("click", ".toggle", function () {
+$(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
+  console.log("pindot");
 });
 $(document).on("keyup", "#searchWord", function () {
   getGroups().then((grps) => {
@@ -215,6 +216,25 @@ function fillGroups(grps) {
             <td>${item.name}</td>
             <td>${item.code}</td>
             <td>${item.dept}</td>
+            <td>
+              <div
+                class="flex justify-center items-center"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </div>
+              <ul class="dropdown-menu bg-[var(--dark-color)">
+                <li class="hover:bg-[var(--light-color)]">
+                  <a
+                    class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editGroup cursor-pointer"
+                    ><i class="bx bx-edit-alt text-yellow-400"></i
+                    >Edit</a
+                  >
+                </li>
+              </ul>
+            </td>
         </tr>
     `);
   });

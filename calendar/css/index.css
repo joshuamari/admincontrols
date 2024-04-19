@@ -197,40 +197,6 @@ overflow: hidden;
 
 }
 
-.btn-addEmp,
-.btn-editEmp {
-  border: none;
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  color: var(--text-color);
-  white-space: nowrap;
-}
-.btn-addEmp:hover,
-.btn-editEmp:hover {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
-.btn-saveEmp {
-  border: none;
-  background: #09c46f;
-  background: linear-gradient(45deg, #09c46f 0%, #26c4a2 100%);
-  color: #fff;
-  white-space: nowrap;
-}
-.btn-saveEmp:hover {
-  background: #09c46f;
-  background: linear-gradient(45deg, #0dac64 0%, #27aa8e 100%);
-}
-.btn-resEmp,
-.btn-cres {
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  color: #fff;
-}
-.btn-resEmp:hover,
-.btn-cres:hover {
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
-
 .table-cont {
   position: relative;
  

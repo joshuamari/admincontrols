@@ -1,13 +1,16 @@
 <?php
 $ajaxArr = $_REQUEST["busterCall"];
 $titleName = $_REQUEST["titleName"];
-$headString = "<title>$titleName</title>
+$headString="<title>$titleName</title>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <meta charset='UTF-8'>
-<link rel='stylesheet' href='css/neoBootstrap.css'><!--COMMON-->
+<link rel='stylesheet' href='../tailwindcss.min.css'><!--COMMON-->
 <link rel='stylesheet' href='css/boxicons.css'><!--COMMON-->
+<link rel='stylesheet' href='css/neoBootstrap.css' />
+<link rel='stylesheet' href='css/index.css'>
 <script src='js/jquery.js'></script><!--COMMON-->
-<script src='js/neoBootstrap.js'></script><!--COMMON-->";
+<script src='../tailwindcss.js'></script><!--COMMON-->
+<script src='js/neoBootstrap.js'></script>";
 $addString = "";
 foreach ($ajaxArr as $element) {
     switch (explode("/", $element)[0]) {
