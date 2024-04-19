@@ -62,8 +62,8 @@ checkLogin()
               });
           });
         } else {
-          alert("Access denied");
-          window.location.href = rootFolder;
+          alert("Not logged in");
+          window.location.href = `${rootFolder}/KDTPortalLogin`;
         }
       });
     }
