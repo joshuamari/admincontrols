@@ -13,17 +13,19 @@
     <script src="js/main.js"></script>
 
     <!--#region BUSTER CALL  -->
-    <!-- <script>
-        var busterCall = ["js/main.js","css/index.css"];
-        $.post("ajax/getVersion.php", {
-            busterCall : busterCall,
-            titleName: "Admin Controls"
+    <script>
+      var busterCall = ["js/main.js", "css/index.css"];
+      $.post(
+        "ajax/get_version.php",
+        {
+          busterCall: busterCall,
+          titleName: "Admin Controls",
         },
-            function (data) {
-            $('head').html(data);
-            }
-        );
-    </script> -->
+        function (data) {
+          $("head").html(data);
+        }
+      );
+    </script>
     
     <!--#endregion -->
 </head>
@@ -38,25 +40,25 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title  fs-3" id="staticBackdropLabel">Add New Group</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body ">
           <div class="row">
             
             <!-- <hr class="mb-3" style="color: #777;"> -->
             <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="empNum" style="color: #333;">Group Name</label>
-              <input type="text" class="form-control" id="empNum" placeholder="Group Name" style="color: #333;">
+              <label class="form-label" for="grpName" style="color: #333;">Group Name</label>
+              <input type="text" class="form-control" id="grpName" placeholder="Group Name" style="color: #333;">
               <span class="m1 d-none" style="color:#f85e5e;">Input group name</span>
             </div>
             <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="empNum" style="color: #333;">Group Acronym</label>
-              <input type="text" class="form-control" id="empNum" placeholder="XXX" style="color: #333;">
+              <label class="form-label" for="grpCode" style="color: #333;">Group Acronym</label>
+              <input type="text" class="form-control" id="grpCode" placeholder="XXX" style="color: #333;">
               <span class="m2 d-none" style="color:#f85e5e;">Input group acronym</span>
             </div>
             <div class="mb-3 col-12 ">
-              <label class="form-label" for="empNum" style="color: #333;">Department</label>
-              <select type="date" class="form-select" id="empNum"  style="color: #333;">
+              <label class="form-label" for="deptList" style="color: #333;">Department</label>
+              <select type="date" class="form-select" id="deptList"  style="color: #333;">
                 <option selected hidden >Select Department</option>
                 <option style="color: #333;">Project</option>
                 <option style="color: #333;">Solution</option>
@@ -71,8 +73,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-addEmp">Add Group</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-addEmp" id="addButton">Add Group</button>
+          <button type="button" class="btn btn-secondary close-btn" data-bs-dismiss="modal">Close</button>
           
         </div>
       </div>
@@ -84,40 +86,26 @@
 
     <div class="containerr">
         <div class="navigation">
-            <ul>
+            <ul id="acNavLinks">
                 <li class="fw-bolder">
-                    <a href="#">
-                        <span class="icon"><i class='bx bxs-lock-open' ></i></span>
-                        <span class="title " style="font-size: 20px;" >Admin Controls</span>
-                    </a>
+                  <a href="#">
+                    <span class="icon"><i class="bx bxs-lock-open"></i></span>
+                    <span class="title" style="font-size: 20px">Admin Controls</span>
+                  </a>
                 </li>
-                <li class="startli" style="font-weight: 500;">
-                    <a href="../employeeList/">
-                        <span class="icon"><i class='bx bxs-user'></i></span>
-                        <span class="title">Employee List</span>
-                    </a>
-
+                <li class="" style="font-weight: 500">
+                  <a href="../employeeList/">
+                    <span class="icon"><i class="bx bxs-user"></i></span>
+                    <span class="title">Employee List</span>
+                  </a>
                 </li>
-                <li style="font-weight: 500;">
-                    <a href="../groupList/index.html">
-                        <span class="icon"><i class='bx bxs-group' ></i></span>
-                        <span class="title">Group List</span>
-                    </a>
+                <li class="startli" style="font-weight: 500">
+                  <a href="../groupList/">
+                    <span class="icon"><i class="bx bxs-group"></i></span>
+                    <span class="title">Group List</span>
+                  </a>
                 </li>
-                <li style="font-weight: 500;">
-                    <a href="../designationList/index.html">
-                        <span class="icon"><i class='bx bxs-award' ></i></span>
-                        <span class="title">Designation List</span>
-                    </a>
-                </li>
-                <li class="" style="font-weight: 500;">
-                    <a href="../Calendar/">
-                        <span class="icon"><i class='bx bx-calendar'></i></span>
-                        <span class="title">Calendar</span>
-                    </a>
-                    
-                </li>
-            </ul>
+              </ul>
         </div>
 
         <div class="main ">
@@ -141,7 +129,7 @@
                     </div>
                     <div class="search mt-3">
                         <i class='bx bx-search' ></i>
-                        <input type="search" class="form-control text-dark" placeholder="Search Group">
+                        <input id="searchWord" type="search" class="form-control text-dark" placeholder="Search Group">
                     </div>
                     
                     <div class="table-container overflow-auto mt-3">
@@ -155,7 +143,7 @@
                                     
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="groupList">
                                 <tr>
                                     <td>1</td>
                                     <td>Accounting Group</td>
