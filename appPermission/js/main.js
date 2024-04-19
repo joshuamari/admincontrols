@@ -14,21 +14,85 @@ var empDetails = [];
 var projects = [];
 var project_id = "";
 //#endregion
-checkLogin();
+checkLogin()
+  .then((emp) => {
+    if (emp) {
+      empDetails = emp;
+      checkAppP().then((appp) => {
+        if (appp) {
+          $(document).ready(function () {
+            $(".hello-user").text(empDetails["empFName"]);
+            let list = document.querySelectorAll(".navigation li");
+            function activeLink() {
+              list.forEach((item) => item.classList.remove("active"));
+              this.classList.add("active");
+            }
+            list.forEach((item) => item.addEventListener("click", activeLink));
+
+            $(".startli").click();
+            Promise.all([
+              checkGrpAccess(),
+              checkDesigP(),
+              checkUserP(),
+              checkCalendarP(),
+              getProjects(),
+            ])
+              .then(([grpp, desigp, usrp, clndr, projs]) => {
+                if (grpp) {
+                  $("#acNavLinks li.startli")
+                    .before(`<li class="" style="font-weight: 500">
+              <a href="../groupList/">
+              <span class="icon"><i class='bx bxs-group' ></i></span>
+                <span class="title">Group List</span>
+              </a>
+            </li>`);
+                }
+                // if (desigp) {
+                //   $("#acNavLinks li.startli")
+                //     .before(`<li class="" style="font-weight: 500">
+                //     <a href="../designationList/">
+                //     <span class="icon"><i class='bx bxs-award' ></i></span>
+                //       <span class="title">Designation List</span>
+                //     </a>
+                //   </li>`);
+                // }
+                if (usrp) {
+                  $("#acNavLinks li.startli")
+                    .before(`<li class="" style="font-weight: 500">
+                  <a href="../userPermission/">
+                    <span class="icon"><i class="bx bxs-user-badge"></i></span>
+                    <span class="title">User Permission</span>
+                  </a>
+                </li>`);
+                }
+                // if (clndr) {
+                //   $("#acNavLinks")
+                //     .append(`<li class="" style="font-weight: 500">
+                //     <a href="../calendar/">
+                //     <span class="icon"><i class='bx bx-calendar'></i></span>
+                //       <span class="title">Calendar</span>
+                //     </a>
+                //   </li>`);
+                // }
+                $("#cardContainer").empty();
+                projects = projs;
+                displayProjects();
+              })
+              .catch((error) => {
+                alert(`${error}`);
+              });
+          });
+        } else {
+          alert("Not logged in");
+          window.location.href = `${rootFolder}/KDTPortalLogin`;
+        }
+      });
+    }
+  })
+  .catch((error) => {
+    alert(`${error}`);
+  });
 //#region BINDS
-$(document).ready(function () {
-  $(".hello-user").text(empDetails["empFName"]);
-  let list = document.querySelectorAll(".navigation li");
-  function activeLink() {
-    list.forEach((item) => item.classList.remove("active"));
-    this.classList.add("active");
-  }
-  list.forEach((item) => item.addEventListener("click", activeLink));
-
-  $(".startli").click();
-  getProjects();
-});
-
 $(document).on("click", ".toggle", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
@@ -147,41 +211,172 @@ $(document).on("click", "#btn-saveModule", function () {
 
 //#region FUNCTIONS
 function checkLogin() {
-  $.ajax({
-    url: "Includes/check_login.php",
-    success: function (data) {
-      empDetails = $.parseJSON(data);
-      if (Object.keys(empDetails).length < 1) {
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-      checkAppP();
-    },
-    async: false,
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "Includes/check_login.php",
+      dataType: "json",
+      success: function (data) {
+        const emp = data;
+        resolve(emp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkGrpAccess() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_groupAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkDesigP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_desigAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkUserP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_userp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function checkAppP() {
-  $.post(
-    "ajax/check_appp.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      var access = $.parseJSON(data);
-      if (!access) {
-        alert("Access denied");
-        window.location.href = `${rootFolder}`;
-      }
-    }
-  );
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_appp.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const appp = data;
+        resolve(appp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkCalendarP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_calendarAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
 }
 function getProjects() {
-  $("#cardContainer").empty();
-  $.ajax({
-    url: "ajax/get_projects.php",
-    success: function (response) {
-      projects = $.parseJSON(response);
-      displayProjects();
-    },
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "ajax/get_projects.php",
+      dataType: "json",
+      success: function (data) {
+        const prjs = data;
+        resolve(prjs);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function displayProjects() {
@@ -248,7 +443,7 @@ function clickModule() {
         const permissions = module.permissions;
         Object.entries(permissions).forEach(
           ([permissionName, permissionValue]) => {
-            addString += `<tr><td colspan="2" style="vertical-align: middle;">${permissionName}</td></tr>`;
+            addString += `<tr><td colspan="2" style="vertical-align: middle;">${permissionName}(${permissionValue})</td></tr>`;
           }
         );
       }
@@ -280,7 +475,11 @@ function addApp(name, color) {
         alert(`Add failed: ${data}`);
         return;
       }
-      getProjects();
+      getProjects().then((prjs) => {
+        $("#cardContainer").empty();
+        projects = prjs;
+        displayProjects();
+      });
       $("#close").click();
     }
   );
@@ -297,10 +496,12 @@ function saveModule(modName) {
         alert(`Add failed: ${data}`);
         return;
       }
-      $.ajaxSetup({ async: false });
-      getProjects();
-      $.ajaxSetup({ async: true });
-      getModules(project_id);
+      getProjects().then((prjs) => {
+        $("#cardContainer").empty();
+        projects = prjs;
+        displayProjects();
+        getModules(project_id);
+      });
     }
   );
 }
@@ -317,10 +518,12 @@ function saveAccess(accName) {
         alert(`Add failed: ${data}`);
         return;
       }
-      $.ajaxSetup({ async: false });
-      getProjects();
-      $.ajaxSetup({ async: true });
-      $(".mod-item.active").click();
+      getProjects().then((prjs) => {
+        $("#cardContainer").empty();
+        projects = prjs;
+        displayProjects();
+        $(".mod-item.active").click();
+      });
     }
   );
 }
