@@ -33,16 +33,37 @@ checkLogin()
             $(".startli").click();
             Promise.all([
               checkModify(),
+              checkGrpAccess(),
+              checkDesigP(),
               checkAppP(),
+              checkCalendarP(),
               getEmployees(),
               getProjects(),
             ])
-              .then(([modi, appp, emps, projs]) => {
+              .then(([modi, grpp, desigp, appp, clndr, emps, projs]) => {
                 if (!modi) {
                   $("#modPermission").prop("disabled", "true");
                   $(document).off("click", "#savePermission");
                   $(document).off("click", "#modPermission");
                 }
+                if (grpp) {
+                  $("#acNavLinks li.startli")
+                    .before(`<li class="" style="font-weight: 500">
+              <a href="../groupList/">
+              <span class="icon"><i class='bx bxs-group' ></i></span>
+                <span class="title">Group List</span>
+              </a>
+            </li>`);
+                }
+                // if (desigp) {
+                //   $("#acNavLinks li.startli")
+                //     .before(`<li class="" style="font-weight: 500">
+                //     <a href="../designationList/">
+                //     <span class="icon"><i class='bx bxs-award' ></i></span>
+                //       <span class="title">Designation List</span>
+                //     </a>
+                //   </li>`);
+                // }
                 if (appp) {
                   $("#acNavLinks")
                     .append(`<li class="" style="font-weight: 500">
@@ -51,6 +72,15 @@ checkLogin()
                     <span class="title">App Permission</span>
                   </a>
                 </li>`);
+                }
+                if (clndr) {
+                  $("#acNavLinks")
+                    .append(`<li class="" style="font-weight: 500">
+                    <a href="../calendar/">
+                    <span class="icon"><i class='bx bx-calendar'></i></span>
+                      <span class="title">Calendar</span>
+                    </a>
+                  </li>`);
                 }
                 $("#empList").empty();
                 emps.map(fillEmployees);
@@ -170,6 +200,56 @@ function checkLogin() {
     });
   });
 }
+function checkGrpAccess() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_groupAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkDesigP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_desigAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
 function checkUserP() {
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -232,6 +312,31 @@ function checkAppP() {
       success: function (data) {
         const appp = data;
         resolve(appp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkCalendarP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_calendarAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
       },
       error: function (xhr, status, error) {
         if (xhr.status === 404) {
