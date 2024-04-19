@@ -1,405 +1,479 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Admin Controls</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <meta charset='UTF-8'>
-    <link rel='stylesheet' href='css/neoBootstrap.css'><!--COMMON-->
-    <link rel='stylesheet' href='css/boxicons.css'><!--COMMON-->
-    <link rel='stylesheet' href='css/index.css'>
-    <script src='js/jquery.js'></script><!--COMMON-->
-    <script src='js/neoBootstrap.js'></script><!--COMMON-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/boxicons.css" />
+    <!--COMMON-->
+    <link rel="stylesheet" href="css/index.css" />
+
+    <script src="js/jquery.js"></script>
+    <script src="../chartjs.js"></script>
+
+    <!--COMMON-->
+
+    <!--COMMON-->
 
     <!--#region BUSTER CALL  -->
     <script>
-        var busterCall = ["js/main.js","css/index.css"];
-        $.post("ajax/getVersion.php", {
-            busterCall : busterCall,
-            titleName: "Admin Controls"
+      var busterCall = ["js/main.js", "css/index.css"];
+      $.post(
+        "ajax/getVersion.php",
+        {
+          busterCall: busterCall,
+          titleName: "Admin Controls",
         },
-            function (data) {
-            $('head').html(data);
-            }
-        );
+        function (data) {
+          $("head").html(data);
+        }
+      );
     </script>
-    
+
     <!--#endregion -->
-</head>
+  </head>
 
-<body>
-
-
-
-  <!--#region Add Modal -->
-  <div class="modal fade" id="addEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Add New Employee</h1>
-          <button type="button" class="btn-close" id="xadd" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <!-- <hr class="mb-3" style="color: #777;"> -->
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addFirstname" style="color: #333;">First Name</label>
-              <input type="text" class="form-control" id="addFirstname" placeholder="eg. Juan" style="color: #333;">
-              <span class="m3 d-none errMsg" style="color:#f85e5e;">Input first name</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addSurname" style="color: #333;">Last Name</label>
-              <input type="text" class="form-control" id="addSurname" placeholder="eg. Delacruz" style="color: #333;">
-              <span class="m4 d-none errMsg" style="color:#f85e5e;">Input surname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addNick" style="color: #333;">Nickname</label>
-              <input type="text" class="form-control" id="addNick" placeholder="eg. jd" style="color: #333;">
-              <span class="m5 d-none errMsg" style="color:#f85e5e;">Input nickname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addBday" style="color: #333;">Birth Date</label>
-              <input type="date" class="form-control" id="addBday"  style="color: #333;">
-              <span class="m6 d-none errMsg" style="color:#f85e5e;">Input birthday</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addGender" style="color: #333;">Gender</label>
-              <select type="date" class="form-select" id="addGender"  style="color: #333;">
-                <option value="" selected hidden >Gender</option>
-                <option style="color: #333;" value="F">Female</option>
-                <option style="color: #333;" value="M">Male</option>
-                
-              </select>
-              <span class="m7 d-none errMsg" style="color:#f85e5e;">Select Gender</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addStatus" style="color: #333;">Civil Status</label>
-              <select type="date" class="form-select" id="addStatus"  style="color: #333;">
-                <option value="" selected hidden >Civil Status</option>
-                <option style="color: #333;">Single</option>
-                <option style="color: #333;">Married</option>
-                <option style="color: #333;">Separated</option>
-                <option style="color: #333;">Widowed</option>
-              </select>
-              <span class="m8 d-none errMsg" style="color:#f85e5e;">Select civil status</span>
-            </div>
-            <hr class="mb-3" style="color: #777;">
-            <div class="mb-3 col-12 col-md-6" >
-              <label class="form-label" for="addEmpnum" style="color: #333;">Employee No.</label>
-              <input type="number" class="form-control" id="addEmpnum" placeholder="eg. 123" style="color: #333;">
-              <span class="m1 d-none errMsg" style="color:#f85e5e;">Input employee no.</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addPCUser" style="color: #333;">PC Username</label>
-              <input type="text" class="form-control" id="addPCUser" placeholder="eg. juan" style="color: #333;">
-              <span class="m2 d-none errMsg" style="color:#f85e5e;">Input PC username</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addGroup" style="color: #333;">Group</label>
-              <select type="date" class="form-select empGroup" id="addGroup"  style="color: #333;">
-                <option value="" selected hidden >Select Group</option>
-                <option style="color: #333;">SYS</option>
-                <option style="color: #333;">ACT</option>
-                <option style="color: #333;">IT</option>
-              </select>
-              <span class="m9 d-none errMsg" style="color:#f85e5e;">Select group</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="addDatehired" style="color: #333;">Date Hired</label>
-              <input type="date" class="form-control" id="addDatehired"  style="color: #333;">
-              <span class="m10 d-none errMsg" style="color:#f85e5e;">Input date hired</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="addPos" style="color: #333;">Position</label>
-              <select type="date" class="form-select empPos" id="addPos"  style="color: #333;">
-                <option value="" selected hidden >Select Position</option>
-                <option style="color: #333;">PDE</option>
-                <option style="color: #333;">PSE</option>
-                <option style="color: #333;">SE1</option>
-              </select>
-              <span class="m11 d-none errMsg" style="color:#f85e5e;">Select position</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="addLotus" style="color: #333;">Lotus E-mail</label>
-              
-                <div class="d-flex justify-content-around col-12">
-                  <input type="text" class="form-control col-8" id="addLotus" placeholder="eg. juan" style="color: #333; width: 70%;">
-                  <button class="btn btn-warning col-2" id="ac" style="width: 30%;">Autocomplete</button>
-                </div>
-                
-              <span class="m12 d-none errMsg" style="color:#f85e5e;">Input email</span>
-            </div>
-            
+  <body>
+    <!--#region resign employee-->
+    <div
+      class="modal fade"
+      id="newHoliday"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Add New Holiday</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-addEmp">Add Employee</button>
-          <button type="button" class="btn btn-secondary" id="close" data-bs-dismiss="modal">Close</button>
-          
+          <div class="modal-body">
+            <div class="mb-3">
+              <label>Holiday Name</label>
+              <input
+                type="text"
+                id="holidayName"
+                class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md border-1"
+                placeholder="eg. New Year's Day"
+              />
+              <small class="text-[var(--secondary-color)] hidden"
+                >Please add a holiday name.</small
+              >
+            </div>
+            <div class="mb-3">
+              <label>Holiday Type</label>
+              <select
+                id="holidayType"
+                class="pl-[0.75rem] py-[0.375rem] pr-[2rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md select"
+              >
+                <option value="1" selected>Regular Holiday</option>
+                <option value="2">Special Holiday</option>
+                <option value="3">Swap Holiday</option>
+              </select>
+            </div>
+
+            <div class="mb-3 w-full">
+              <label>Date</label>
+              <input
+                type="date"
+                class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md"
+                id="holidayDate"
+                style="border: 1px solid rgb(31 41 55)"
+              />
+              <small class="text-[var(--secondary-color)] hidden"
+                >Please add a s date.</small
+              >
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              id="addHoliday"
+              class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md"
+            >
+              Add Holiday
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-<!--#endregion-->
 
-<!--#region Edit Modal-->
-  <div class="modal fade" id="showEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Employee Details</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <!-- <hr class="mb-3" style="color: #777;"> -->
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editFirstname" style="color: #333;">First Name</label>
-              <input type="text" class="form-control" id="editFirstname" placeholder="eg. Juan" style="color: #333;">
-              <span class="m3 d-none errMsg" style="color:#f85e5e;">Input first name</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editSurname" style="color: #333;">Last Name</label>
-              <input type="text" class="form-control" id="editSurname" placeholder="eg. Delacruz" style="color: #333;">
-              <span class="m4 d-none errMsg" style="color:#f85e5e;">Input surname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editNick" style="color: #333;">Nickname</label>
-              <input type="text" class="form-control" id="editNick" placeholder="eg. jd" style="color: #333;">
-              <span class="m5 d-none errMsg" style="color:#f85e5e;">Input nickname</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editBday" style="color: #333;">Birth Date</label>
-              <input type="date" class="form-control" id="editBday"  style="color: #333;">
-              <span class="m6 d-none errMsg" style="color:#f85e5e;">Input birthday</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editGender" style="color: #333;">Gender</label>
-              <select  class="form-select" id="editGender"  style="color: #333;">
-                <option selected hidden >Gender</option>
-                <option style="color: #333;" value="F">Female</option>
-                <option style="color: #333;" value="M">Male</option>
-                <!-- <option style="color: #333;">Others</option> -->
-              </select>
-              <span class="m7 d-none errMsg" style="color:#f85e5e;">Select Gender</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editStatus" style="color: #333;">Civil Status</label>
-              <select type="date" class="form-select" id="editStatus"  style="color: #333;">
-                <option selected hidden >Civil Status</option>
-                <option style="color: #333;">Single</option>
-                <option style="color: #333;">Married</option>
-                <option style="color: #333;">Separated</option>
-                <option style="color: #333;">Widowed</option>
-              </select>
-              <span class="m8 d-none errMsg" style="color:#f85e5e;">Select civil status</span>
-            </div>
-            <hr class="mb-3" style="color: #777;">
-            <div class="mb-3 col-12 col-md-6" >
-              <label class="form-label" for="editEmpnum" style="color: #333;">Employee No.</label>
-              <input type="number" class="form-control" id="editEmpnum" placeholder="eg. 123" style="color: #333;">
-              <span class="m1 d-none errMsg" style="color:#f85e5e;">Input employee no.</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editPCUser" style="color: #333;">PC Username</label>
-              <input type="text" class="form-control" id="editPCUser" placeholder="eg. juan" style="color: #333;">
-              <span class="m2 d-none errMsg" style="color:#f85e5e;">Input PC username</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editGroup" style="color: #333;">Group</label>
-              <select type="date" class="form-select empGroup" id="editGroup"  style="color: #333;">
-                <option selected hidden >Select Group</option>
-                <option style="color: #333;">SYS</option>
-                <option style="color: #333;">ACT</option>
-                <option style="color: #333;">IT</option>
-              </select>
-              <span class="m10 d-none errMsg" style="color:#f85e5e;">Select group</span>
-            </div>
-            <div class="mb-3 col-12 col-md-6">
-              <label class="form-label" for="editDatehired" style="color: #333;">Date Hired</label>
-              <input type="date" class="form-control" id="editDatehired"  style="color: #333;">
-              <span class="m11 d-none errMsg" style="color:#f85e5e;">Input date hired</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="editPos" style="color: #333;">Position</label>
-              <select type="date" class="form-select empPos" id="editPos"  style="color: #333;">
-                <option selected hidden >Select Position</option>
-                <option style="color: #333;">PDE</option>
-                <option style="color: #333;">PSE</option>
-                <option style="color: #333;">SE1</option>
-              </select>
-              <span class="m12 d-none errMsg" style="color:#f85e5e;">Select position</span>
-            </div>
-            <div class="mb-3 col-12 ">
-              <label class="form-label" for="editLotus" style="color: #333;">Lotus E-mail</label>
-              
-                <div class="d-flex justify-content-around col-12">
-                  <input type="text" class="form-control col-8" id="editLotus" placeholder="eg. juan" style="color: #333; width: 70%;">
-                  <button class="btn btn-warning col-2" id="ac" style="width: 30%;">Autocomplete</button>
-                </div>
-                
-              <span class="m13 d-none errMsg" style="color:#f85e5e;">Input email</span>
-            </div>
-            
-            <hr class="mb-3" style="color: #777;">
-            <div class="empStat row">
-              <div class="mb-3 col-12 col-md-6" id="empStat">
-              <label class="form-label" style="color: #333;">Employee Status</label>
-              <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-                 style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
-              </div>
-              <div class="mb-3 col-12 col-md-6 res d-none">
-                <label class="form-label" for="editDatehired" style="color: #333;" >Resignation Date</label>
-                <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
-              </div>
-            </div>
-            
+    <div
+      class="modal fade"
+      id="editHolidayModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Edit Holiday</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
-          
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-editEmp">Edit</button>
-          <button type="button" class="btn btn-secondary" id="clos">Close</button>
-          
+          <div class="modal-body">
+            <div class="mb-3">
+              <label>Holiday Name</label>
+              <input
+                type="text"
+                id="holidayNameEdit"
+                class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md border-1"
+                placeholder="eg. New Year's Day"
+              />
+              <small class="text-[var(--secondary-color)] hidden"
+                >Please add a holiday name.</small
+              >
+            </div>
+            <div class="mb-3">
+              <label>Holiday Type</label>
+              <select
+                id="holidayTypeEdit"
+                class="pl-[0.75rem] py-[0.375rem] pr-[2rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md select"
+              >
+                <option value="1" selected>Regular Holiday</option>
+                <option value="2">Special Holiday</option>
+                <option value="3">Swap Holiday</option>
+              </select>
+            </div>
+
+            <div class="mb-3 w-full">
+              <label>Date</label>
+              <input
+                type="date"
+                class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md"
+                id="holidayDateEdit"
+                style="border: 1px solid rgb(31 41 55)"
+              />
+              <small class="text-[var(--secondary-color)] hidden"
+                >Please add a date.</small
+              >
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              id="saveHoliday"
+              class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md"
+            >
+              Save Changes
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!--#endregion-->
-  <!--#region resign employee-->
-
-  <div class="modal fade" id="resignEmployee" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Resign Employee</h1>
-          <button type="button" class="btn-close" id="rescloseI" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          <div class="row">
-            
-            <div class="mb-3 col-12">
-              <label class="form-label" for="resDate" style="color: #333;">Effectivity Date</label>
-              <input type="date" class="form-control" id="resDate"  style="color: #333;">
-              <span class="r1 d-none errMsg" style="color:red;">Input effectivity date</span>
-            </div>
-
+    <div
+      class="modal fade"
+      id="deleteHolidayModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <!-- <button class="btn btn-resEmp" data-bs-toggle="modal" data-bs-target="#resConfirm" data-bs-dismiss="modal">Resign Employee</button> -->
-          <button class="btn btn-resEmp">Resign Employee</button>
-          <button type="button" class="btn btn-secondary" id="resclose" data-bs-dismiss="modal">Close</button>
+          <div class="modal-body flex justify-center items-center px-6">
+            <h5 class="font-[400] text-[16px] leading-7">
+              Are you sure you want to delete
+              <span
+                id="lbl-removeHol"
+                class="inline-flex px-1 font-semibold text-xl text-orange-600"
+                >New Year's Day</span
+              >holiday?
+            </h5>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              id="delHoliday"
+              class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-red-600 hover:bg-red-800 rounded-md"
+            >
+              Delete Holiday
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-    <!--#endregion-->
-      <!--#region resign employee-->
-
-  <div class="modal fade" id="resConfirm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title  fs-3" id="staticBackdropLabel">Admin Controls: Resign Employee</h1>
-          <button type="button" class="btn-close" id="rescloseI" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body ">
-          
-          <h5 style="color: #333;">Confirm resignation of this employee</h5>
-          <div class="row">
-            <div class="mb-3 col-6">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee Name</label>
-              <input type="text" class="form-control my-2" id="empCon" placeholder="Name" style="color: #333;" disabled>
-            </div>
-            <div class="mb-3 col-6">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Employee No.</label>
-              <input type="text" class="form-control  my-2" id="empConid" placeholder="Employee #" style="color: #333;" disabled> 
-            </div>
-            <div class="mb-3 col-12">
-              <label class="form-label mb-0" for="resDate" style="color: #333;">Effectivity Date</label>
-              <input type="date" class="form-control my-2" id="dateCon"  style="color: #333;"disabled> 
-            </div>
-          </div>
-          
-  
-          
-            
-
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-cres">Yes, I confirm</button>
-          <!-- <button class="btn btn-secondary" id="resback" data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal">Close</button> -->
-          <button class="btn btn-secondary" id="resback"  data-bs-dismiss="modal">Back to first</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <!--#endregion-->
 
-    <div class="containerr">
-        <div class="navigation">
-            <ul>
-                <li class="fw-bolder">
-                    <a href="#">
-                        <span class="icon"><i class='bx bxs-lock-open' ></i></span>
-                        <span class="title " style="font-size: 20px;" >Admin Controls</span>
-                    </a>
-                </li>
-                <li class="" style="font-weight: 500;">
-                    <a href="../employeeList/">
-                        <span class="icon"><i class='bx bxs-user'></i></span>
-                        <span class="title">Employee List</span>
-                    </a>
-
-                </li>
-                <li class="d-none" style="font-weight: 500;">
-                    <a href="../groupList/index.html">
-                        <span class="icon"><i class='bx bxs-group' ></i></span>
-                        <span class="title">Group List</span>
-                    </a>
-                </li>
-                <li class="d-none" style="font-weight: 500;">
-                    <a href="../designationList/index.html">
-                        <span class="icon"><i class='bx bxs-award' ></i></span>
-                        <span class="title">Designation List</span>
-                    </a>
-                </li>
-                <li class="startli" style="font-weight: 500;">
-                    <a href="../Calendar/">
-                        <span class="icon"><i class='bx bx-calendar'></i></span>
-                        <span class="title">Calendar</span>
-                    </a>
-                    
-                </li>
-            </ul>
+    <div class="h-screen w-full flex">
+      <div class="navigation actived">
+        <ul id="acNavLinks">
+          <li class="font-semibold">
+            <a href="#">
+              <span class="icon"><i class="bx bxs-lock-open"></i></span>
+              <span class="title" style="font-size: 20px">Admin Controls</span>
+            </a>
+          </li>
+          <li class="" style="font-weight: 500">
+            <a href="../employeeList/">
+              <span class="icon"><i class="bx bxs-user"></i></span>
+              <span class="title">Employee List</span>
+            </a>
+          </li>
+          <li class="" style="font-weight: 500">
+            <a href="../userPermission/">
+              <span class="icon"><i class="bx bxs-user-badge"></i></span>
+              <span class="title">User Permission</span>
+            </a>
+          </li>
+          <li class="" style="font-weight: 500">
+            <a href="../appPermission/">
+              <span class="icon"><i class="bx bxs-window-alt"></i></span>
+              <span class="title">App Permission</span>
+            </a>
+          </li>
+          <li class="startli" style="font-weight: 500">
+            <a href="../Calendar/">
+              <span class="icon"><i class="bx bx-calendar"></i></span>
+              <span class="title">Calendar</span>
+            </a>
+          </li>
+          <!-- <li class="" style="font-weight: 500">
+                <a href="../userPermission/">
+                  <span class="icon"><i class="bx bxs-user-badge"></i></span>
+                  <span class="title">User Permission</span>
+                </a>
+              </li> -->
+        </ul>
+      </div>
+      <div class="main actived">
+        <div class="h-[60px] w-full flex justify-between items-center">
+          <div class="w-[60px] h-[60px] flex justify-center items-center">
+            <i
+              class="bx bx-menu text-[2.5em] text-white menu cursor-pointer"
+            ></i>
+          </div>
+          <div class="user pe-2">
+            <h5 class="text-[20px]">
+              Hello, <span class="hello-user">User</span>
+            </h5>
+          </div>
         </div>
+        <div
+          class="w-full h-full xl:h-[calc(100%-60px)] flex flex-col 2xl:flex-row gap-3 p-6 overflow-auto"
+        >
+          <div
+            class="w-full max-h-[600px] 2xl:max-h-full 2xl:h-full flex-1 bg-[var(--dark-color)] rounded-md p-3 flex flex-col gap-3"
+          >
+            <h5 class="text-[24px]">Holiday List</h5>
 
-        <div class="main ">
-            <div class="topbar">
-                <div class="toggle">
-                    <i class='bx bx-menu fs-1'></i>
-                </div>
-                <div class="user pe-2">
-                    <h5>Hello, <span class="hello-user">User</span></h5>
-                </div>
+            <div class="flex justify-between w-full gap-2">
+              <div class="relative w-full">
+                <input
+                  type="search"
+                  class="ps-[30px] pe-2 bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md"
+                  style="border: 1px solid rgb(31 41 55)"
+                  placeholder="Search holiday name . . ."
+                />
+                <i
+                  class="bx bx-search absolute top-[8px] left-[8px] text-[16px]"
+                ></i>
+              </div>
+              <select
+                id=""
+                class="select ps-3 rounded-md bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-[180px]"
+                style="border: 1px solid rgb(31 41 55)"
+              >
+                <option value="0" selected id="allMonth">All Month</option>
+              </select>
+              <button
+                class="flex c gap-1 px-3 py-2 items-center justify-center bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-700 hover:to-rose-700 rounded-md transition-colors duration-300 whitespace-nowrap"
+                data-bs-toggle="modal"
+                data-bs-target="#newHoliday"
+              >
+                <i class="bx bx-plus"></i>Add Holiday
+              </button>
             </div>
-            <div class="content ">
-              <div class="header">
-                <select class="form-select-lg">
-                  <option>KDT Calendar</option>
-                  <option>KOBE Calendar</option>
-                </select>
+            <div class="table-cont h-[calc(100%-60px)] w-full overflow-auto">
+              <table class="w-full" id="holidayList">
+                <thead class="sticky top-0">
+                  <tr>
+                    <th class="">
+                      <div class="flex gap-1 items-center">
+                        Name<i class="bx bx-sort"></i>
+                      </div>
+                    </th>
+                    <th>
+                      <select class="select">
+                        <option value="">Holiday Type</option>
+                        <option value="">Regular</option>
+                        <option value="">Special</option>
+                        <option value="">Swap</option>
+                      </select>
+                    </th>
+                    <th>
+                      <div class="flex gap-1 items-center">
+                        Date<i class="bx bx-sort"></i>
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr row-id="1">
+                    <td>New Years Day</td>
+                    <td>Special</td>
+                    <td>JAN 1 2024</td>
+
+                    <td>
+                      <div
+                        class="flex justify-center items-center"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bx bx-dots-vertical-rounded"></i>
+                      </div>
+                      <ul class="dropdown-menu bg-[var(--dark-color)]">
+                        <li class="hover:bg-[var(--light-color)]">
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editHol cursor-pointer"
+                            ><i class="bx bx-edit-alt text-yellow-400"></i
+                            >Edit</a
+                          >
+                        </li>
+                        <li>
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-delHol cursor-pointer"
+                            ><i class="bx bx-trash-alt text-red-600"></i
+                            >Delete</a
+                          >
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr row-id="2">
+                    <td>Valentines Day</td>
+                    <td>Regular</td>
+                    <td>FEB 14 2024</td>
+
+                    <td>
+                      <div
+                        class="flex justify-center items-center"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bx bx-dots-vertical-rounded"></i>
+                      </div>
+                      <ul class="dropdown-menu bg-[var(--dark-color)]">
+                        <li class="hover:bg-[var(--light-color)]">
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editHol cursor-pointer"
+                            ><i class="bx bx-edit-alt text-yellow-400"></i
+                            >Edit</a
+                          >
+                        </li>
+                        <li>
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-delHol cursor-pointer"
+                            ><i class="bx bx-trash-alt text-red-600"></i
+                            >Delete</a
+                          >
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr row-id="3">
+                    <td>Mahal na Araws</td>
+                    <td>Special</td>
+                    <td>MAR 27, 2024</td>
+
+                    <td>
+                      <div
+                        class="flex justify-center items-center"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bx bx-dots-vertical-rounded"></i>
+                      </div>
+                      <ul class="dropdown-menu bg-[var(--dark-color)]">
+                        <li class="hover:bg-[var(--light-color)]">
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editHol cursor-pointer"
+                            ><i class="bx bx-edit-alt text-yellow-400"></i
+                            >Edit</a
+                          >
+                        </li>
+                        <li>
+                          <a
+                            class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-delHol cursor-pointer"
+                            ><i class="bx bx-trash-alt text-red-600"></i
+                            >Delete</a
+                          >
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div
+            class="2xl:h-full w-full 2xl:w-[500px] flex flex-col xl:flex-row 2xl:flex-col gap-3 pb-[50px] xl:pb-0"
+          >
+            <div
+              class="bg-[var(--dark-color)] rounded-md p-3 2xl:h-[350px] xl:h-auto w-full max-w-[600px]"
+            >
+              <h5 class="text-[24px]">
+                Holiday Count this
+                <span
+                  id="thisYear"
+                  class="text-[24px] text-[var(--primary-color)] font-semibold"
+                  >Year</span
+                >
+              </h5>
+              <div class="h-[calc(100%-20px)] w-full">
+                <canvas id="holidayChart" class="w-full h-auto"></canvas>
               </div>
             </div>
+            <div
+              class="bg-[var(--dark-color)] rounded-md p-3 2xl:h-full min-h-[350px] w-full"
+            >
+              <h5 class="text-[24px]">
+                Holidays this
+                <span
+                  id="thisMonth"
+                  class="text-[24px] text-[var(--primary-color)] font-semibold"
+                  >Month</span
+                >
+              </h5>
+              <div class="h-[calc(100%-20px)] w-full overflow-auto top">
+                <ul class="list-none py-3" id="monthlyList">
+                  <!-- <li class="">
+                    <div class="flex justify-between gap-2">
+                      <span>Independence day</span> <span>June 7, 2024</span>
+                    </div>
+                  </li> -->
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
-
