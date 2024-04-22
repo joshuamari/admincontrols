@@ -105,6 +105,81 @@
       </div>
     </div>
 
+    <div
+      class="modal fade"
+      id="editGroupModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Edit Group</h1>
+            <button
+              type="button"
+              class="btn-close close-btn"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="flex gap-3">
+              <div class="mb-3 w-full">
+                <label class="form-label" for="grpName">Group Name</label>
+                <input
+                  type="text"
+                  class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md border-1"
+                  id="grpNameEdit"
+                  placeholder="Group Name"
+                />
+                <small class="text-[var(--secondary-color)] hidden"
+                  >Input group name</small
+                >
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="grpCode">Group Acronym</label>
+                <input
+                  type="text"
+                  class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md border-1"
+                  id="grpCodeEdit"
+                  placeholder="XXX"
+                />
+                <small class="text-[var(--secondary-color)] hidden"
+                  >Input group acronym</small
+                >
+              </div>
+            </div>
+            <div class="mb-3 w-full">
+              <label class="form-label" for="deptListEdit">Department</label>
+              <select
+                type="date"
+                class="select w-full rounded-md bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full"
+                id="deptListEdit"
+              >
+                <option selected hidden>Select Department</option>
+                <option>Project</option>
+                <option>Solution</option>
+              </select>
+              <small class="text-[var(--secondary-color)] hidden"
+                >Select Department</small
+              >
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md"
+              id="saveButton"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!----modal end---->
 
     <div class="h-screen w-full flex">
@@ -191,39 +266,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody id="groupList">
-                  <tr>
-                    <td>1</td>
-                    <td>Accounting Group</td>
-                    <td>ACT</td>
-                    <td>Admin/Accounting</td>
-                    <th></th>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Admin</td>
-                    <td>ADM</td>
-                    <td>Admin/Accounting</td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Analysis Group</td>
-                    <td>ANA</td>
-                    <td>Solution</td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Boiler Group</td>
-                    <td>BOI</td>
-                    <td>Boiler</td>
-                  </tr>
-                  <tr>
-                    <td>5</td>
-                    <td>Cement Group</td>
-                    <td>CEM</td>
-                    <td>Industrial Plant</td>
-                  </tr>
-                </tbody>
+                <tbody id="groupList"></tbody>
               </table>
             </div>
           </div>
