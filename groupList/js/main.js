@@ -128,6 +128,11 @@ $(document).on("click", "#addButton", function () {
 $(document).on("click", ".close-btn", function () {
   resetAdd();
 });
+$(document).on("click", ".btn-editGroup", function () {
+  var rowId = $(this).closest("tr").attr("row-id");
+  console.log(rowId);
+  fillEditModal(rowId);
+});
 //#endregion
 
 //#region FUNCTIONS
@@ -212,7 +217,7 @@ function getGroups() {
 function fillGroups(grps) {
   $.each(grps, function (index, item) {
     $("#groupList").append(`
-        <tr><td>${index + 1}</td>
+        <tr row-id=${item.id}><td>${index + 1}</td>
             <td>${item.name}</td>
             <td>${item.code}</td>
             <td>${item.dept}</td>
@@ -223,9 +228,9 @@ function fillGroups(grps) {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <i class="bx bx-dots-vertical-rounded"></i>
+                <i class="bx bx-dots-vertical-rounded btn-edit"></i>
               </div>
-              <ul class="dropdown-menu bg-[var(--dark-color)">
+              <ul class="bg-[var(--dark-color)] dropdown-menu ">
                 <li class="hover:bg-[var(--light-color)]">
                   <a
                     class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editGroup cursor-pointer"
@@ -272,6 +277,16 @@ function fillDepartments(depts) {
       })
     );
   });
+}
+function fillEditModal(rowID) {
+  var name = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(1)").text();
+  var acr = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(2)").text();
+  var dept = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(3)").text();
+
+  $("#grpNameEdit").val(name);
+  $("#grCodeEdit").val(acr);
+  $("#deptListEdit").val(dept);
+  $("#editGroupModal").modal("show");
 }
 function addGroup() {
   const groupName = $("#grpName").val().trim();
