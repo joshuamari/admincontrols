@@ -11,6 +11,8 @@ switch (document.location.hostname) {
     break;
 }
 var empDetails = [];
+let groupList = [];
+let editID = 0;
 //#endregion
 checkLogin().then((emp) => {
   if (emp) {
@@ -72,8 +74,9 @@ checkLogin().then((emp) => {
             // </li>`);
             //   }
             $("#groupList").empty();
-            fillGroups(grps);
-            $("#deptList").empty();
+            groupList = grps;
+            fillGroups(groupList);
+            $("#deptList, #deptListEdit").empty();
             fillDepartments(depts);
           })
           .catch((error) => {
@@ -96,24 +99,29 @@ $(document).on("click", ".menu", function () {
   console.log("pindot");
 });
 $(document).on("keyup", "#searchWord", function () {
-  getGroups().then((grps) => {
-    $("#groupList").empty();
-    fillGroups(grps);
-  });
+  // getGroups().then((grps) => {
+  //   $("#groupList").empty();
+  //   fillGroups(grps);
+  // });
+  $("#groupList").empty();
+  searchGroup();
 });
 $(document).on("search", "#searchWord", function () {
-  getGroups().then((grps) => {
-    $("#groupList").empty();
-    fillGroups(grps);
-  });
+  // getGroups().then((grps) => {
+  //   $("#groupList").empty();
+  //   fillGroups(grps);
+  // });
+  $("#groupList").empty();
+  searchGroup();
 });
 $(document).on("click", "#addButton", function () {
   addGroup()
     .then((res) => {
       if (res.isSuccess) {
         getGroups().then((grps) => {
+          groupList = grps;
           $("#groupList").empty();
-          fillGroups(grps);
+          fillGroups(groupList);
           resetAdd();
           $(".close-btn").click();
         });
@@ -130,8 +138,26 @@ $(document).on("click", ".close-btn", function () {
 });
 $(document).on("click", ".btn-editGroup", function () {
   var rowId = $(this).closest("tr").attr("row-id");
-  console.log(rowId);
+  editID = rowId;
   fillEditModal(rowId);
+});
+$(document).on("click", "#saveButton", function () {
+  saveEdit()
+    .then((res) => {
+      if (res.isSuccess) {
+        getGroups().then((grps) => {
+          groupList = grps;
+          $("#groupList").empty();
+          fillGroups(groupList);
+          $("#editGroupModal .btn-close").click();
+        });
+      } else {
+        alert(res.message);
+      }
+    })
+    .catch((error) => {
+      alert(`${error}`);
+    });
 });
 //#endregion
 
@@ -189,14 +215,10 @@ function checkGrpAccess() {
   });
 }
 function getGroups() {
-  const searchWord = $("#searchWord").val();
   return new Promise((resolve, reject) => {
     $.ajax({
-      type: "POST",
+      type: "GET",
       url: "ajax/get_groups.php",
-      data: {
-        searchWord: searchWord,
-      },
       dataType: "json",
       success: function (data) {
         const grps = data;
@@ -217,7 +239,7 @@ function getGroups() {
 function fillGroups(grps) {
   $.each(grps, function (index, item) {
     $("#groupList").append(`
-        <tr row-id=${item.id}><td>${index + 1}</td>
+        <tr row-id='${item.id}'><td>${index + 1}</td>
             <td>${item.name}</td>
             <td>${item.code}</td>
             <td>${item.dept}</td>
@@ -244,6 +266,15 @@ function fillGroups(grps) {
     `);
   });
 }
+function searchGroup() {
+  // const searchTerm = searchInput.value.toLowerCase();
+  const searchTerm = $("#searchWord").val().toLowerCase();
+  const filteredData = groupList.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm)
+  );
+  console.log(filteredData);
+  fillGroups(filteredData);
+}
 function getDepartments() {
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -267,24 +298,23 @@ function getDepartments() {
   });
 }
 function fillDepartments(depts) {
-  $("#deptList").append(
-    "<option value='' selected hidden>Select Department</option>"
+  const defaultSelect = `<option value="" selected hidden>Select Department</option>`;
+  const selectOptions = depts.map(
+    (department) =>
+      `<option value="${department.name}">${department.name}</option>`
   );
-  $.each(depts, function (index, department) {
-    $("#deptList").append(
-      $("<option>", {
-        text: department.name,
-      })
-    );
-  });
+
+  $("#deptListEdit").html(`${defaultSelect}${selectOptions.join("")}`);
+  $("#deptList").html(`${defaultSelect}${selectOptions.join("")}`);
 }
 function fillEditModal(rowID) {
-  var name = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(1)").text();
-  var acr = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(2)").text();
-  var dept = $(`#holidayList tr[row-id="${rowID}"]`).find("td:eq(3)").text();
+  var name = $(`#groupList tr[row-id="${rowID}"]`).find("td:eq(1)").text();
+  var acr = $(`#groupList tr[row-id="${rowID}"]`).find("td:eq(2)").text();
+  var dept = $(`#groupList tr[row-id="${rowID}"]`).find("td:eq(3)").text();
 
+  console.log(dept);
   $("#grpNameEdit").val(name);
-  $("#grCodeEdit").val(acr);
+  $("#grpCodeEdit").val(acr);
   $("#deptListEdit").val(dept);
   $("#editGroupModal").modal("show");
 }
@@ -327,6 +357,42 @@ function resetAdd() {
   $("#grpName").val("");
   $("#grpCode").val("");
   $("#deptList").val("");
+}
+function saveEdit() {
+  const groupName = $("#grpNameEdit").val().trim();
+  const groupCode = $("#grpCodeEdit").val().trim();
+  const deptName = $("#deptListEdit").val().trim();
+
+  return new Promise((resolve, reject) => {
+    if (groupName === "" || groupCode === "" || deptName === "") {
+      reject("Incomplete Fields!");
+    } else {
+      $.ajax({
+        type: "POST",
+        url: "ajax/edit_group.php",
+        data: {
+          groupID: editID,
+          groupName: groupName,
+          groupCode: groupCode,
+          deptName: deptName,
+        },
+        dataType: "json",
+        success: function (data) {
+          const res = data;
+          resolve(res);
+        },
+        error: function (xhr, status, error) {
+          if (xhr.status === 404) {
+            reject("Resource not found.");
+          } else if (xhr.status === 500) {
+            reject(`Server error: ${error}`);
+          } else {
+            reject("Unspecified error");
+          }
+        },
+      });
+    }
+  });
 }
 function checkDesigP() {
   return new Promise((resolve, reject) => {
