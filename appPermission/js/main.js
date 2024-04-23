@@ -93,9 +93,10 @@ checkLogin()
     alert(`${error}`);
   });
 //#region BINDS
-$(document).on("click", ".toggle", function () {
+$(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
+  console.log("pindot");
 });
 $(document).on("change", "input[type='radio']", function () {
   if (this.checked) {
@@ -389,7 +390,7 @@ function displayProjects() {
     <div class="shadow  card-item" proj-id="${projectId}">
       <div class="card-title d-flex align-items-center gap-2">
         <span class="try ${projColor}"></span>
-        <span class="proj-title">${projectName}</span>
+        <span class="proj-title whitespace-nowrap overflow-hidden">${projectName}</span>
       </div><ul class="list-unstyled module-list mt-3 px-3">`;
     Object.keys(projectDetails.modules).forEach((moduleName) => {
       const moduleDetails = projectDetails.modules[moduleName];
@@ -450,7 +451,7 @@ function clickModule() {
     });
   });
   addString += `<tr id="row-addAT">
-  <td colspan="2" style="text-align: center; background-color: #293134;"><button class="btn text-center w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
+  <td colspan="2" class="hover:bg-[var(--light-color)] bg-[var(--dark-color2)]"><button class="btn text-center w-100 text-white" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
 </tr>`;
 
   $("#permList").html(addString);
