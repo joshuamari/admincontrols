@@ -4,14 +4,13 @@
     <title>User Permission</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="css/neoBootstrap.css" />
+
     <!--COMMON-->
     <link rel="stylesheet" href="css/boxicons.css" />
     <!--COMMON-->
-    <link rel="stylesheet" href="css/index.css" />
+
     <script src="js/jquery.js"></script>
-    <!--COMMON-->
-    <script src="js/neoBootstrap.js"></script>
+
     <!--COMMON-->
 
     <!--#region BUSTER CALL  -->
@@ -32,13 +31,13 @@
     <!--#endregion -->
   </head>
 
-  <body>    
+  <body>
     <!--#region Add permission Modal -->
     <div class="modal fade" data-bs-backdrop="static" id="addPermission">
       <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Add User Permission</h1>
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Add User Permission</h1>
             <button
               type="button"
               class="btn-close"
@@ -47,7 +46,7 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body pt-0">
             <div class="row">
               <div class="mb-3 col-12 col-md-8">
                 <label class="form-label" for="empNamePermission"
@@ -55,7 +54,7 @@
                 >
                 <input
                   type="text"
-                  class="form-control"
+                  class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md border-1"
                   id="empNamePermission"
                   placeholder="Joshua Coquia"
                   style="pointer-events: none"
@@ -66,13 +65,10 @@
               </div>
               <div class="mb-3 col-12 col-md-4">
                 <label class="form-label" for="empIDPermission">Emp ID</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="empIDPermission"
-                  placeholder="000"
-                  style="color: #333; pointer-events: none"
-                />
+                <input type="text" class="px-[0.35rem] py-[0.375rem]
+                bg-[var(--card-color)] focus:outline-none focus:ring
+                focus:ring-orange-700 w-full relative block rounded-md border-1"
+                id="empIDPermission" placeholder="000" pointer-events: none" />
               </div>
               <div class="col-12 d-flex permissiontab mb-2">
                 <div class="sidenav h-100 rounded">
@@ -200,7 +196,7 @@
     </div>
     <!--#endregion-->
     <div class="containerr">
-      <div class="navigation">
+      <div class="navigation actived">
         <ul id="acNavLinks">
           <li class="fw-bolder">
             <a href="#">
@@ -223,37 +219,40 @@
         </ul>
       </div>
 
-      <div class="main">
-        <div class="topbar">
-          <div class="toggle">
-            <i class="bx bx-menu fs-1"></i>
+      <div class="main actived">
+        <div class="h-[60px] w-full flex justify-between items-center">
+          <div class="w-[60px] h-[60px] flex justify-center items-center">
+            <i
+              class="bx bx-menu text-[2.5em] text-white menu cursor-pointer"
+            ></i>
           </div>
           <div class="user pe-2">
-            <h5>Hello, <span class="hello-user">User</span></h5>
+            <h5 class="text-[20px]">
+              Hello, <span class="hello-user">User</span>
+            </h5>
           </div>
         </div>
-        <div class="content d-flex justify-content-center row">
-          <div class="table-cont col-md-10 p-4 my-3">
-            <div
-              class="table-title m-0 d-flex justify-content-between align-items-center"
-            >
-              <h1 class="d-flex me-auto">User Permission</h1>
-              <div class="right ms-auto d-flex justify-content-between">
-              </div>
-            </div>
+        <div class="w-full h-[calc(100%-60px)] flex p-6">
+          <div
+            class="w-full bg-[var(--dark-color)] flex-col flex gap-3 p-3 rounded-lg"
+          >
+            <h1 class="text-[24px]">User Permission</h1>
 
-            <div class="search mt-3">
-              <i class="bx bx-search"></i>
+            <div class="relative w-full">
               <input
                 type="search"
                 id="searchWord"
-                class="form-control text-dark"
+                class="ps-[30px] pe-2 bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-[40px] w-full relative block rounded-md"
+                style="border: 1px solid rgb(31 41 55)"
                 placeholder="Search Employee"
               />
+              <i
+                class="bx bx-search absolute top-[12px] left-[8px] text-[16px]"
+              ></i>
             </div>
 
-            <div class="table-container overflow-auto mt-3">
-              <table class="table table-striped">
+            <div class="table-cont overflow-auto">
+              <table class="w-full">
                 <thead>
                   <tr class="sticky-top">
                     <th>Emp No.</th>
