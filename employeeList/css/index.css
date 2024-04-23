@@ -206,6 +206,9 @@ overflow: hidden;
 
 }
 /*table*/
+.table-cont{
+  background-color: var(--card-color);
+}
 .table-cont thead th{
   font-size: 12px;
   font-weight: 500;
@@ -307,7 +310,7 @@ overflow: hidden;
   color: #fff;
 }
 input:disabled, select:disabled{
-  background-color: #333942
+  background-color: var(--light-color);
 }
 
 @media (max-width: 480px) {
