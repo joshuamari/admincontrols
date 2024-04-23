@@ -10,6 +10,15 @@
   font-family: "Poppins", sans-serif;
   color: var(--text-color);
   font-size: 14px;
+  scrollbar-width: thin; /* Width of the scrollbar */
+  scrollbar-color: #505050 var(--dark-color); /* Color of the scrollbar handle and track */
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color of the scrollbar handle (Chrome, Safari) */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Color of the scrollbar handle when hovered (Chrome, Safari) */
 }
 :root {
   --bg-color: #161616;
@@ -287,6 +296,28 @@ font-weight: 500;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+.calendar-item{
+  color: #585c62;
+  cursor: pointer;
+  padding: 0 1.25rem;
+  font-weight: 500;
+  height: 40px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+.calendar-item:hover{
+  color: var(--secondary-text);
+}
+.calendar-item.active{
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-weight: 600;
 }
 @media (max-width: 768px) {
   .navigation.actived{
