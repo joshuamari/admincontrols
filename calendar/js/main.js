@@ -11,12 +11,16 @@ switch (document.location.hostname) {
     break;
 }
 var empDetails = [];
-var monthlyHolidayData = [
-  { holName: "Independence", holDate: "June 12, 2024" },
-  { holName: "New Year", holDate: "January 1, 2024" },
-  { holName: "Itik", holDate: "August 15, 2024" },
+let monthlyHolidayData = [
+  // { holName: "Independence", holDate: "June 12, 2024" },
+  // { holName: "New Year", holDate: "January 1, 2024" },
+  // { holName: "Itik", holDate: "August 15, 2024" },
+  // { holName: "Independence", holMonth: 6, holDay: 12, holType: 0 },
+  // { holName: "New Year", holMonth: 1, holDay: 1, holType: 0 },
+  // { holName: "Itik", holMonth: 8, holDay: 15, holType: 1 },
+  // { holName: "Swap", holMonth: 4, holDay: 27, holType: 2 },
 ];
-var monthNames = [
+const monthNames = [
   "January",
   "February",
   "March",
@@ -30,29 +34,55 @@ var monthNames = [
   "November",
   "December",
 ];
-checkLogin();
-adminAccess();
-getCurrentMonthYear();
+const holidayTypes = {
+  0: "Regular",
+  1: "Special",
+  2: "Working Day",
+};
+const currentDate = new Date();
+const currentMonthIndex = currentDate.getMonth();
+const currentMonthName = monthNames[currentMonthIndex];
+const currentYear = currentDate.getFullYear();
+checkLogin().then((emps) => {
+  if (emps) {
+    empDetails = emps;
+    checkCalendarP().then((clndr) => {
+      if (clndr) {
+        $(document).ready(function () {
+          $(".hello-user").text(empDetails["empFName"]);
+          let list = document.querySelectorAll(".navigation li");
+          function activeLink() {
+            list.forEach((item) => item.classList.remove("active"));
+            this.classList.add("active");
+          }
+          list.forEach((item) => item.addEventListener("click", activeLink));
+          getCurrentMonthYear();
+          $(".startli").click();
+          getHolidays().then((hols) => {
+            monthlyHolidayData = hols;
+            console.log(monthlyHolidayData);
+            holidayChart();
+            $("#monthlyList").empty();
+            fillHolidayMonthList(monthlyHolidayData);
+            fillMonthSelection();
+          });
+        });
+      } else {
+        alert(`Access Denied`);
+        window.location.href = `${rootFolder}`;
+      }
+    });
+  } else {
+    alert("Not logged in");
+    window.location.href = `${rootFolder}/KDTPortalLogin`;
+  }
+});
+// adminAccess();
+// getCurrentMonthYear();
 
 //#endregion
 
 //#region BINDS
-$(document).ready(function () {
-  $(".hello-user").text(empDetails["empFName"]);
-  let list = document.querySelectorAll(".navigation li");
-  function activeLink() {
-    list.forEach((item) => item.classList.remove("active"));
-    this.classList.add("active");
-  }
-  list.forEach((item) => item.addEventListener("click", activeLink));
-
-  $(".startli").click();
-  holidayChart();
-  $("#monthlyList").empty();
-  fillHolidayMonthList(monthlyHolidayData);
-  fillMonthSelection();
-});
-
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
@@ -96,18 +126,76 @@ $(document).on("click", "#saveHoliday", function () {});
 
 //#region FUNCTIONS
 function checkLogin() {
-  //check if user is logged in
-  $.ajax({
-    url: "Includes/checkLogin.php",
-    success: function (data) {
-      //ajax to check 9 is logged in
-      empDetails = $.parseJSON(data);
-      if (Object.keys(empDetails).length < 1) {
-        //if result is 0, redirect to log in page
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    },
-    async: false,
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "GET",
+      url: "Includes/checkLogin.php",
+      dataType: "json",
+      success: function (data) {
+        const emp = data;
+        resolve(emp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function checkCalendarP() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/check_calendarAccess.php",
+      data: {
+        empNum: empDetails["empNum"],
+      },
+      dataType: "json",
+      success: function (data) {
+        const usrp = data;
+        resolve(usrp);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
+  });
+}
+function getHolidays() {
+  const currentYear = $("#thisYear").text();
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_holidays.php",
+      data: {
+        currentYear: currentYear,
+      },
+      dataType: "json",
+      success: function (data) {
+        const hols = data;
+        resolve(hols);
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 404) {
+          reject("Resource not found.");
+        } else if (xhr.status === 500) {
+          reject(`Server error: ${error}`);
+        } else {
+          reject("Unspecified error");
+        }
+      },
+    });
   });
 }
 function fillMonthSelection() {
@@ -118,20 +206,15 @@ function fillMonthSelection() {
   $("#allMonth").after(option);
 }
 function getCurrentMonthYear() {
-  var currentDate = new Date();
-
-  var currentMonthIndex = currentDate.getMonth();
-  var currentMonthName = monthNames[currentMonthIndex];
-
-  var currentYear = currentDate.getFullYear();
-
   $("#thisYear").text(currentYear);
   $("#thisMonth").text(currentMonthName);
 }
 function fillHolidayMonthList(monthlyHolidayData) {
   monthlyHolidayData.forEach(function (holiday) {
     var holName = holiday.holName;
-    var holDate = holiday.holDate;
+    var holDate = `${monthNames[holiday.holMonth - 1]} ${
+      holiday.holDay
+    }, ${currentYear}`;
     var str = `
   <li class="">
     <div class="flex justify-between gap-2">
@@ -174,23 +257,6 @@ function resetAddModal() {
   $("#holidayName , #holidayDate").next("small").addClass("hidden");
   $("#holidayType").val(1);
 }
-
-function adminAccess() {
-  //check if user has access to jmc
-  $.post(
-    "ajax/checkAdminAccess.php",
-    {
-      empNum: empDetails["empNum"],
-    },
-    function (data) {
-      if (data.trim() == 0) {
-        alert("Access denied");
-        window.location.href = rootFolder + "/KDTPortalLogin";
-      }
-    }
-  );
-}
-
 function fillEditModal(rowId) {
   var name = $(`#holidayList tr[row-id="${rowId}"]`).find("td:eq(0)").text();
   var type = $(`#holidayList tr[row-id="${rowId}"]`).find("td:eq(1)").text();
@@ -212,23 +278,7 @@ function fillDeleteHolidayModal(rowId) {
 
 function holidayChart() {
   // Data for holiday count by month (replace with your actual data)
-  var holidayCounts = [1, 1, 3, 2, 1, 0, 0, 2, 0, 3, 1, 4];
-
-  // Months array for labels
-  var months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  var holidayCounts = [1, 1, 3, 2, 1, 0, 0, 2, 0, 3, 1, 7];
 
   // Get the canvas element for the chart
   var ctx = document.getElementById("holidayChart").getContext("2d");
@@ -237,7 +287,7 @@ function holidayChart() {
   var holidayChart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: months, // Months as labels
+      labels: monthNames, // Months as labels
       datasets: [
         {
           label: "Holiday Count",
