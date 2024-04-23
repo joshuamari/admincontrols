@@ -102,9 +102,10 @@ checkLogin()
     alert(`${error}`);
   });
 //#region BINDS
-$(document).on("click", ".toggle", function () {
+$(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
+  console.log("pindot");
 });
 $(document).on("click", ".btn-view", function () {
   var TR = $(this).closest("tr");
@@ -388,11 +389,11 @@ function fillEmployees(empDeets) {
   <td class='apps'>
   ${projData}
   </td>
-  <td class="d-flex gap-1">
+  <td >
                       <button class="btn btn-view" title="view">
                         <i class="bx bxs-folder-open"></i>
                       </button>
-                    </td>
+  </td>
   </tr>`;
   $("#empList").append(addString);
 }

@@ -120,6 +120,10 @@ $(document).on("click", "#delHoliday", function () {
   $("#holidayList tbody tr[row-id='" + delID + "']").remove();
   $("#deleteHolidayModal .btn-close").click();
 });
+$(document).on("click", ".calendar-item", function () {
+  $(".calendar-item").removeClass("active");
+  $(this).addClass("active");
+});
 $(document).on("click", "#saveHoliday", function () {});
 
 //#endregion

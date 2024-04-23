@@ -4,15 +4,13 @@
     <title>App Permission</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="css/neoBootstrap.css" />
+
     <!--COMMON-->
     <link rel="stylesheet" href="css/boxicons.css" />
-    <!--COMMON-->
-    <link rel="stylesheet" href="css/index.css" />
+
     <script src="js/jquery.js"></script>
     <!--COMMON-->
-    <script src="js/neoBootstrap.js"></script>
-    <!--COMMON-->
+
 
     <!--#region BUSTER CALL  -->
     <script>
@@ -36,9 +34,9 @@
     <!--#region View permission Modal -->
     <div class="modal fade" data-bs-backdrop="static" id="viewPermissions">
       <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3" id="viewProjTitle">JMR</h1>
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-[20px]" id="viewProjTitle">JMR</h1>
             <button
               type="button"
               class="btn-close"
@@ -47,11 +45,11 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body pt-0">
             
-              <div class="col-12 d-flex permissiontab  mb-2">
+              <div class="col-12 d-flex permissiontab min-h-[400px] max-h-[600px]  mb-2">
                 <div class="sidenav rounded d-flex justify-content-between flex-column">
-                  <ul class="mod-items p-0 " style="list-style: none">
+                  <ul class="mod-items p-0 h-[calc(100%-34px)] overflow-auto" style="list-style: none">
                     <li class="mod-item active" mod-id="">Daily Report</li>
                     <li class="mod-item" mod-id="">JMC</li>
                     <li class="mod-item" mod-id="">Planning</li>
@@ -66,7 +64,7 @@
                   <span>Daily Report Access Types</span>
                 </div>
                 <div class="overflow-auto mt-3" style="height: 90%">
-                  <table class="table table-hover ">
+                  <table class="w-full ">
                     
                     <tbody id="permList">
                       <tr >
@@ -79,7 +77,7 @@
                       </tr>
                      
                       <tr id="row-addAT">
-                        <td colspan="2" style="text-align: center; background-color: #293134;"><button class="btn text-center w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
+                        <td colspan="2" ><button class="btn text-center  w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
                       </tr>
                      
                     </tbody>
@@ -107,9 +105,9 @@
     <!--#region Add Application Modal -->
     <div class="modal fade" data-bs-backdrop="static" id="addApp">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Add New Application</h1>
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Add New Application</h1>
             <button
               type="button"
               class="btn-close"
@@ -163,10 +161,10 @@
               <label class="form-label" for="appName">Application Name</label>
               <input
                 type="text"
-                class="form-control"
+                class="px-[0.35rem] py-[0.375rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 w-full relative block rounded-md border-1"
                 id="appName"
                 placeholder="Application 1"
-                style="color: #333"
+               
                 disabled
               />
               <small class="text-danger d-none">Please input application name</small>
@@ -178,7 +176,7 @@
             </div>
             
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer border-0">
             <button type="button" class="btn btn-conAddApp" id="confirmaddApp">
               Add
             </button>
@@ -198,9 +196,9 @@
     <!--#region delete permission Modal -->
     <div class="modal fade" data-bs-backdrop="static" id="delPermission">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-3">Delete Access</h1>
+        <div class="modal-content bg-[var(--dark-color)]">
+          <div class="modal-header bg-[var(--dark-color)] border-0">
+            <h1 class="text-md">Delete Access</h1>
             <button
               type="button"
               class="btn-close"
@@ -212,7 +210,7 @@
           <div class="modal-body">
             <h5>Do you want to delete this access type?</h5>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer border-0">
             <button type="button" class="btn btn-danger" id="btn-delPermission">
               Delete
             </button>
@@ -230,10 +228,10 @@
     </div>
     <!--#endregion-->
 
-    <div class="containerr">
-      <div class="navigation">
+    <div class="h-screen w-full flex">
+      <div class="navigation actived">
         <ul id="acNavLinks">
-          <li class="fw-bolder">
+          <li class="font-semibold">
             <a href="#">
               <span class="icon"><i class="bx bxs-lock-open"></i></span>
               <span class="title" style="font-size: 20px">Admin Controls</span>
@@ -278,46 +276,38 @@
         </ul>
       </div>
 
-      <div class="main">
-        <div class="topbar">
-          <div class="toggle">
-            <i class="bx bx-menu fs-1"></i>
+      <div class="main actived">
+        <div class="h-[60px] w-full flex justify-between items-center">
+          <div class="w-[60px] h-[60px] flex justify-center items-center">
+            <i
+              class="bx bx-menu text-[2.5em] text-white menu cursor-pointer"
+            ></i>
           </div>
           <div class="user pe-2">
-            <h5>Hello, <span class="hello-user">User</span></h5>
+            <h5 class="text-[20px]">
+              Hello, <span class="hello-user">User</span>
+            </h5>
           </div>
         </div>
-        <div class="content d-flex justify-content-center row">
-          <div class="table-cont col-md-10 p-4 my-3 overflow-hidden">
-            <div
-              class="table-title m-0 d-flex justify-content-between align-items-center"
+        <div class="w-full h-[calc(100%-60px)] flex p-6 flex-col overflow-y-auto">
+         
+          <div class="flex justify-between">
+              <h1 class="text-[24px]">Application Permission</h1>
+              <button
+              type="button"
+              id="btn-addApp"
+              class="flex c gap-1 px-3 py-2 items-center justify-center bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-700 hover:to-rose-700 rounded-md transition-colors duration-300 whitespace-nowrap"
+              title="Add Application"
+              data-bs-toggle="modal"
+              data-bs-target="#addApp"
+              data-bs-dismiss="modal"
             >
-              <h1 class="d-flex me-auto">Application Permission</h1>
-              <div class="right ms-auto d-flex justify-content-between">
-                <button
-                  type="button"
-                  id="btn-addApp"
-                  class="btn mx-1"
-                  title="Add Application"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addApp"
-                  data-bs-dismiss="modal"
-                >
-                  <i class="bx bx-fw bxs-user-plus fs-3"></i>
-                  ADD NEW APPLICATION
-                </button>
-              </div>
-            </div>
+              <i class="bx bx-fw bxs-user-plus fs-3"></i>
+              Add New Application
+            </button>
+          </div>
+      
 
-            <!-- <div class="search mt-3">
-              <i class="bx bx-search"></i>
-              <input
-                type="search"
-                id="searchWord"
-                class="form-control text-dark"
-                placeholder="Search Employee"
-              />
-            </div> -->
 
             <div class="mt-4 card-cont">
               <div class="position-relative  d-flex row m-0" id="cardContainer">
@@ -371,7 +361,7 @@
                
               </div>
             </div>
-        </div>
+    
       </div>
     </div>
   </body>
