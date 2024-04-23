@@ -203,33 +203,8 @@ overflow: hidden;
   background: var(--card-color);
 
 }
-.table-title {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-.table-title button {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  opacity: 85%;
-  color: var(--text-color);
-  font-weight: 500;
-}
-.table-title button:hover {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
-.search input {
-  padding-left: 40px;
-  background-color: var(--text-color);
-}
-.search i {
-  position: absolute;
 
-  font-size: 20px;
-  color: var(--card-color);
-  padding: 10px 10px;
-}
+
 
 .table-cont thead th{
   font-size: 12px;

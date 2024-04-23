@@ -197,73 +197,7 @@ overflow: hidden;
 
 }
 
-.btn-addEmp,
-.btn-editEmp {
-  border: none;
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  color: var(--text-color);
-  white-space: nowrap;
-}
-.btn-addEmp:hover,
-.btn-editEmp:hover {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
-.btn-saveEmp {
-  border: none;
-  background: #09c46f;
-  background: linear-gradient(45deg, #09c46f 0%, #26c4a2 100%);
-  color: #fff;
-  white-space: nowrap;
-}
-.btn-saveEmp:hover {
-  background: #09c46f;
-  background: linear-gradient(45deg, #0dac64 0%, #27aa8e 100%);
-}
-.btn-resEmp,
-.btn-cres {
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  color: #fff;
-}
-.btn-resEmp:hover,
-.btn-cres:hover {
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
 
-.table-cont {
-  position: relative;
-  height: 95%;
-  background: var(--card-color);
-  border-radius: 10px;
-}
-.table-title {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-.table-title button {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #d14e5f 0%, #d17f38 100%);
-  opacity: 85%;
-  color: var(--text-color);
-  font-weight: 500;
-}
-.table-title button:hover {
-  background: rgb(249, 176, 93);
-  background: linear-gradient(45deg, #fe5f75 0%, #fc9842 100%);
-}
-.search input {
-  padding-left: 40px;
-  background-color: var(--text-color);
-}
-.search i {
-  position: absolute;
-
-  font-size: 20px;
-  color: var(--card-color);
-  padding: 10px 10px;
-}
 
 /*table*/
 .table-cont thead th{
