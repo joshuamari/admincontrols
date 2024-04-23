@@ -60,10 +60,10 @@ checkLogin().then((emps) => {
           $(".startli").click();
           getHolidays().then((hols) => {
             monthlyHolidayData = hols;
-            console.log(monthlyHolidayData);
             holidayChart();
             $("#monthlyList").empty();
             fillHolidayMonthList(monthlyHolidayData);
+            fillMainHoliday(monthlyHolidayData);
             fillMonthSelection();
           });
         });
@@ -210,7 +210,11 @@ function getCurrentMonthYear() {
   $("#thisMonth").text(currentMonthName);
 }
 function fillHolidayMonthList(monthlyHolidayData) {
-  monthlyHolidayData.forEach(function (holiday) {
+  const monthVal = currentMonthIndex + 1;
+  const filteredHolidays = monthlyHolidayData.filter(
+    (holiday) => holiday.holMonth === `${monthVal}`
+  );
+  filteredHolidays.forEach(function (holiday) {
     var holName = holiday.holName;
     var holDate = `${monthNames[holiday.holMonth - 1]} ${
       holiday.holDay
@@ -224,6 +228,9 @@ function fillHolidayMonthList(monthlyHolidayData) {
   </li>`;
     $("#monthlyList").append(str);
   });
+}
+function fillMainHoliday(monthlyHolidayData) {
+  console.log(monthlyHolidayData);
 }
 function addHoliday() {
   var name = $("#holidayName").val();
@@ -277,8 +284,13 @@ function fillDeleteHolidayModal(rowId) {
 }
 
 function holidayChart() {
-  // Data for holiday count by month (replace with your actual data)
-  var holidayCounts = [1, 1, 3, 2, 1, 0, 0, 2, 0, 3, 1, 7];
+  // var holidayCounts = [1, 1, 3, 2, 1, 0, 0, 2, 0, 3, 1, 7];
+  const holidayCounts = new Array(12).fill(0);
+
+  monthlyHolidayData.forEach((holiday) => {
+    const monthIndex = parseInt(holiday.holMonth) - 1;
+    holidayCounts[monthIndex]++;
+  });
 
   // Get the canvas element for the chart
   var ctx = document.getElementById("holidayChart").getContext("2d");
