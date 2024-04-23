@@ -135,9 +135,10 @@ checkLogin()
 $(document).on("click", ".btn-addEmp", function () {
   addEmployee();
 });
-$(document).on("click", ".toggle", function () {
+$(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
+  console.log("pindot");
 });
 $(document).on("click", ".emp", function () {
   var eNum = $($(this).children()[0]).text();
@@ -150,9 +151,12 @@ $(document).on("click", ".emp", function () {
   // $(this).prop('dataid',eNum);
 });
 $(document).on("click", "#clos", function () {
-  $(
-    this
-  ).parent().html(`<button type="button" class="btn btn-editEmp">Edit</button>
+  $(this).parent().html(`<button
+  type="button"
+  class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md btn-editEmp"
+>
+  Edit Details
+</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
   $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("d-none");
   $("#showEmployee").modal("hide");
@@ -172,7 +176,7 @@ $(document).on("click", ".btn-close", function () {
 $(document).on("click", ".btn-editEmp", function () {
   $(
     this
-  ).parent().html(`<button type="button" class="btn btn-saveEmp">SAVE</button>
+  ).parent().html(`<button type="button"   class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-green-600 hover:bg-green-800 rounded-md btn-saveEmp" >Save changes</button>
     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
   $(
     "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
@@ -200,22 +204,22 @@ $(document).on("click", "#activeOnly", function () {
   });
 });
 $(document).on("click", "#resDate", function () {
-  $(".r1").addClass("d-none");
+  $("#resignEmployee small").addClass("hidden");
   $("#resDate").removeClass("border border-danger");
 });
-$(document).on("click", ".btn-resEmp", function () {
-  var resdate = $("#resDate").val();
+// $(document).on("click", ".btn-resEmp", function () {
+//   var resdate = $("#resDate").val();
 
-  if (!resdate) {
-    $(".r1").removeClass("d-none");
-    $("#resDate").addClass("border border-danger");
-    return;
-  } else {
-    $("#resignEmployee").modal("hide");
-    $("#resConfirm").modal("show");
-    $("#dateCon").val(resdate);
-  }
-});
+//   if (!resdate) {
+//     $(".r1").removeClass("d-none");
+//     $("#resDate").addClass("border border-danger");
+//     return;
+//   } else {
+//     $("#resignEmployee").modal("hide");
+//     $("#resConfirm").modal("show");
+//     $("#dateCon").val(resdate);
+//   }
+// });
 
 $(document).on("click", "#resback", function () {
   $("#resignEmployee").modal("show");
@@ -230,6 +234,9 @@ $(document).on("click", "#rescloseI", function () {
   $("#resclose").click();
 });
 $(document).on("click", "#employeeStat", function () {
+  var fname = $("#editFirstname").val();
+  var lname = $("#editSurname").val();
+  $("#resPlaceholder").text(fname + " " + lname);
   $("#clos").click();
   $("#resignEmployee").modal("show");
 });
@@ -243,6 +250,20 @@ $(document).on("click", ".btn-cres", function () {
 
   // $('#empStat').html(`<label class="form-label" style="color: #333;">Employee Status</label><span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
   // data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span>`);
+});
+$(document).on("click", "#btn-res", function () {
+  var resDate = $("#resDate").val();
+  if (!resDate) {
+    $("#resignEmployee small").removeClass("hidden");
+    $("#resDate").addClass("border border-danger");
+
+    return;
+  } else {
+    $("#dateCon").val(resDate);
+    $("#resConfirm").modal("show");
+    $("#resignEmployee small").addClass("hidden");
+    $("#resDate").removeClass("border border-danger");
+  }
 });
 
 //#endregion
@@ -562,24 +583,24 @@ function fillModal(empDeets) {
   if (!resDate) {
     $(".empStat").html(`
     <div class="mb-3 col-12 col-md-6" id="empStat">
-    <label class="form-label" style="color: #333;">Employee Status</label>
+    <label class="form-label" >Employee Status</label>
     <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
        style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
     </div>
     <div class="mb-3 col-12 col-md-6 res d-none">
-      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Effectivity Date</label>
-      <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+      <label class="form-label" for="resigdate" >Resignation Effectivity Date</label>
+      <input type="date" class="form-control" id="resigdate"   disabled>
     </div>`);
   } else {
     $(".empStat").html(`
     <div class="mb-3 col-12 col-md-6" id="empStat">
-    <label class="form-label" style="color: #333;">Employee Status</label>
+    <label class="form-label" >Employee Status</label>
     <span class="badge rounded-pill d-flex align-items-center justify-content-center" 
      style="width:80%; height: 35px; background: red;  font-size: 15px;">Resigned</span>
     </div>
     <div class="mb-3 col-12 col-md-6 res">
-      <label class="form-label" for="resigdate" style="color: #333;" >Resignation Effectivity Date</label>
-      <input type="date" class="form-control" id="resigdate"  style="color: #333;" disabled>
+      <label class="form-label" for="resigdate" >Resignation Effectivity Date</label>
+      <input type="date" class="form-control" id="resigdate"   disabled>
     </div>`);
   }
   $("#resigdate").val(resDate);
@@ -612,7 +633,7 @@ function getGroups() {
 }
 function fillGroups(groups) {
   groups.forEach((element) => {
-    addString = `<option style="color: #333;">${element}</option>`;
+    addString = `<option >${element}</option>`;
     $(".empGroup").append(addString);
   });
 }
@@ -644,7 +665,7 @@ function fillPos(posDetails) {
   var addString = ``;
   Object.keys(posDetails).forEach((posAcro) => {
     const posFull = posDetails[posAcro];
-    addString += `<option style='color: #333;' value='${posAcro}'>${posAcro}(${posFull})</option>`;
+    addString += `<option  value='${posAcro}'>${posAcro}(${posFull})</option>`;
   });
   $(".empPos").append(addString);
 }
@@ -893,8 +914,12 @@ function saveEdit() {
         return;
       }
 
-      $(".btn-saveEmp").parent()
-        .html(`<button type="button" class="btn btn-editEmp">Edit</button>
+      $(".btn-saveEmp").parent().html(`<button
+        type="button"
+        class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md btn-editEmp"
+      >
+        Edit Details
+      </button>
                     <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
       $(
         "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
