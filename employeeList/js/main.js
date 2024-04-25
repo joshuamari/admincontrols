@@ -263,6 +263,7 @@ $(document).on("click", "#btn-res", function () {
     $("#resConfirm").modal("show");
     $("#resignEmployee small").addClass("hidden");
     $("#resDate").removeClass("border border-danger");
+    $("#resclose").click();
   }
 });
 
@@ -273,7 +274,7 @@ function checkLogin() {
   return new Promise((resolve, reject) => {
     $.ajax({
       type: "GET",
-      url: "Includes/checkLogin.php",
+      url: "../php/check_login.php",
       dataType: "json",
       success: function (data) {
         const emp = data;
@@ -910,6 +911,7 @@ function saveEdit() {
       email: email,
     },
     function (data) {
+      console.log(data);
       if ($.parseJSON(data)) {
         alert(`Save failed: ${data}`);
         return;

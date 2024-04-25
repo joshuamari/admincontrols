@@ -215,7 +215,7 @@ function checkLogin() {
   return new Promise((resolve, reject) => {
     $.ajax({
       type: "GET",
-      url: "Includes/check_login.php",
+      url: "../php/check_login.php",
       dataType: "json",
       success: function (data) {
         const emp = data;

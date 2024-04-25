@@ -93,7 +93,7 @@ checkLogin()
           });
         } else {
           alert("Not logged in");
-          window.location.href = `${rootFolder}/KDTPortalLogin`;
+          // window.location.href = `${rootFolder}/KDTPortalLogin`;
         }
       });
     }
@@ -183,7 +183,7 @@ function checkLogin() {
   return new Promise((resolve, reject) => {
     $.ajax({
       type: "GET",
-      url: "Includes/checkLogin.php",
+      url: "../php/check_login.php",
       dataType: "json",
       success: function (data) {
         const emp = data;

@@ -1,7 +1,7 @@
 <?php
 #region Require Database Connections
-require_once '../Includes/dbconnectkdtph.php';
-require_once '../Includes/dbconnectqms.php';
+require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectqms.php';
 #endregion
 
 #region set timezone

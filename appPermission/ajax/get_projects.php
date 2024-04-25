@@ -1,6 +1,6 @@
 <?php
 #region DB Connect
-require_once "../Includes/dbconnectkdtph.php";
+require_once '../../dbconn/dbconnectkdtph.php';
 #endregion
 
 #region set timezone
