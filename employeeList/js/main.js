@@ -71,15 +71,15 @@ checkLogin()
                 </a>
               </li>`);
                   }
-                  //     if (desigp) {
-                  //       $("#acNavLinks")
-                  //         .append(`<li class="" style="font-weight: 500">
-                  //   <a href="../designationList/">
-                  //   <span class="icon"><i class='bx bxs-award' ></i></span>
-                  //     <span class="title">Designation List</span>
-                  //   </a>
-                  // </li>`);
-                  //     }
+                  if (desigp) {
+                    $("#acNavLinks")
+                      .append(`<li class="" style="font-weight: 500">
+                    <a href="../designationList/">
+                    <span class="icon"><i class='bx bxs-award' ></i></span>
+                      <span class="title">Designation List</span>
+                    </a>
+                  </li>`);
+                  }
                   if (usrp) {
                     $("#acNavLinks")
                       .append(`<li class="" style="font-weight: 500">
@@ -98,15 +98,15 @@ checkLogin()
                 </a>
               </li>`);
                   }
-                  //       if (clndr) {
-                  //         $("#acNavLinks")
-                  //           .append(`<li class="" style="font-weight: 500">
-                  //   <a href="../calendar/">
-                  //   <span class="icon"><i class='bx bx-calendar'></i></span>
-                  //     <span class="title">Calendar</span>
-                  //   </a>
-                  // </li>`);
-                  //       }
+                  if (clndr) {
+                    $("#acNavLinks")
+                      .append(`<li class="" style="font-weight: 500">
+                    <a href="../calendar/">
+                    <span class="icon"><i class='bx bx-calendar'></i></span>
+                      <span class="title">Calendar</span>
+                    </a>
+                  </li>`);
+                  }
                   $("#empList").empty();
                   emps.map(fillEmployees);
                   fillGroups(grps);
@@ -545,6 +545,7 @@ function getEmpDetails(iVal) {
       empNum: iVal,
     },
     function (data) {
+      console.log(data);
       empDeetsArray = $.parseJSON(data);
       fillModal(empDeetsArray);
     }
@@ -580,7 +581,7 @@ function fillModal(empDeets) {
   $(
     "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
   ).prop("disabled", true);
-  if (!resDate) {
+  if (!resDate || resDate === "0000-00-00") {
     $(".empStat").html(`
     <div class="mb-3 col-12 col-md-6" id="empStat">
     <label class="form-label" >Employee Status</label>
