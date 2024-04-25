@@ -55,15 +55,15 @@ checkLogin()
               </a>
             </li>`);
                 }
-                // if (desigp) {
-                //   $("#acNavLinks li.startli")
-                //     .before(`<li class="" style="font-weight: 500">
-                //     <a href="../designationList/">
-                //     <span class="icon"><i class='bx bxs-award' ></i></span>
-                //       <span class="title">Designation List</span>
-                //     </a>
-                //   </li>`);
-                // }
+                if (desigp) {
+                  $("#acNavLinks li.startli")
+                    .before(`<li class="" style="font-weight: 500">
+                    <a href="../designationList/">
+                    <span class="icon"><i class='bx bxs-award' ></i></span>
+                      <span class="title">Designation List</span>
+                    </a>
+                  </li>`);
+                }
                 if (appp) {
                   $("#acNavLinks")
                     .append(`<li class="" style="font-weight: 500">
