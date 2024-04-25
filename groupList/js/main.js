@@ -41,14 +41,14 @@ checkLogin().then((emp) => {
         ])
           .then(([desigp, usrp, appp, clndr, grps, depts]) => {
             $("#acNavLinks li.startli").nextAll().remove();
-            // if (desigp) {
-            //   $("#acNavLinks").append(`<li class="" style="font-weight: 500">
-            //     <a href="../designationList/">
-            //       <span class="icon"><i class='bx bxs-award' ></i></span>
-            //       <span class="title">Designation List</span>
-            //     </a>
-            //   </li>`);
-            // }
+            if (desigp) {
+              $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+                <a href="../designationList/">
+                  <span class="icon"><i class='bx bxs-award' ></i></span>
+                  <span class="title">Designation List</span>
+                </a>
+              </li>`);
+            }
             if (usrp) {
               $("#acNavLinks").append(`<li class="" style="font-weight: 500">
                 <a href="../userPermission/">
@@ -65,14 +65,14 @@ checkLogin().then((emp) => {
             </a>
           </li>`);
             }
-            //   if (clndr) {
-            //     $("#acNavLinks").append(`<li class="" style="font-weight: 500">
-            //   <a href="../calendar/">
-            //     <span class="icon"><i class='bx bx-calendar'></i></span>
-            //     <span class="title">Calendar</span>
-            //   </a>
-            // </li>`);
-            //   }
+            if (clndr) {
+              $("#acNavLinks").append(`<li class="" style="font-weight: 500">
+              <a href="../calendar/">
+                <span class="icon"><i class='bx bx-calendar'></i></span>
+                <span class="title">Calendar</span>
+              </a>
+            </li>`);
+            }
             $("#groupList").empty();
             groupList = grps;
             fillGroups(groupList);
