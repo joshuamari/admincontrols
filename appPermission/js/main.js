@@ -47,15 +47,15 @@ checkLogin()
               </a>
             </li>`);
                 }
-                // if (desigp) {
-                //   $("#acNavLinks li.startli")
-                //     .before(`<li class="" style="font-weight: 500">
-                //     <a href="../designationList/">
-                //     <span class="icon"><i class='bx bxs-award' ></i></span>
-                //       <span class="title">Designation List</span>
-                //     </a>
-                //   </li>`);
-                // }
+                if (desigp) {
+                  $("#acNavLinks li.startli")
+                    .before(`<li class="" style="font-weight: 500">
+                    <a href="../designationList/">
+                    <span class="icon"><i class='bx bxs-award' ></i></span>
+                      <span class="title">Designation List</span>
+                    </a>
+                  </li>`);
+                }
                 if (usrp) {
                   $("#acNavLinks li.startli")
                     .before(`<li class="" style="font-weight: 500">
@@ -65,15 +65,15 @@ checkLogin()
                   </a>
                 </li>`);
                 }
-                // if (clndr) {
-                //   $("#acNavLinks")
-                //     .append(`<li class="" style="font-weight: 500">
-                //     <a href="../calendar/">
-                //     <span class="icon"><i class='bx bx-calendar'></i></span>
-                //       <span class="title">Calendar</span>
-                //     </a>
-                //   </li>`);
-                // }
+                if (clndr) {
+                  $("#acNavLinks")
+                    .append(`<li class="" style="font-weight: 500">
+                    <a href="../calendar/">
+                    <span class="icon"><i class='bx bx-calendar'></i></span>
+                      <span class="title">Calendar</span>
+                    </a>
+                  </li>`);
+                }
                 $("#cardContainer").empty();
                 projects = projs;
                 displayProjects();
