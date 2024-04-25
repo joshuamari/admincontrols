@@ -1,6 +1,6 @@
 <?php
 #region Require Database Connections
-require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../Includes/dbconnectkdtph.php';
 #endregion
 
 #region set timezone
@@ -12,7 +12,7 @@ $empNum = NULL;
 if (!empty($_POST['empNum'])) {
     $empNum = $_POST['empNum'];
 }
-$pID = 41; //calendar list view and access MODULE PERMISSION ID kdtphdb>>>>p_permissions
+$pID = 20; //appp view MODULE PERMISSION ID kdtphdb>>>>p_permissions
 $access = FALSE;
 #endregion
 

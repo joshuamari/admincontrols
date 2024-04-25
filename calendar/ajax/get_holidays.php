@@ -1,6 +1,6 @@
 <?php
 #region Require Database Connections
-require_once '../Includes/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectkdtph.php';
 #endregion
 
 #region set timezone
@@ -9,13 +9,17 @@ date_default_timezone_set('Asia/Manila');
 
 #region initialize variables
 $holidays = array();
+$locID = 1;
+if (!empty($_POST['locID'])) {
+    $locID = $_POST['locID'];
+}
 $currentYear = date("Y");
 #endregion
 
 #region main
-$holidayQ = "SELECT * FROM `kdtholiday` WHERE fldDate LIKE :currentYear AND fldLocation ='KDT' ORDER BY fldDate";
+$holidayQ = "SELECT * FROM `kdtholiday` WHERE fldDate LIKE :currentYear AND fldLocID =:locID ORDER BY fldDate";
 $holidayStmt = $connkdt->prepare($holidayQ);
-$holidayStmt->execute([":currentYear" => "$currentYear-%"]);
+$holidayStmt->execute([":currentYear" => "$currentYear-%", ":locID" => $locID]);
 if ($holidayStmt->rowCount() > 0) {
     $holArr = $holidayStmt->fetchAll();
     foreach ($holArr as $hol) {

@@ -73,9 +73,9 @@
                 id="holidayType"
                 class="pl-[0.75rem] py-[0.375rem] pr-[2rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md select"
               >
-                <option value="1" selected>Regular Holiday</option>
-                <option value="2">Special Holiday</option>
-                <option value="3">Swap Holiday</option>
+                <option type-id="0" selected>Regular Holiday</option>
+                <option type-id="1">Special Holiday</option>
+                <option type-id="2">Working Day</option>
               </select>
             </div>
 
@@ -88,7 +88,7 @@
                 style="border: 1px solid rgb(31 41 55)"
               />
               <small class="text-[var(--secondary-color)] hidden"
-                >Please add a s date.</small
+                >Please add a coconut date.</small
               >
             </div>
           </div>
@@ -143,9 +143,9 @@
                 id="holidayTypeEdit"
                 class="pl-[0.75rem] py-[0.375rem] pr-[2rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md select"
               >
-                <option value="1" selected>Regular Holiday</option>
-                <option value="2">Special Holiday</option>
-                <option value="3">Swap Holiday</option>
+              <option type-id="0" selected>Regular Holiday</option>
+              <option type-id="1">Special Holiday</option>
+              <option type-id="2">Working Day</option>
               </select>
             </div>
 
@@ -232,7 +232,7 @@
               <span class="title">Employee List</span>
             </a>
           </li>
-          <li class="" style="font-weight: 500">
+          <!-- <li class="" style="font-weight: 500">
             <a href="../userPermission/">
               <span class="icon"><i class="bx bxs-user-badge"></i></span>
               <span class="title">User Permission</span>
@@ -243,7 +243,7 @@
               <span class="icon"><i class="bx bxs-window-alt"></i></span>
               <span class="title">App Permission</span>
             </a>
-          </li>
+          </li> -->
           <li class="startli" style="font-weight: 500">
             <a href="../Calendar/">
               <span class="icon"><i class="bx bx-calendar"></i></span>
@@ -273,6 +273,7 @@
         </div>
         <div
           class="flex gap-3 px-6 overflow-x-auto bg-[var(--bg-color)] mb-3 lg:mb-0"
+          id="locationList"
         >
           <div
             class="rounded-lg text-[16px] lg:text-[18px] calendar-item active"
@@ -301,13 +302,14 @@
                   class="ps-[30px] pe-2 bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md"
                   style="border: 1px solid rgb(31 41 55)"
                   placeholder="Search holiday name . . ."
+                  id="searchBar"
                 />
                 <i
                   class="bx bx-search absolute top-[8px] left-[8px] text-[16px]"
                 ></i>
               </div>
               <select
-                id=""
+                id="monthVal"
                 class="select ps-3 rounded-md bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-[180px]"
                 style="border: 1px solid rgb(31 41 55)"
               >
@@ -327,11 +329,12 @@
                   <tr>
                     <th class="">
                       <div class="flex gap-1 items-center">
-                        Name<i class="bx bx-sort"></i>
+                        <!-- Name<i class="bx bx-sort"></i> -->
+                        Name
                       </div>
                     </th>
                     <th>
-                      <select class="select">
+                      <select class="select" id="holType">
                         <option value="">Holiday Type</option>
                         <option value="">Regular</option>
                         <option value="">Special</option>
@@ -340,13 +343,14 @@
                     </th>
                     <th>
                       <div class="flex gap-1 items-center">
-                        Date<i class="bx bx-sort"></i>
+                        <!-- Date<i class="bx bx-sort"></i> -->
+                        Date
                       </div>
                     </th>
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="mainHoliday">
                   <tr row-id="1">
                     <td>New Years Day</td>
                     <td>Special</td>
