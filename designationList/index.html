@@ -65,9 +65,9 @@
                   id="posName"
                   placeholder="eg. Software Engineer"
                 />
-                <span class="m1 d-none" style="color: #f85e5e"
-                  >Input position name</span
-                >
+                <small class="text-[var(--secondary-color)] hidden"
+                >Please add a Position Name.</small
+              >
               </div>
               <div class="mb-3 col-12 col-md-6">
                 <label class="form-label" for="posAcr">Position Acronym</label>
@@ -77,9 +77,9 @@
                   id="posAcr"
                   placeholder="XXX"
                 />
-                <span class="m2 d-none" style="color: #f85e5e"
-                  >Input position acronym</span
-                >
+                <small class="text-[var(--secondary-color)] hidden"
+                >Please add a Position Acronym.</small
+              >
               </div>
               <div>
                 <label class="form-label" for="posSec">Section</label>
@@ -91,9 +91,9 @@
                   <option selected>Admin</option>
                   <option>Engineering</option>
                 </select>
-                <span class="m3 d-none" style="color: #f85e5e"
-                  >Select Department</span
-                >
+                <small class="text-[var(--secondary-color)] hidden"
+                >Please add a Section.</small
+              >
               </div>
             </div>
           </div>
@@ -101,6 +101,7 @@
             <button
               type="button"
               class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md"
+              id="addBtn"
             >
               Add Position
             </button>
@@ -109,7 +110,7 @@
       </div>
     </div>
 
-    <div
+    <!-- <div
       class="modal fade"
       id="addSectionModal"
       data-bs-backdrop="static"
@@ -154,7 +155,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div
       class="modal fade"
@@ -209,8 +210,8 @@
 
     <div class="h-screen w-full flex">
       <div class="navigation actived">
-        <ul>
-          <li class="fw-bolder">
+        <ul id="acNavLinks">
+          <li class="font-semibold">
             <a href="#">
               <span class="icon"><i class="bx bxs-lock-open"></i></span>
               <span class="title" style="font-size: 20px">Admin Controls</span>
@@ -222,22 +223,10 @@
               <span class="title">Employee List</span>
             </a>
           </li>
-          <li style="font-weight: 500">
-            <a href="../groupList/index.html">
-              <span class="icon"><i class="bx bxs-group"></i></span>
-              <span class="title">Group List</span>
-            </a>
-          </li>
           <li class="startli" style="font-weight: 500">
             <a href="../designationList/">
-              <span class="icon"><i class="bx bxs-award"></i></span>
+              <span class="icon"><i class='bx bxs-award' ></i></span>
               <span class="title">Designation List</span>
-            </a>
-          </li>
-          <li class="" style="font-weight: 500">
-            <a href="../Calendar/">
-              <span class="icon"><i class="bx bx-calendar"></i></span>
-              <span class="title">Calendar</span>
             </a>
           </li>
         </ul>
@@ -285,13 +274,13 @@
                     </div>
                   </li>
                 </ul>
-                <button
+                <!-- <button
                   class="bg-rose-500 px-3 py-2 m-2 hover:bg-rose-700 rounded-md"
                   data-bs-toggle="modal"
                   data-bs-target="#addSectionModal"
                 >
                   <i class="bx bx-plus"></i> Add Section
-                </button>
+                </button> -->
               </div>
               <div
                 class="flex flex-col gap-3 lg:h-full h-[calc(100%-300px)] w-full lg:w-[calc(100%-200px)]"
@@ -302,7 +291,8 @@
                       type="search"
                       class="ps-[30px] pe-2 bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md"
                       style="border: 1px solid rgb(31 41 55)"
-                      placeholder="Search Group"
+                      placeholder="Search Designation"
+                      id="searchBar"
                     />
                     <i
                       class="bx bx-search absolute top-[8px] left-[8px] text-[16px]"
