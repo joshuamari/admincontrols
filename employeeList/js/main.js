@@ -138,7 +138,6 @@ $(document).on("click", ".btn-addEmp", function () {
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
-  console.log("pindot");
 });
 $(document).on("click", ".emp", function () {
   var eNum = $($(this).children()[0]).text();
@@ -546,7 +545,6 @@ function getEmpDetails(iVal) {
       empNum: iVal,
     },
     function (data) {
-      console.log(data);
       empDeetsArray = $.parseJSON(data);
       fillModal(empDeetsArray);
     }
@@ -911,7 +909,6 @@ function saveEdit() {
       email: email,
     },
     function (data) {
-      console.log(data);
       if ($.parseJSON(data)) {
         alert(`Save failed: ${data}`);
         return;

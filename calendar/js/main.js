@@ -410,7 +410,6 @@ function addHoliday() {
       },
       dataType: "json",
       success: function (response) {
-        console.log(response);
         const isSuccess = response.isSuccess;
         if (!isSuccess) {
           alert(`${response.error}`); // Reject the promise
@@ -490,7 +489,6 @@ function deleteHoliday(delete_id) {
     },
     dataType: "json",
     success: function (response) {
-      console.log(response);
       const isSuccess = response.isSuccess;
       if (!isSuccess) {
         alert(`${response.error}`); // Reject the promise
@@ -692,7 +690,6 @@ function saveHoliday() {
       },
       dataType: "json",
       success: function (response) {
-        console.log(response);
         const isSuccess = response.isSuccess;
         if (!isSuccess) {
           alert(`${response.error}`); // Reject the promise

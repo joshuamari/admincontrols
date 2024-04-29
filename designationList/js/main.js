@@ -130,7 +130,6 @@ $(document).on("click", "#cancelDelModal", function () {
 });
 $(document).on("click", "#delSection", function () {
   var secID = $("#secPlaceholder").attr("sec-id");
-  console.log(secID);
   $("#designationType li div[sec-id='" + secID + "']").remove();
 });
 $(document).on("keyup", "#searchBar", function () {
@@ -501,7 +500,6 @@ function addDesig() {
   const name = $("#posName").val();
   const acro = $("#posAcr").val();
   const sectionID = $("#posSec").find(":selected").attr("sec-id");
-  console.log(name, acro, sectionID);
   $("small").addClass("hidden");
   let ctr = 0;
   if (!name) {

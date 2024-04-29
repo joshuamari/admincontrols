@@ -96,7 +96,6 @@ checkLogin().then((emp) => {
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
-  console.log("pindot");
 });
 $(document).on("keyup", "#searchWord", function () {
   // getGroups().then((grps) => {
@@ -272,7 +271,6 @@ function searchGroup() {
   const filteredData = groupList.filter((item) =>
     item.name.toLowerCase().includes(searchTerm)
   );
-  console.log(filteredData);
   fillGroups(filteredData);
 }
 function getDepartments() {
@@ -312,7 +310,6 @@ function fillEditModal(rowID) {
   var acr = $(`#groupList tr[row-id="${rowID}"]`).find("td:eq(2)").text();
   var dept = $(`#groupList tr[row-id="${rowID}"]`).find("td:eq(3)").text();
 
-  console.log(dept);
   $("#grpNameEdit").val(name);
   $("#grpCodeEdit").val(acr);
   $("#deptListEdit").val(dept);

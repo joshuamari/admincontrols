@@ -96,7 +96,6 @@ checkLogin()
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
-  console.log("pindot");
 });
 $(document).on("change", "input[type='radio']", function () {
   if (this.checked) {

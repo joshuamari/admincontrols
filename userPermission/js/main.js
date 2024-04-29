@@ -105,7 +105,6 @@ checkLogin()
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
-  console.log("pindot");
 });
 $(document).on("click", ".btn-view", function () {
   var TR = $(this).closest("tr");
