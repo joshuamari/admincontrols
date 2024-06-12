@@ -1,5 +1,6 @@
 <?php
 #region Require Database Connections
+require_once '../../dbconn/dbconnectnew.php';
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectqms.php';
 #endregion
@@ -21,6 +22,7 @@ $karendate = date("Y-m-d");
 $err = FALSE;
 $connDisable->beginTransaction();
 $connDisableQMS->beginTransaction();
+$conn_new_disable->beginTransaction();
 #endregion
 
 #region main
@@ -37,12 +39,19 @@ try {
         $editActiveKDTStmt = $connkdt->prepare($editActiveKDTQuery);
         $editActiveKDTStmt->execute([":empnum" => $empnum]);
     }
+
+    $editNewQuery = "UPDATE `employee_list` SET `resignation_date`=:resdate WHERE `id`=:empnum";
+    $editNewStmt = $conn_new_disable->prepare($editNewQuery);
+    $editNewStmt->execute([":resdate" => $resdate, ":empnum" => $empnum]);
+
     $connDisable->commit();
     $connDisableQMS->commit();
+    $conn_new_disable->commit();
 } catch (Exception $e) {
     $err = $e;
     $connDisable->rollBack();
     $connDisableQMS->rollBack();
+    $conn_new_disable->rollBack();
 }
 
 

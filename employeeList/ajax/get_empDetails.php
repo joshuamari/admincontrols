@@ -1,6 +1,7 @@
 <?php
 #region Require Database Connections
 require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 #endregion
 
 #region set timezone
@@ -27,8 +28,8 @@ if ($empStmt->rowCount() > 0) {
         $surName = $emp['fldSurname'];
         $nickName = $emp['fldNick'];
         $employeeUser = $emp['fldUser'];
-        $employeeGroup = $emp['fldGroup'];
-        $employeePos = $emp['fldDesig'];
+        $employeeGroup = getGroupID($emp['fldGroup']);
+        $employeePos = getPosID($emp['fldDesig']);
         $employeeBday = $emp['fldBirthDate'];
         $employeeGender = $emp['fldGender'];
         $employeeStatus = $emp['fldStatus'];
@@ -54,7 +55,30 @@ if ($empStmt->rowCount() > 0) {
 #endregion
 
 #region function
-
+function getGroupID($grpname)
+{
+    global $connnew;
+    $groupID = 0;
+    $groupQ = "SELECT `id` FROM `group_list` WHERE `abbreviation`=:grpname";
+    $groupStmt = $connnew->prepare($groupQ);
+    $groupStmt->execute([":grpname" => $grpname]);
+    if ($groupStmt->rowCount() > 0) {
+        $groupID = $groupStmt->fetchColumn();
+    }
+    return $groupID;
+}
+function getPosID($posacr)
+{
+    global $connnew;
+    $posID = 0;
+    $posQ = "SELECT `id` FROM `designation_list` WHERE `acronym`=:posacr";
+    $posStmt = $connnew->prepare($posQ);
+    $posStmt->execute([":posacr" => $posacr]);
+    if ($posStmt->rowCount() > 0) {
+        $posID = $posStmt->fetchColumn();
+    }
+    return $posID;
+}
 #endregion
 //$.ajaxSetup({async: false});
 echo json_encode($employeeArray);

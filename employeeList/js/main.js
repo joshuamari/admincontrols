@@ -608,7 +608,6 @@ function fillModal(empDeets) {
 
 function getGroups() {
   $(".empGroup").empty();
-  let addString = ``;
   $(".empGroup").html(`<option value='' hidden>Select Group</option>`);
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -633,7 +632,7 @@ function getGroups() {
 }
 function fillGroups(groups) {
   groups.forEach((element) => {
-    addString = `<option >${element}</option>`;
+    addString = `<option value='${element.id}' >${element.name}</option>`;
     $(".empGroup").append(addString);
   });
 }
@@ -662,12 +661,10 @@ function getPos() {
   });
 }
 function fillPos(posDetails) {
-  var addString = ``;
-  Object.keys(posDetails).forEach((posAcro) => {
-    const posFull = posDetails[posAcro];
-    addString += `<option  value='${posAcro}'>${posAcro}(${posFull})</option>`;
+  posDetails.forEach((element) => {
+    addString = `<option value='${element.id}' >${element.acronym}(${element.name})</option>`;
+    $(".empPos").append(addString);
   });
-  $(".empPos").append(addString);
 }
 function addEmployee() {
   var fname = $(`#addFirstname`).val();
@@ -678,9 +675,9 @@ function addEmployee() {
   var status = $(`#addStatus`).find(`:selected`).val();
   var empnum = $(`#addEmpnum`).val();
   var username = $(`#addPCUser`).val();
-  var group = $(`#addGroup`).find(`:selected`).val();
+  var group = $(`#addGroup`).val();
   var dhired = $(`#addDatehired`).val();
-  var position = $(`#addPos`).find(`:selected`).val();
+  var position = $(`#addPos`).val();
   var email = $(`#addLotus`).val();
   var error = 0;
   var eMsg = ``;

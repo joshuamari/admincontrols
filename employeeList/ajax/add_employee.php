@@ -1,5 +1,6 @@
 <?php
 #region Require Database Connections
+require_once '../../dbconn/dbconnectnew.php';
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectqms.php';
 require_once '../../dbconn/formsdb.php';
@@ -28,12 +29,16 @@ if (!empty($_POST['bday'])) {
     $bday = $_POST['bday'];
 }
 $gender = NULL;
+$genderID = 0;
 if (!empty($_POST['gender'])) {
     $gender = $_POST['gender'];
+    $genderID = $gender == "M" ? 0 : 1;
 }
 $status = NULL;
+$statusID = 0;
 if (!empty($_POST['status'])) {
     $status = $_POST['status'];
+    $statusID = $status == "Single" ? 0 : 1;
 }
 $empnum = NULL;
 if (!empty($_POST['empnum'])) {
@@ -44,16 +49,20 @@ if (!empty($_POST['username'])) {
     $username = $_POST['username'];
 }
 $group = NULL;
+$groupID = 0;
 if (!empty($_POST['group'])) {
-    $group = $_POST['group'];
+    $groupID = $_POST['group'];
+    $group = getGroupAbbr($groupID);
 }
 $dhired = NULL;
 if (!empty($_POST['dhired'])) {
     $dhired = $_POST['dhired'];
 }
 $position = NULL;
+$positionID = 0;
 if (!empty($_POST['position'])) {
-    $position = $_POST['position'];
+    $positionID = $_POST['position'];
+    $position = getDesigAbbr($positionID);
 }
 $email = NULL;
 if (!empty($_POST['email'])) {
@@ -68,6 +77,7 @@ $err = FALSE;
 $connDisable->beginTransaction();
 $connDisableQMS->beginTransaction();
 $connDisableForms->beginTransaction();
+$conn_new_disable->beginTransaction();
 #endregion
 
 #region main
@@ -101,18 +111,47 @@ try {
     $insertLeaveFormCountStmt = $connforms->prepare($insertLeaveFormCountQ);
     $insertLeaveFormCountStmt->execute([":empnum" => $empnum]);
 
+    $insertNewQ = "INSERT INTO `employee_list`(id,surname,firstname,nickname,username,email,group_id,designation,birthdate,gender,marital_status,date_hired) VALUES(:empnum,:lname,:fname,:nname,:username,:email,:groupID,:positionid,:bday,:genderid,:statusid,:dhired)";
+
+    $insertNewStmt = $connnew->prepare($insertNewQ);
+    $insertNewStmt->execute([":empnum" => $empnum, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":username" => $username, ":email" => $addOutlook, ":groupID" => $groupID, ":positionid" => $positionID, ":bday" => $bday, ":genderid" => $genderID, ":statusid" => $statusID, ":dhired" => $dhired]);
     $connDisable->commit();
     $connDisableQMS->commit();
     $connDisableForms->commit();
+    $conn_new_disable->commit();
 } catch (Exception $e) {
     $err = $e;
     $connDisable->rollBack();
     $connDisableQMS->rollBack();
     $connDisableForms->rollBack();
+    $conn_new_disable->rollBack();
 }
 #endregion
 
 #region function
-
+function getGroupAbbr($grpid)
+{
+    global $connnew;
+    $abbr = NULL;
+    $groupQ = "SELECT `abbreviation` FROM `group_list` WHERE `id`=:grpid";
+    $groupStmt = $connnew->prepare($groupQ);
+    $groupStmt->execute([":grpid" => $grpid]);
+    if ($groupStmt->rowCount() > 0) {
+        $abbr = $groupStmt->fetchColumn();
+    }
+    return $abbr;
+}
+function getDesigAbbr($desigid)
+{
+    global $connnew;
+    $abbr = NULL;
+    $groupQ = "SELECT `acronym` FROM `designation_list` WHERE `id`=:desigid";
+    $groupStmt = $connnew->prepare($groupQ);
+    $groupStmt->execute([":desigid" => $desigid]);
+    if ($groupStmt->rowCount() > 0) {
+        $abbr = $groupStmt->fetchColumn();
+    }
+    return $abbr;
+}
 #endregion
 echo json_encode($err, JSON_PRETTY_PRINT);
