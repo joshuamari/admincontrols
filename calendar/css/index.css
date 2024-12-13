@@ -264,7 +264,7 @@ overflow: hidden;
 font-weight: 500;
   background-color: var(--light-color);
 }
-.select option{
+.select option, .selectType2 option{
   display: block;
   padding: .375rem 2.25rem .375rem .75rem;
   text-transform: uppercase;
@@ -272,6 +272,9 @@ font-weight: 500;
   white-space: nowrap;
   color: var(--secondary-text);
   background-color: var(--light-color);
+}
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 .top ul li {
   border-bottom: 1px solid var(--card-color);

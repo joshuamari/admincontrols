@@ -92,6 +92,7 @@ checkLogin()
                 .then(([hols, grpp, desigp, usrp, appp]) => {
                   monthlyHolidayData = hols;
                   holidayChart();
+                  setHolidaysforCurrentMonthofYear();
                   $("#monthlyList").empty();
                   fillHolidayMonthList(monthlyHolidayData);
                   $("#mainHoliday").empty();
@@ -234,9 +235,17 @@ $(document).on("change", "#holType", function () {
   $("#mainHoliday").empty();
   searchHoliday();
 });
+$(document).on("change", "#selectedYear", function () {
+  setHolidaysforCurrentMonthofYear();
+});
 //#endregion
 
 //#region FUNCTIONS
+function setHolidaysforCurrentMonthofYear() {
+  var year = $("#selectedYear").val();
+
+  $("#selectedYearforCurrentMonth, #countforSelectedYear").text(year);
+}
 function checkLogin() {
   return new Promise((resolve, reject) => {
     $.ajax({

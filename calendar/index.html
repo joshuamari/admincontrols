@@ -143,9 +143,9 @@
                 id="holidayTypeEdit"
                 class="pl-[0.75rem] py-[0.375rem] pr-[2rem] bg-[var(--card-color)] focus:outline-none focus:ring focus:ring-orange-700 h-full w-full relative block rounded-md select"
               >
-              <option type-id="0" selected>Regular Holiday</option>
-              <option type-id="1">Special Holiday</option>
-              <option type-id="2">Working Day</option>
+                <option type-id="0" selected>Regular Holiday</option>
+                <option type-id="1">Special Holiday</option>
+                <option type-id="2">Working Day</option>
               </select>
             </div>
 
@@ -293,7 +293,19 @@
           <div
             class="w-full max-h-[600px] 2xl:max-h-full 2xl:h-full flex-1 bg-[var(--dark-color)] rounded-md p-3 flex flex-col gap-3"
           >
-            <h5 class="text-[24px]">Holiday List</h5>
+            <h5 class="text-[1.75rem]">
+              Holiday List for Year
+              <span
+                class="text-[1.75rem] inline-flex font-bold text-[var(--primary-color)]"
+                ><select
+                  id="selectedYear"
+                  class="selectType2 bg-transparent ps-2 focus:border-b-2 h-full w-[150px] border-b-2"
+                >
+                  <option selected>2024</option>
+                  <option>2025</option>
+                </select></span
+              >
+            </h5>
 
             <div class="flex justify-between w-full gap-2">
               <div class="relative w-full">
@@ -460,7 +472,7 @@
               <h5 class="text-[24px]">
                 Holiday Count this
                 <span
-                  id="thisYear"
+                  id="countforSelectedYear"
                   class="text-[24px] text-[var(--primary-color)] font-semibold"
                   >Year</span
                 >
@@ -473,12 +485,21 @@
               class="bg-[var(--dark-color)] rounded-md p-3 2xl:h-full min-h-[350px] w-full"
             >
               <h5 class="text-[24px]">
-                Holidays this
-                <span
+                Holidays for
+                <!-- <span
                   id="thisMonth"
                   class="text-[24px] text-[var(--primary-color)] font-semibold"
                   >Month</span
-                >
+                > -->
+                <span
+                  class="text-[1.75rem] inline-flex font-semibold text-[var(--primary-color)]"
+                  id="thisMonth"
+                  >December
+                </span>
+                <span
+                  class="text-[1.75rem] inline-flex font-semibold text-[var(--primary-color)]"
+                  id="selectedYearforCurrentMonth"
+                ></span>
               </h5>
               <div class="h-[calc(100%-20px)] w-full overflow-auto top">
                 <ul class="list-none py-3" id="monthlyList">
