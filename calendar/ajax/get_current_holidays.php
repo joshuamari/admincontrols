@@ -13,20 +13,14 @@ $locID = 1;
 if (!empty($_POST['locID'])) {
     $locID = $_POST['locID'];
 }
-$selectedYear = date("Y");
-if (!empty($_POST['selectedYear'])) {
-    $selectedYear = $_POST['selectedYear'];
-}
-$selectedMonth = date("m");
-if (!empty($_POST['selectedMonth'])) {
-    $selectedMonth = $_POST['selectedMonth'];
-}
+$currentYear = date("Y");
+$currentMonth = date("m");
 #endregion
 
 #region main
 $holidayQ = "SELECT * FROM `kdtholiday` WHERE fldDate LIKE :selectedYear AND fldLocID =:locID ORDER BY fldDate";
 $holidayStmt = $connkdt->prepare($holidayQ);
-$holidayStmt->execute([":selectedYear" => "$selectedYear-$selectedMonth-%", ":locID" => $locID]);
+$holidayStmt->execute([":selectedYear" => "$currentYear-$currentMonth-%", ":locID" => $locID]);
 if ($holidayStmt->rowCount() > 0) {
     $holArr = $holidayStmt->fetchAll();
     foreach ($holArr as $hol) {
