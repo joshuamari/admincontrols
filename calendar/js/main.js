@@ -1,16 +1,6 @@
 //#region GLOBALS
-switch (document.location.hostname) {
-  case "kdt-ph":
-    rootFolder = "//kdt-ph/";
-    break;
-  case "localhost":
-    rootFolder = "//localhost/";
-    break;
-  default:
-    rootFolder = "//kdt-ph/";
-    break;
-}
-var empDetails = [];
+const rootFolder = `//${document.location.hostname}`;
+let empDetails = [];
 let selectedLoc = 1;
 let selectEdit = 0;
 let monthlyHolidayData = [
@@ -45,108 +35,131 @@ const currentDate = new Date();
 const currentMonthIndex = currentDate.getMonth();
 const currentMonthName = monthNames[currentMonthIndex];
 const currentYear = currentDate.getFullYear();
+let selectedYear = currentYear;
 checkLogin()
   .then((emps) => {
     if (emps) {
       empDetails = emps;
-      Promise.all([getLocations(), checkCalendarP()])
-        .then(([locs, clndr]) => {
-          if (clndr && locs) {
-            $(document).ready(function () {
-              $(".hello-user").text(empDetails["empFName"]);
-              let list = document.querySelectorAll(".navigation li");
-              function activeLink() {
-                list.forEach((item) => item.classList.remove("active"));
-                this.classList.add("active");
-              }
-              list.forEach((item) =>
-                item.addEventListener("click", activeLink)
-              );
-              getCurrentMonthYear();
-              $(".startli").click();
-              $("#locationList").empty();
-              fillLocations(locs);
-              fillHolidayType($("#holidayType"));
-              fillHolidayType($("#holidayTypeEdit"));
-              fillHolidayType($("#holType"));
-              getHolidays()
-                .then((hols) => {
-                  monthlyHolidayData = hols;
-                  holidayChart();
-                  $("#monthlyList").empty();
-                  fillHolidayMonthList(monthlyHolidayData);
-                  $("#mainHoliday").empty();
-                  searchHoliday();
-                  fillMonthSelection();
-                })
-                .catch((error) => {
-                  alert(`${error}`);
-                });
-              Promise.all([
-                getHolidays(),
-                checkGrpAccess(),
-                checkDesigP(),
-                checkUserP(),
-                checkAppP(),
-              ])
-                .then(([hols, grpp, desigp, usrp, appp]) => {
-                  monthlyHolidayData = hols;
-                  holidayChart();
-                  setHolidaysforCurrentMonthofYear();
-                  $("#monthlyList").empty();
-                  fillHolidayMonthList(monthlyHolidayData);
-                  $("#mainHoliday").empty();
-                  searchHoliday();
-                  fillMonthSelection();
-                  if (grpp) {
-                    $("#acNavLinks li.startli")
-                      .before(`<li class="" style="font-weight: 500">
-                <a href="../groupList/">
-                <span class="icon"><i class='bx bxs-group' ></i></span>
-                  <span class="title">Group List</span>
-                </a>
-              </li>`);
-                  }
-                  if (desigp) {
-                    $("#acNavLinks li.startli")
-                      .before(`<li class="" style="font-weight: 500">
-                    <a href="../designationList/">
-                    <span class="icon"><i class='bx bxs-award' ></i></span>
-                      <span class="title">Designation List</span>
-                    </a>
-                  </li>`);
-                  }
-                  if (usrp) {
-                    $("#acNavLinks li.startli")
-                      .before(`<li class="" style="font-weight: 500">
-                        <a href="../userPermission/">
-                          <span class="icon"><i class="bx bxs-user-badge"></i></span>
-                          <span class="title">User Permission</span>
-                        </a>
-                      </li>`);
-                  }
-                  if (appp) {
-                    $("#acNavLinks li.startli")
-                      .before(`<li class="" style="font-weight: 500">
-                    <a href="../appPermission/">
-                      <span class="icon"><i class="bx bxs-window-alt"></i></span>
-                      <span class="title">App Permission</span>
-                    </a>
-                  </li>`);
-                  }
-                })
-                .catch((error) => {
-                  alert(`${error}`);
-                });
-            });
-          } else {
-            alert(`Access Denied`);
-            window.location.href = `${rootFolder}`;
-          }
-        })
-        .catch((error) => {
-          alert(`${error}`);
-        });
+      checkCalendarP().then((clndr) => {
+        if (clndr) {
+          $(document).ready(function () {
+            $(".hello-user").text(empDetails["empFName"]);
+            let list = document.querySelectorAll(".navigation li");
+            function activeLink() {
+              list.forEach((item) => item.classList.remove("active"));
+              this.classList.add("active");
+            }
+            list.forEach((item) => item.addEventListener("click", activeLink));
+            getCurrentMonthYear();
+            $(".startli").click();
+            $("#locationList").empty();
+            fillHolidayType($("#holidayType"));
+            fillHolidayType($("#holidayTypeEdit"));
+            fillHolidayType($("#holType"));
+          });
+        } else {
+          alert(`Access Denied`);
+          window.location.href = `${rootFolder}`;
+        }
+      });
+      // Promise.all([getLocations(), checkCalendarP()])
+      //   .then(([locs, clndr]) => {
+      //     if (clndr && locs) {
+      //       $(document).ready(function () {
+      //         $(".hello-user").text(empDetails["empFName"]);
+      //         let list = document.querySelectorAll(".navigation li");
+      //         function activeLink() {
+      //           list.forEach((item) => item.classList.remove("active"));
+      //           this.classList.add("active");
+      //         }
+      //         list.forEach((item) =>
+      //           item.addEventListener("click", activeLink)
+      //         );
+      //         getCurrentMonthYear();
+      //         $(".startli").click();
+      //         $("#locationList").empty();
+      //         fillLocations(locs);
+      //         fillHolidayType($("#holidayType"));
+      //         fillHolidayType($("#holidayTypeEdit"));
+      //         fillHolidayType($("#holType"));
+      //         getHolidays()
+      //           .then((hols) => {
+      //             monthlyHolidayData = hols;
+      //             holidayChart();
+      //             $("#monthlyList").empty();
+      //             fillHolidayMonthList(monthlyHolidayData);
+      //             $("#mainHoliday").empty();
+      //             searchHoliday();
+      //             fillMonthSelection();
+      //           })
+      //           .catch((error) => {
+      //             alert(`${error}`);
+      //           });
+      //         Promise.all([
+      //           getHolidays(),
+      //           checkGrpAccess(),
+      //           checkDesigP(),
+      //           checkUserP(),
+      //           checkAppP(),
+      //         ])
+      //           .then(([hols, grpp, desigp, usrp, appp]) => {
+      //             monthlyHolidayData = hols;
+      //             holidayChart();
+      //             setHolidaysforCurrentMonthofYear();
+      //             $("#monthlyList").empty();
+      //             fillHolidayMonthList(monthlyHolidayData);
+      //             $("#mainHoliday").empty();
+      //             searchHoliday();
+      //             fillMonthSelection();
+      //             if (grpp) {
+      //               $("#acNavLinks li.startli")
+      //                 .before(`<li class="" style="font-weight: 500">
+      //           <a href="../groupList/">
+      //           <span class="icon"><i class='bx bxs-group' ></i></span>
+      //             <span class="title">Group List</span>
+      //           </a>
+      //         </li>`);
+      //             }
+      //             if (desigp) {
+      //               $("#acNavLinks li.startli")
+      //                 .before(`<li class="" style="font-weight: 500">
+      //               <a href="../designationList/">
+      //               <span class="icon"><i class='bx bxs-award' ></i></span>
+      //                 <span class="title">Designation List</span>
+      //               </a>
+      //             </li>`);
+      //             }
+      //             if (usrp) {
+      //               $("#acNavLinks li.startli")
+      //                 .before(`<li class="" style="font-weight: 500">
+      //                   <a href="../userPermission/">
+      //                     <span class="icon"><i class="bx bxs-user-badge"></i></span>
+      //                     <span class="title">User Permission</span>
+      //                   </a>
+      //                 </li>`);
+      //             }
+      //             if (appp) {
+      //               $("#acNavLinks li.startli")
+      //                 .before(`<li class="" style="font-weight: 500">
+      //               <a href="../appPermission/">
+      //                 <span class="icon"><i class="bx bxs-window-alt"></i></span>
+      //                 <span class="title">App Permission</span>
+      //               </a>
+      //             </li>`);
+      //             }
+      //           })
+      //           .catch((error) => {
+      //             alert(`${error}`);
+      //           });
+      //       });
+      //     } else {
+      //       alert(`Access Denied`);
+      //       window.location.href = `${rootFolder}`;
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     alert(`${error}`);
+      //   });
     } else {
       alert("Not logged in");
       window.location.href = `${rootFolder}/KDTPortalLogin`;
@@ -237,6 +250,19 @@ $(document).on("change", "#holType", function () {
 });
 $(document).on("change", "#selectedYear", function () {
   setHolidaysforCurrentMonthofYear();
+  selectedYear = $("#selectedYear").val();
+  getHolidays()
+    .then((hols) => {
+      monthlyHolidayData = hols;
+      holidayChart();
+      $("#monthlyList").empty();
+      fillHolidayMonthList(monthlyHolidayData);
+      $("#mainHoliday").empty();
+      searchHoliday();
+    })
+    .catch((error) => {
+      alert(`${error}`);
+    });
 });
 //#endregion
 
@@ -244,7 +270,7 @@ $(document).on("change", "#selectedYear", function () {
 function setHolidaysforCurrentMonthofYear() {
   var year = $("#selectedYear").val();
 
-  $("#selectedYearforCurrentMonth, #countforSelectedYear").text(year);
+  $("#countforSelectedYear").text(year);
 }
 function checkLogin() {
   return new Promise((resolve, reject) => {
@@ -294,14 +320,13 @@ function checkCalendarP() {
   });
 }
 function getHolidays() {
-  const currentYear = $("#thisYear").text();
   const locID = selectedLoc;
   return new Promise((resolve, reject) => {
     $.ajax({
       type: "POST",
       url: "ajax/get_holidays.php",
       data: {
-        currentYear: currentYear,
+        selectedYear: selectedYear,
         locID: locID,
       },
       dataType: "json",
@@ -341,7 +366,7 @@ function fillHolidayMonthList(monthlyHolidayData) {
     var holName = holiday.holName;
     var holDate = `${monthNames[holiday.holMonth - 1]} ${
       holiday.holDay
-    }, ${currentYear}`;
+    }, ${selectedYear}`;
     var str = `
   <li class="">
     <div class="flex justify-between gap-2">
@@ -473,7 +498,7 @@ function fillEditModal(rowId) {
     selectedDay < 10
       ? selectedDay.toString().padStart(2, "0")
       : selectedDay.toString();
-  const date = `${currentYear}-${month}-${day}`;
+  const date = `${selectedYear}-${month}-${day}`;
   $("#holidayNameEdit").val(name);
   $("#holidayTypeEdit").val(type);
   $("#holidayDateEdit").val(date);
