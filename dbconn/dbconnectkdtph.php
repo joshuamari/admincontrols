@@ -1,17 +1,20 @@
 <?php
 $config = [
-  'host' => 'kdt-ph',
+  'host' => 'localhost',
   'dbname' => 'kdtphdb',
-  'charset' => 'utf8mb4'
+  'charset' => 'utf8mb4',
+  // 'port' => 3000
 ];
-$username = 'kdt';
-$password = 'none';
+$username = 'root';
+$password = '';
 $dsn = 'mysql:' . http_build_query($config, '', ';');
 try {
   $connkdt = new PDO($dsn, $username, $password, [
+    PDO::ATTR_EMULATE_PREPARES,
+    false,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
   ]);
-  $connDisable = new PDO($dsn, $username, $password, [
+$connDisable = new PDO($dsn, $username, $password, [
 
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 

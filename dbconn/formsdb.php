@@ -1,7 +1,7 @@
 <?php
 $config = [
     'host' => 'localhost',
-    'port' => 3306,
+    // 'port' => 3306,
     'dbname' => 'formsdb',
     'charset' => 'utf8mb4'
 ];

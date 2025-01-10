@@ -13,11 +13,11 @@ date_default_timezone_set('Asia/Manila');
 #region initialize variables
 $fname = NULL;
 if (!empty($_POST['fname'])) {
-    $fname = $_POST['fname'];
+    $fname = ucwords(strtolower(trim($_POST['fname'])));
 }
 $lname = NULL;
 if (!empty($_POST['lname'])) {
-    $lname = $_POST['lname'];
+    $lname = ucwords(strtolower(trim($_POST['lname'])));
 }
 $fullName = strtoupper(($lname)) . "_" . $fname;
 $nname = NULL;
