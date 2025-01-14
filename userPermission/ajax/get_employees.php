@@ -12,7 +12,7 @@ $searchWord = NULL;
 $searchStmt = '';
 if (!empty($_POST['searchWord'])) {
     $searchWord = $_POST['searchWord'];
-    $searchStmt = " AND (fldSurname LIKE '%$searchWord%' OR fldFirstname LIKE '%$searchWord%' OR CONCAT(fldFirstname,' ',fldSurname) LIKE '%$searchWord%')";
+    $searchStmt = " AND (fldSurname LIKE '%$searchWord%' OR fldFirstname LIKE '%$searchWord%' OR CONCAT(fldFirstname,' ',fldSurname) LIKE '%$searchWord%' OR fldEmployeeNum LIKE '%$searchWord%')";
 }
 $permissionsArray = array();
 #endregion

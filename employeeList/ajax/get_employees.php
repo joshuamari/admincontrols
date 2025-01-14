@@ -7,6 +7,8 @@ require_once '../../dbconn/dbconnectkdtph.php';
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+$result = array();
+
 #region initialize variables
 $searchWord = '';
 if (!empty($_POST['searchWord'])) {
@@ -20,35 +22,36 @@ $activeStatement = "";
 if ($active == 1) {
     $activeStatement = " AND ep.fldActive=1";
 }
-$employeeArray = array();
 #endregion
 
 #region main
-$empQ = "SELECT ep.fldEmployeeNum,CONCAT(ep.fldFirstname,' ',ep.fldSurname) AS ename,ep.fldUser,ep.fldGroup,bu.fldDepartment,ep.fldDesig FROM emp_prof AS ep JOIN kdtbu AS bu ON ep.fldGroup=bu.fldBU WHERE ep.fldNick<>'' AND (ep.fldSurname LIKE :esearch OR ep.fldFirstname LIKE :esearch OR CONCAT(ep.fldFirstname,' ',ep.fldSurname) LIKE :esearch) $activeStatement ORDER BY ep.fldActive DESC,ep.fldEmployeeNum";
-$empStmt = $connkdt->prepare($empQ);
-$empStmt->execute([":esearch" => "%$searchWord%"]);
-if ($empStmt->rowCount() > 0) {
-    $empArr = $empStmt->fetchAll();
-    foreach ($empArr as $emps) {
-        $output = array();
-        $empNum = $emps['fldEmployeeNum'];
-        $empName = $emps['ename'];
-        $empUser = $emps['fldUser'];
-        $empGroup = $emps['fldGroup'];
-        $empDept = $emps['fldDepartment'];
-        $empPos = $emps['fldDesig'];
-        $output['emp_num'] = $empNum;
-        $output['emp_name'] = $empName;
-        $output['emp_user'] = $empUser;
-        $output['emp_group'] = $empGroup;
-        $output['emp_dept'] = $empDept;
-        $output['emp_pos'] = $empPos;
-        array_push($employeeArray, $output);
+try {
+    $empQ = "SELECT `ep`.`fldEmployeeNum` AS  `emp_num`,
+        CONCAT(`ep`.`fldFirstname`,' ', `ep`.`fldSurname`) AS `emp_name`,
+        `ep`.`fldUser` AS `emp_user`,
+        `ep`.`fldGroup` AS `emp_group`,
+        `bu`.`fldDepartment` AS `emp_dept`,
+        `ep`.`fldDesig` AS `emp_pos` 
+        FROM emp_prof AS `ep` 
+        JOIN kdtbu AS `bu` ON `ep`.`fldGroup` = `bu`.`fldBU` 
+        WHERE `ep`.`fldNick` != '' AND 
+        (`ep`.`fldSurname` LIKE :esearch OR 
+        `ep`.`fldFirstname` LIKE :esearch OR 
+        `ep`.`fldEmployeeNum` LIKE :esearch OR
+        CONCAT(`ep`.`fldFirstname`, ' ', `ep`.`fldSurname`) LIKE :esearch) 
+        $activeStatement 
+        ORDER BY `ep`.`fldActive` DESC, `ep`.`fldEmployeeNum`";
+    $empStmt = $connkdt->prepare($empQ);
+    $empStmt->execute([":esearch" => "%$searchWord%"]);
+    if ($empStmt->rowCount() > 0) {
+        $result = $empStmt->fetchAll();
     }
+} catch (Exception $e) {
+    echo "Connection failed: " . $e->getMessage();
 }
 #endregion
 
 #region function
 
 #endregion
-echo json_encode($employeeArray);
+echo json_encode($result);

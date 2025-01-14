@@ -1,0 +1,3 @@
+#ignore dbconn folder
+/dbconn
+/dbconn_deploy
