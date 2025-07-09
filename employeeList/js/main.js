@@ -275,7 +275,7 @@ function checkLogin() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on checklogin");
         }
       },
     });
@@ -325,7 +325,7 @@ function checkModify() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on check modify");
         }
       },
     });
@@ -351,7 +351,7 @@ function checkGrpAccess() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on group access");
         }
       },
     });
@@ -376,7 +376,7 @@ function checkDesigP() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on desig access");
         }
       },
     });
@@ -401,7 +401,7 @@ function checkUserP() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on user permission");
         }
       },
     });
@@ -426,7 +426,7 @@ function checkAppP() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error app permission");
         }
       },
     });
@@ -451,7 +451,7 @@ function checkCalendarP() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on calendar");
         }
       },
     });
@@ -503,7 +503,7 @@ function getEmployees() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on get employees");
         }
       },
     });
@@ -614,7 +614,7 @@ function getGroups() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on get groups");
         }
       },
     });
@@ -644,7 +644,7 @@ function getPos() {
         } else if (xhr.status === 500) {
           reject(`Server error: ${error}`);
         } else {
-          reject("Unspecified error");
+          reject("Unspecified error on get positions");
         }
       },
     });
