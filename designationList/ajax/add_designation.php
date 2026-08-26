@@ -1,6 +1,7 @@
 <?php
 #region DB Connect
-require_once '../../dbconn/dbconnectkdtph.php';
+// require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 #endregion
 
 #region set timezone
@@ -28,7 +29,7 @@ $sectionID = 0;
 $prio = 0;
 if (!empty($_POST['sectionID'])) {
     $sectionID = $_POST['sectionID'];
-    $section = getSectionName($sectionID);
+    // $section = getSectionName($sectionID);
     $prio = getMax($sectionID);
 } else {
     $msg["isSuccess"] = false;
@@ -39,14 +40,14 @@ if (checkDuplicate($posName, $posAcr)) {
     $msg['message'] = "Desig Duplicate";
 }
 
-$insertQ = "INSERT INTO `kdtpositions`(`fldAcro`,`fldFull`,`fldSection`,`fldSectionID`,`fldPrio`) VALUES (:posAcr,:posName,:section,:sectionID,:prio)";
-$insertStmt = $connkdt->prepare($insertQ);
+$insertQ = "INSERT INTO `designation_list`(`acronym`,`name`,`section`,`priority`) VALUES (:posAcr,:posName,:sectionID,:prio)";
+$insertStmt = $connnew->prepare($insertQ);
 #endregion
 
 #region Entries Query
 try {
     if (empty($msg)) {
-        $insertStmt->execute([":posAcr" => $posAcr, ":posName" => $posName, ":section" => $section, ":sectionID" => $sectionID, ":prio" => $prio]);
+        $insertStmt->execute([":posAcr" => $posAcr, ":posName" => $posName, ":sectionID" => $sectionID, ":prio" => $prio]);
         $msg["isSuccess"] = true;
         $msg["message"] = "Adding designation successfull";
     }
@@ -62,10 +63,10 @@ echo json_encode($msg);
 #region Functions
 function checkDuplicate($posName, $posAcr)
 {
-    global $connkdt;
+    global $connnew;
     $isDuplicate = FALSE;
-    $dupQ = "SELECT * FROM `kdtpositions` WHERE fldFull=:posName OR fldAcro=:posAcr";
-    $dupStmt = $connkdt->prepare($dupQ);
+    $dupQ = "SELECT * FROM `designation_list` WHERE `name`=:posName OR `acronym`=:posAcr";
+    $dupStmt = $connnew->prepare($dupQ);
     $dupStmt->execute([":posName" => $posName, ":posAcr" => $posAcr]);
     if ($dupStmt->rowCount() > 0) {
         $isDuplicate = TRUE;
@@ -74,10 +75,10 @@ function checkDuplicate($posName, $posAcr)
 }
 function getSectionName($secid)
 {
-    global $connkdt;
+    global $connnew;
     $name = NULL;
     $nameQ = "SELECT fldSection FROM `kdtpositions_sections` WHERE fldSectionID=:secid";
-    $nameStmt = $connkdt->prepare($nameQ);
+    $nameStmt = $connnew->prepare($nameQ);
     $nameStmt->execute([":secid" => $secid]);
     if ($nameStmt->rowCount() > 0) {
         $name = $nameStmt->fetchColumn();
@@ -86,10 +87,10 @@ function getSectionName($secid)
 }
 function getMax($secid)
 {
-    global $connkdt;
+    global $connnew;
     $max = 0;
-    $maxQ = "SELECT MAX(fldPrio) FROM `kdtpositions` WHERE fldSectionID=:secid";
-    $maxStmt = $connkdt->prepare($maxQ);
+    $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
+    $maxStmt = $connnew->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
     if ($maxStmt->rowCount() > 0) {
         $max = (int)$maxStmt->fetchColumn();

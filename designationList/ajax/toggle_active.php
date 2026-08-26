@@ -1,6 +1,7 @@
 <?php
 #region DB Connect
-require_once '../../dbconn/dbconnectkdtph.php';
+// require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 #endregion
 
 #region set timezone
@@ -33,18 +34,20 @@ if (!empty($_POST['toggleState'])) {
     $msg["isSuccess"] = false;
     $msg['message'] = "ToggleState Missing";
 }
-$offQ = "UPDATE `kdtpositions` SET fldPrio = 0, fldShowManSum = 0 WHERE id=:posID";
-$onQ = "UPDATE `kdtpositions` SET fldPrio=:prio, fldShowManSum = 1 WHERE id=:posID";
+// $offQ = "UPDATE `kdtpositions` SET fldPrio = 0, fldShowManSum = 0 WHERE id=:posID";
+// $onQ = "UPDATE `kdtpositions` SET fldPrio=:prio, fldShowManSum = 1 WHERE id=:posID";
+$offQ = "UPDATE `designation_list` SET `priority` = 0, `show_man_sum` = 0 WHERE id=:posID";
+$onQ = "UPDATE `designation_list` SET `priority`=:prio, `show_man_sum` = 1 WHERE id=:posID";
 #endregion
 
 #region Entries Query
 try {
     if (empty($msg)) {
         if ($toggleState) {
-            $updateStmt = $connkdt->prepare($onQ);
+            $updateStmt = $connnew->prepare($onQ);
             $updateStmt->execute([":prio" => $prio, ":posID" => $posID]);
         } else {
-            $updateStmt = $connkdt->prepare($offQ);
+            $updateStmt = $connnew->prepare($offQ);
             $updateStmt->execute([":posID" => $posID]);
         }
 
@@ -63,10 +66,10 @@ echo json_encode($msg);
 #region Functions
 function getMax($secid)
 {
-    global $connkdt;
+    global $connnew;
     $max = 0;
-    $maxQ = "SELECT MAX(fldPrio) FROM `kdtpositions` WHERE fldSectionID=:secid";
-    $maxStmt = $connkdt->prepare($maxQ);
+    $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
+    $maxStmt = $connnew->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
     if ($maxStmt->rowCount() > 0) {
         $max = (int)$maxStmt->fetchColumn();

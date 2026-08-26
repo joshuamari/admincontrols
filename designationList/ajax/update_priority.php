@@ -1,6 +1,7 @@
 <?php
 #region DB Connect
-require_once '../../dbconn/dbconnectkdtph.php';
+// require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 #endregion
 
 #region set timezone
@@ -44,35 +45,35 @@ if ($newIndex > $maxPrio) {
     die(json_encode($msg));
 }
 
-$connDisable->beginTransaction();
+$conn_new_disable->beginTransaction();
 #endregion
 
 #region Entries Query
 try {
     if (empty($msg)) {
-        $updateCurrentQ = "UPDATE `kdtpositions` SET fldPrio = :newIndex WHERE id=:posID AND fldShowManSum=1";
-        $updateStmt = $connDisable->prepare($updateCurrentQ);
+        $updateCurrentQ = "UPDATE `designation_list` SET `priority` = :newIndex WHERE id=:posID AND `show_man_sum`=1";
+        $updateStmt = $conn_new_disable->prepare($updateCurrentQ);
         $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID]);
         if ($newIndex != $oldIndex) {
             if ($newIndex < $oldIndex) {
-                $updateQ = "UPDATE `kdtpositions` SET fldPrio = fldPrio + 1 WHERE fldPrio >= :newIndex AND id<>:posID AND fldPrio<>0 AND fldPrio < :oldIndex AND fldShowManSum=1";
-                $updateStmt = $connDisable->prepare(($updateQ));
+                $updateQ = "UPDATE `designation_list` SET `priority` = `priority` + 1 WHERE `priority` >= :newIndex AND id<>:posID AND `priority`<>0 AND `priority` < :oldIndex AND `show_man_sum`=1";
+                $updateStmt = $conn_new_disable->prepare(($updateQ));
                 $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID, ":oldIndex" => $oldIndex]);
             } else if ($oldIndex < $newIndex) {
-                $updateQ = "UPDATE `kdtpositions` SET fldPrio = fldPrio - 1 WHERE fldPrio <= :newIndex AND id<>:posID AND fldPrio<>0 AND fldPrio > :oldIndex AND fldShowManSum=1";
-                $updateStmt = $connDisable->prepare(($updateQ));
+                $updateQ = "UPDATE `designation_list` SET `priority` = `priority` - 1 WHERE `priority` <= :newIndex AND id<>:posID AND `priority`<>0 AND `priority` > :oldIndex AND `show_man_sum`=1";
+                $updateStmt = $conn_new_disable->prepare(($updateQ));
                 $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID, ":oldIndex" => $oldIndex]);
             }
         }
 
-        $connDisable->commit();
+        $conn_new_disable->commit();
         $msg["isSuccess"] = true;
         $msg["message"] = "Update Priority successfull";
     } else {
-        $connDisable->rollBack();
+        $conn_new_disable->rollBack();
     }
 } catch (Exception $e) {
-    $connDisable->rollBack();
+    $conn_new_disable->rollBack();
     $msg["isSuccess"] = false;
     $msg['message'] =  "Connection failed: " . $e->getMessage();
 }
@@ -83,10 +84,10 @@ echo json_encode($msg);
 #region Functions
 function getMax($secid)
 {
-    global $connkdt;
+    global $conn_new_disable;
     $max = 0;
-    $maxQ = "SELECT MAX(fldPrio) FROM `kdtpositions` WHERE fldSectionID=:secid";
-    $maxStmt = $connkdt->prepare($maxQ);
+    $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
+    $maxStmt = $conn_new_disable->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
     if ($maxStmt->rowCount() > 0) {
         $max = (int)$maxStmt->fetchColumn();

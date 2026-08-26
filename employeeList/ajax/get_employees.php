@@ -22,7 +22,11 @@ if (!empty($_POST['active'])) {
 
 $activeStatement = '';
 if ($active == 1) {
-    $activeStatement = " AND ep.fldActive = 1";
+    $activeStatement = " AND (
+        ep.fldResignDate IS NULL
+        OR ep.fldResignDate = '0000-00-00'
+        OR ep.fldResignDate >= CURDATE()
+    )";
 }
 #endregion
 
@@ -33,7 +37,12 @@ try {
                     ep.fldUser AS emp_user,
                     ep.fldGroup AS emp_group,
                     bu.fldDepartment AS emp_dept,
-                    ep.fldDesig AS emp_pos
+                    ep.fldDesig AS emp_pos,
+                    (
+                        ep.fldResignDate IS NULL
+                        OR ep.fldResignDate = '0000-00-00'
+                        OR ep.fldResignDate >= CURDATE()
+                    ) AS is_active
              FROM emp_prof AS ep
              JOIN kdtbu AS bu ON ep.fldGroup = bu.fldBU
              WHERE ep.fldNick != '' AND 
@@ -42,7 +51,7 @@ try {
                     ep.fldEmployeeNum LIKE :search3 OR 
                     CONCAT(ep.fldFirstname, ' ', ep.fldSurname) LIKE :search4)
                    $activeStatement
-             ORDER BY ep.fldActive DESC, ep.fldEmployeeNum";
+             ORDER BY is_active DESC, ep.fldEmployeeNum";
 
     $empStmt = $connkdt->prepare($empQ);
     $likeSearch = "%$searchWord%";

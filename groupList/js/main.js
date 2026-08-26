@@ -289,7 +289,7 @@ function fillDepartments(depts) {
   const defaultSelect = `<option value="" selected hidden>Select Department</option>`;
   const selectOptions = depts.map(
     (department) =>
-      `<option value="${department.name}">${department.name}</option>`
+      `<option value="${department.name}" dept-id="${department.id}">${department.name}</option>`
   );
 
   $("#deptListEdit").html(`${defaultSelect}${selectOptions.join("")}`);
@@ -308,7 +308,9 @@ function fillEditModal(rowID) {
 function addGroup() {
   const groupName = $("#grpName").val().trim();
   const groupCode = $("#grpCode").val().trim();
-  const deptName = $("#deptList").val().trim();
+  const deptSelect = $("#deptList option:selected");
+  const deptName = deptSelect.val();
+  const deptId = deptSelect.attr("dept-id");
 
   return new Promise((resolve, reject) => {
     if (groupName === "" || groupCode === "" || deptName === "") {
@@ -321,6 +323,7 @@ function addGroup() {
           groupName: groupName,
           groupCode: groupCode,
           deptName: deptName,
+          deptID: deptId,
         },
         dataType: "json",
         success: function (data) {
@@ -348,7 +351,9 @@ function resetAdd() {
 function saveEdit() {
   const groupName = $("#grpNameEdit").val().trim();
   const groupCode = $("#grpCodeEdit").val().trim();
-  const deptName = $("#deptListEdit").val().trim();
+  const deptSelect = $("#deptListEdit option:selected");
+  const deptName = deptSelect.val();
+  const deptId = deptSelect.attr("dept-id");
 
   return new Promise((resolve, reject) => {
     if (groupName === "" || groupCode === "" || deptName === "") {
@@ -362,6 +367,7 @@ function saveEdit() {
           groupName: groupName,
           groupCode: groupCode,
           deptName: deptName,
+          deptID: deptId,
         },
         dataType: "json",
         success: function (data) {

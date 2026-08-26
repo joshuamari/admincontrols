@@ -1,6 +1,7 @@
 <?php
 #region Require Database Connections
 require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 #endregion
 
 #region set timezone
@@ -20,6 +21,10 @@ if (!empty($_POST['groupCode'])) {
 $deptName = NULL;
 if (!empty($_POST['deptName'])) {
     $deptName = $_POST['deptName'];
+}
+$deptID = NULL;
+if(!empty($_POST['deptID'])){
+    $deptID = $_POST['deptID'];
 }
 
 #endregion
@@ -41,6 +46,9 @@ try {
     $insertGroupQ = "INSERT INTO kdtbu(`fldBU`,`fldBUName`,`fldDepartment`) VALUES(:groupCode,:groupName,:deptName)";
     $insertGroupStmt = $connkdt->prepare($insertGroupQ);
     $insertGroupStmt->execute([":groupCode" => $groupCode, ":groupName" => $groupName, ":deptName" => $deptName]);
+    $insertGroupNewQ = "INSERT INTO group_list(`abbreviation`,`name`,`dept_id`) VALUES(:groupCode,:groupName,:deptId)";
+    $insertGroupNewStmt = $connnew->prepare($insertGroupNewQ);
+    $insertGroupNewStmt->execute([":groupCode" => $groupCode, ":groupName" => $groupName, ":deptId" => $deptID]);
     $result["isSuccess"] = true;
 } catch (Exception $e) {
     $result["isSuccess"] = false;
@@ -49,12 +57,36 @@ try {
 #endregion
 
 #region function
+// function checkDuplicateCode($groupcode)
+// {
+//     global $connkdt;
+//     $isDuplicate = false;
+//     $countQ = "SELECT * FROM `kdtbu` WHERE `fldBU`=:groupcode";
+//     $countStmt = $connkdt->prepare($countQ);
+//     $countStmt->execute([":groupcode" => $groupcode]);
+//     if ($countStmt->rowCount() > 0) {
+//         $isDuplicate = true;
+//     }
+//     return $isDuplicate;
+// }
+// function checkDuplicateName($groupname)
+// {
+//     global $connkdt;
+//     $isDuplicate = false;
+//     $countQ = "SELECT * FROM `kdtbu` WHERE `fldBUName`=:groupname";
+//     $countStmt = $connkdt->prepare($countQ);
+//     $countStmt->execute([":groupname" => $groupname]);
+//     if ($countStmt->rowCount() > 0) {
+//         $isDuplicate = true;
+//     }
+//     return $isDuplicate;
+// }
 function checkDuplicateCode($groupcode)
 {
-    global $connkdt;
+    global $connnew;
     $isDuplicate = false;
-    $countQ = "SELECT * FROM `kdtbu` WHERE `fldBU`=:groupcode";
-    $countStmt = $connkdt->prepare($countQ);
+    $countQ = "SELECT * FROM `group_list` WHERE `abbreviation`=:groupcode";
+    $countStmt = $connnew->prepare($countQ);
     $countStmt->execute([":groupcode" => $groupcode]);
     if ($countStmt->rowCount() > 0) {
         $isDuplicate = true;
@@ -63,10 +95,10 @@ function checkDuplicateCode($groupcode)
 }
 function checkDuplicateName($groupname)
 {
-    global $connkdt;
+    global $connnew;
     $isDuplicate = false;
-    $countQ = "SELECT * FROM `kdtbu` WHERE `fldBUName`=:groupname";
-    $countStmt = $connkdt->prepare($countQ);
+    $countQ = "SELECT * FROM `group_list` WHERE `name`=:groupname";
+    $countStmt = $connnew->prepare($countQ);
     $countStmt->execute([":groupname" => $groupname]);
     if ($countStmt->rowCount() > 0) {
         $isDuplicate = true;
