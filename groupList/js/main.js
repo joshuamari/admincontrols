@@ -130,6 +130,24 @@ $(document).on("click", ".btn-editGroup", function () {
   editID = rowId;
   fillEditModal(rowId);
 });
+$(document).on("click", ".btn-viewGroupActivity", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var $row = $(this).closest("tr");
+  var groupId = $row.attr("row-id");
+  var groupName = $row.find("td:eq(1)").text();
+  $(this).closest(".dropdown-menu").removeClass("show");
+  openGroupActivityModal(groupId, groupName);
+});
+$(document).on("click", "[data-close-group-activity]", function () {
+  closeGroupActivityModal();
+});
+$(document).on("keydown", function (e) {
+  if (e.key !== "Escape") return;
+  if ($("#groupActivityModal").hasClass("flex")) {
+    closeGroupActivityModal();
+  }
+});
 $(document).on("click", "#saveButton", function () {
   saveEdit()
     .then((res) => {
@@ -245,8 +263,15 @@ function fillGroups(grps) {
                 <li class="hover:bg-[var(--light-color)]">
                   <a
                     class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-editGroup cursor-pointer"
-                    ><i class="bx bx-edit-alt text-yellow-400"></i
+                    ><i data-lucide="pencil" class="h-4 w-4"></i
                     >Edit</a
+                  >
+                </li>
+                <li class="hover:bg-[var(--light-color)]">
+                  <a
+                    class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-viewGroupActivity cursor-pointer"
+                    ><i data-lucide="history" class="h-4 w-4"></i
+                    >View Activity</a
                   >
                 </li>
               </ul>
@@ -254,7 +279,232 @@ function fillGroups(grps) {
         </tr>
     `);
   });
+  refreshIcons();
 }
+
+//#region GROUP ACTIVITY LOG
+const USE_DUMMY_GROUP_ACTIVITY_LOGS = true;
+
+function refreshIcons() {
+  if (typeof lucide !== "undefined" && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function formatGroupActivityDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hh = String(hours).padStart(2, "0");
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} • ${hh}:${minutes} ${ampm}`;
+}
+
+function escapeGroupActivityHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+async function getDummyGroupActivity(groupId) {
+  if (!USE_DUMMY_GROUP_ACTIVITY_LOGS) {
+    return [];
+  }
+
+  const response = await fetch("assets/mock/group-activity.mock.json");
+
+  if (!response.ok) {
+    console.error("Failed to load dummy group activity logs.");
+    return [];
+  }
+
+  const data = await response.json();
+
+  return (data.logs || [])
+    .filter((log) => Number(log.group_id) === Number(groupId))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+function ensureLegacyGroupCreate(logs) {
+  const items = Array.isArray(logs) ? [...logs] : [];
+  const hasCreate = items.some(
+    (item) => String(item.action || "").toUpperCase() === "CREATE"
+  );
+  if (!hasCreate) {
+    items.push({
+      action: "CREATE",
+      description: "Group created",
+      actor_name: null,
+      created_at: null,
+      changes: [],
+    });
+  }
+  return items;
+}
+
+function getGroupActivityMeta(action) {
+  const a = String(action || "").toUpperCase();
+  if (a === "CREATE") {
+    return {
+      label: "CREATE",
+      color: "text-emerald-400",
+      ring: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40",
+      icon: "plus",
+      description: "Group created",
+    };
+  }
+  return {
+    label: "UPDATE",
+    color: "text-sky-400",
+    ring: "bg-sky-500/15 text-sky-400 ring-1 ring-sky-500/40",
+    icon: "pencil",
+    description: "Group information updated",
+  };
+}
+
+function renderGroupChangedFields(changes) {
+  if (!Array.isArray(changes) || !changes.length) return "";
+
+  const rows = changes
+    .map((change) => {
+      const label = change.label || change.field || "";
+      const oldVal = change.old_value != null ? change.old_value : "";
+      const newVal = change.new_value != null ? change.new_value : "";
+      if (String(oldVal) === String(newVal)) return "";
+      return `<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+        <span class="min-w-[8rem] text-slate-400">${escapeGroupActivityHtml(label)}</span>
+        <span class="text-slate-300">${escapeGroupActivityHtml(oldVal)}</span>
+        <span class="text-slate-500">→</span>
+        <span class="text-emerald-400">${escapeGroupActivityHtml(newVal)}</span>
+      </div>`;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!rows) return "";
+  return `<div class="mt-[0.75rem] rounded-md border-[1px] border-solid border-slate-700 bg-[var(--bg-color)] p-[0.75rem] space-y-2">${rows}</div>`;
+}
+
+function renderGroupActivityLog(activities) {
+  const $timeline = $("#groupActivityTimeline");
+  $timeline.empty();
+
+  const logs = ensureLegacyGroupCreate(activities).filter((item) => {
+    const action = String(item.action || "").toUpperCase();
+    return action === "CREATE" || action === "UPDATE";
+  });
+
+  const sorted = [...logs].sort((a, b) => {
+    const aCreate = String(a.action || "").toUpperCase() === "CREATE";
+    const bCreate = String(b.action || "").toUpperCase() === "CREATE";
+    if (aCreate && !bCreate) return 1;
+    if (bCreate && !aCreate) return -1;
+    const ta = a.created_at
+      ? new Date(String(a.created_at).replace(" ", "T")).getTime()
+      : 0;
+    const tb = b.created_at
+      ? new Date(String(b.created_at).replace(" ", "T")).getTime()
+      : 0;
+    return tb - ta;
+  });
+
+  let html = `<ol class="relative ms-[0.75rem]">`;
+  sorted.forEach((item, index) => {
+    const isLastActivity = index === sorted.length - 1;
+    const meta = getGroupActivityMeta(item.action);
+    const action = String(item.action || "").toUpperCase();
+    const actor = item.actor_name || (item.actor && item.actor.name) || "";
+    const when = item.created_at
+      ? formatGroupActivityDate(item.created_at)
+      : "";
+    const description = item.description || meta.description;
+    const body =
+      action === "CREATE" ? "" : renderGroupChangedFields(item.changes);
+    const descriptionHtml =
+      action === "UPDATE" && actor
+        ? `Group information updated by ${escapeGroupActivityHtml(actor)}.`
+        : escapeGroupActivityHtml(description);
+
+    html += `
+      <li class="relative mb-6 ms-6">
+        ${
+          !isLastActivity
+            ? `<span class="absolute -start-6 top-3.5 -bottom-6 w-px bg-slate-600" aria-hidden="true"></span>`
+            : ""
+        }
+        <span class="absolute -start-[2.375rem] z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-[var(--dark-color)] ${meta.ring}">
+          <i data-lucide="${meta.icon}" class="h-3.5 w-3.5"></i>
+        </span>
+        <article class="rounded-lg border-[1px] border-solid border-slate-700 bg-[var(--card-color)] p-[1rem]">
+          <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-semibold tracking-wide ${meta.color}">${meta.label}</span>
+            ${
+              when
+                ? `<time class="text-xs text-slate-400">${escapeGroupActivityHtml(when)}</time>`
+                : ""
+            }
+          </div>
+          <p class="text-sm text-slate-200">${descriptionHtml}</p>
+          ${body}
+        </article>
+      </li>`;
+  });
+  html += `</ol>`;
+  $timeline.html(html);
+  refreshIcons();
+}
+
+function loadGroupActivityLog(groupId) {
+  $("#groupActivityTimeline").html(
+    `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
+  );
+  getDummyGroupActivity(groupId)
+    .then(renderGroupActivityLog)
+    .catch((err) => {
+      console.error("Failed to load dummy group activity logs.", err);
+      renderGroupActivityLog([]);
+    });
+}
+
+function openGroupActivityModal(groupId, groupName) {
+  $("#groupActivityName").text(groupName);
+  $("#groupActivityModal")
+    .removeClass("hidden")
+    .addClass("flex")
+    .attr("aria-hidden", "false");
+  $("body").addClass("overflow-hidden");
+  refreshIcons();
+  loadGroupActivityLog(groupId);
+}
+
+function closeGroupActivityModal() {
+  $("#groupActivityModal")
+    .addClass("hidden")
+    .removeClass("flex")
+    .attr("aria-hidden", "true");
+  $("body").removeClass("overflow-hidden");
+}
+//#endregion
 function searchGroup() {
   // const searchTerm = searchInput.value.toLowerCase();
   const searchTerm = $("#searchWord").val().toLowerCase();

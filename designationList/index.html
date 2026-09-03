@@ -13,7 +13,7 @@
 
     <!--#region BUSTER CALL  -->
     <script>
-      var busterCall = ["js/main.js", "css/index.css"];
+      var busterCall = ["js/lucide.min.js", "js/main.js", "css/index.css"];
       $.post(
         "ajax/get_version.php",
         {
@@ -202,6 +202,53 @@
               Cancel
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="designationActivityModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-[1rem]"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="designationActivityTitle"
+      aria-hidden="true"
+    >
+      <div
+        class="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border-[1px] border-solid border-slate-700 bg-[var(--dark-color)] shadow-xl"
+      >
+        <div
+          class="flex shrink-0 items-center justify-between border-b border-slate-700 px-[1.25rem] py-[1rem]"
+        >
+          <h1
+            id="designationActivityTitle"
+            class="text-base font-semibold text-white"
+          >
+            Designation Activity
+          </h1>
+          <button
+            type="button"
+            class="modal-close-btn rounded-[0.25rem] p-1 text-slate-400 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-600"
+            data-close-designation-activity
+            aria-label="Close"
+          >
+            <i data-lucide="x" class="h-5 w-5"></i>
+          </button>
+        </div>
+        <div class="min-h-0 flex-1 overflow-y-auto px-[1.25rem] py-[1rem]">
+          <div class="mb-[1rem]">
+            <h2
+              id="designationActivityName"
+              class="text-base font-semibold text-white"
+            ></h2>
+            <p class="text-sm text-slate-400">
+              History of changes made to this designation.
+            </p>
+          </div>
+          <div
+            id="designationActivityTimeline"
+            class="activity-timeline"
+          ></div>
         </div>
       </div>
     </div>

@@ -1,8 +1,379 @@
 //#region GLOBALS
 const rootFolder = `//${document.location.hostname}`;
 let empDetails = [];
+let canModifyEmployee = false;
+let currentEmployeeIsActive = true;
 
 //#endregion
+
+function refreshIcons() {
+  if (typeof lucide !== "undefined" && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function openModal(selector) {
+  const $el = $(selector);
+  $el.removeClass("hidden").addClass("flex").attr("aria-hidden", "false");
+  $("body").addClass("overflow-hidden");
+  refreshIcons();
+}
+
+function closeModal(selector) {
+  const $el = $(selector);
+  $el.addClass("hidden").removeClass("flex").attr("aria-hidden", "true");
+  if (
+    !$("#addEmployee").hasClass("flex") &&
+    !$("#showEmployee").hasClass("flex") &&
+    !$("#resignEmployee").hasClass("flex") &&
+    !$("#resConfirm").hasClass("flex")
+  ) {
+    $("body").removeClass("overflow-hidden");
+  }
+}
+
+function closeAllModals() {
+  ["#addEmployee", "#showEmployee", "#resignEmployee", "#resConfirm"].forEach(
+    closeModal
+  );
+  $("body").removeClass("overflow-hidden");
+}
+
+function setEmployeeTab(tab) {
+  const isDetails = tab === "details";
+  $("#tabDetails")
+    .toggleClass("emp-tab-active border-b-[var(--primary-color)] text-white", isDetails)
+    .toggleClass("border-transparent text-slate-400", !isDetails)
+    .attr("aria-selected", isDetails ? "true" : "false");
+  $("#tabActivity")
+    .toggleClass("emp-tab-active border-b-[var(--primary-color)] text-white", !isDetails)
+    .toggleClass("border-transparent text-slate-400", isDetails)
+    .attr("aria-selected", isDetails ? "false" : "true");
+  $("#panelDetails").toggleClass("hidden", !isDetails);
+  $("#panelActivity").toggleClass("hidden", isDetails);
+  $("#editFooter").toggleClass("hidden", !isDetails);
+  if (!isDetails) {
+    loadActivityLog($("#editEmpnum").val());
+  }
+  refreshIcons();
+}
+
+function resetEditFooter() {
+  $("#editFooter").html(`
+    <button type="button" class="btn-secondary-ui" id="clos">Close</button>
+    <button type="button" class="btn-primary-ui btn-editEmp">Edit Details</button>
+  `);
+  if (!canModifyEmployee) {
+    $(".btn-editEmp").prop("disabled", true);
+  }
+}
+
+function openEmployeeDetails(eNum, name, tab) {
+  $("#empCon").val(name);
+  $("#empConid").val(eNum);
+  setEmployeeTab(tab || "details");
+  resetEditFooter();
+  openModal("#showEmployee");
+  getEmpDetails(eNum);
+}
+
+function closeActionMenus() {
+  $(".emp-actions-menu").addClass("hidden");
+  $(".emp-actions-btn").attr("aria-expanded", "false");
+}
+
+function formatActivityDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hh = String(hours).padStart(2, "0");
+  return `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()} • ${hh}:${minutes} ${ampm}`;
+}
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Returns employee activity records from the backend when available.
+ * Expected response shape:
+ * [
+ *   {
+ *     id, action: "CREATE"|"UPDATE"|"RESIGNED",
+ *     actor_name, created_at,
+ *     old_values: {}, new_values: {}
+ *   }
+ * ]
+ */
+const USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS = true;
+
+async function getDummyEmployeeActivity(employeeId) {
+  if (!USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS) {
+    return [];
+  }
+
+  const response = await fetch(
+    "assets/mock/employee-activity.mock.json"
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load dummy employee activity logs.");
+  }
+
+  const data = await response.json();
+
+  return (data.logs || [])
+    .filter(
+      (log) =>
+        Number(log.employee_id) === Number(employeeId)
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.created_at) - new Date(a.created_at)
+    );
+}
+
+function getEmployeeActivityLog(empNum) {
+  return new Promise((resolve) => {
+    // Future backend hook (keep payload shape stable):
+    // $.ajax({
+    //   type: "POST",
+    //   url: "ajax/get_employee_activity.php",
+    //   data: { empNum: empNum },
+    //   dataType: "json",
+    //   success: (data) => resolve(Array.isArray(data) ? data : []),
+    //   error: () => resolve([]),
+    // });
+    getDummyEmployeeActivity(empNum)
+      .then((logs) => {
+        const mapped = (logs || []).map((log) => {
+          const old_values = {};
+          const new_values = {};
+          (log.changes || []).forEach((change) => {
+            const key = change.label || change.field;
+            old_values[key] = change.old_value;
+            new_values[key] = change.new_value;
+          });
+          return {
+            id: log.id,
+            action: log.action,
+            actor_name: (log.actor && log.actor.name) || "",
+            created_at: log.created_at,
+            old_values,
+            new_values,
+          };
+        });
+        resolve(mapped);
+      })
+      .catch((err) => {
+        console.error("Failed to load dummy employee activity logs.", err);
+        resolve([]);
+      });
+  });
+}
+
+function renderChangedFields(oldValues, newValues) {
+  const keys = Object.keys(newValues || {});
+  if (!keys.length) return "";
+
+  const rows = keys
+    .map((key) => {
+      const oldVal = oldValues && oldValues[key] != null ? oldValues[key] : "—";
+      const newVal = newValues[key];
+      if (String(oldVal) === String(newVal)) return "";
+
+      const isStatus = /status/i.test(key);
+      const isResignDate = /resign/i.test(key);
+      let newHtml = `<span class="text-emerald-400">${escapeHtml(newVal)}</span>`;
+
+      if (isStatus && /resign/i.test(String(newVal))) {
+        newHtml = `<span class="inline-flex rounded-full bg-red-600/90 px-2 py-0.5 text-xs font-medium text-white">${escapeHtml(newVal)}</span>`;
+      } else if (isStatus && /active/i.test(String(newVal))) {
+        newHtml = `<span class="inline-flex rounded-full bg-emerald-600/90 px-2 py-0.5 text-xs font-medium text-white">${escapeHtml(newVal)}</span>`;
+      } else if (isResignDate) {
+        newHtml = `<span class="text-red-400">${escapeHtml(newVal)}</span>`;
+      }
+
+      return `<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+        <span class="min-w-[8rem] text-slate-400">${escapeHtml(key)}</span>
+        <span class="text-slate-300">${escapeHtml(oldVal)}</span>
+        <span class="text-slate-500">→</span>
+        ${newHtml}
+      </div>`;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!rows) return "";
+  return `<div class="mt-3 rounded-md border border-slate-700 bg-[var(--bg-color)] p-3 space-y-2">${rows}</div>`;
+}
+
+function renderCreateSnapshot(snapshot) {
+  if (!snapshot || !Object.keys(snapshot).length) return "";
+  const rows = Object.keys(snapshot)
+    .map((key) => {
+      let val = snapshot[key];
+      let valHtml = escapeHtml(val);
+      if (/status/i.test(key)) {
+        const isActive = /active/i.test(String(val));
+        valHtml = `<span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium text-white ${
+          isActive ? "bg-emerald-600/90" : "bg-red-600/90"
+        }">${escapeHtml(val)}</span>`;
+      }
+      return `<div class="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+        <span class="min-w-[7rem] text-slate-400">${escapeHtml(key)}</span>
+        <span class="text-slate-200">${valHtml}</span>
+      </div>`;
+    })
+    .join("");
+  return `<div class="mt-3 rounded-md border border-slate-700 bg-[var(--bg-color)] p-3 space-y-2">${rows}</div>`;
+}
+
+function getActivityMeta(action) {
+  const a = String(action || "").toUpperCase();
+  if (a === "CREATE") {
+    return {
+      label: "CREATE",
+      color: "text-emerald-400",
+      ring: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40",
+      icon: "plus",
+      description: (actor) =>
+        actor
+          ? `Employee record created by ${escapeHtml(actor)}.`
+          : `Employee record created`,
+    };
+  }
+  if (a === "RESIGNED") {
+    return {
+      label: "RESIGNED",
+      color: "text-red-400",
+      ring: "bg-red-500/15 text-red-400 ring-1 ring-red-500/40",
+      icon: "user-round-x",
+      description: (actor) =>
+        `Employee marked as resigned by ${escapeHtml(actor)}.`,
+    };
+  }
+  return {
+    label: "UPDATE",
+    color: "text-sky-400",
+    ring: "bg-sky-500/15 text-sky-400 ring-1 ring-sky-500/40",
+    icon: "pencil",
+    description: (actor) =>
+      `Employee information updated by ${escapeHtml(actor)}.`,
+  };
+}
+
+function renderActivityLog(activities) {
+  const $timeline = $("#activityTimeline");
+  $timeline.empty();
+
+  let logs = Array.isArray(activities) ? [...activities] : [];
+  const hasRealCreate = logs.some(
+    (item) => String(item.action || "").toUpperCase() === "CREATE"
+  );
+  if (!hasRealCreate) {
+    logs.push({
+      action: "CREATE",
+      actor_name: null,
+      created_at: null,
+      old_values: {},
+      new_values: {},
+    });
+  }
+
+  if (!logs.length) {
+    $timeline.html(`
+      <div class="rounded-md border border-dashed border-slate-600 px-4 py-8 text-center text-sm text-slate-400">
+        <p class="font-medium text-slate-300">No activity recorded yet</p>
+        <p class="mt-1">Changes made to this employee will appear here.</p>
+      </div>
+    `);
+    return;
+  }
+
+  const sorted = [...logs].sort((a, b) => {
+    const ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return tb - ta;
+  });
+
+  let html = `<ol class="relative ms-3">`;
+  sorted.forEach((item, index) => {
+    const isLastActivity = index === sorted.length - 1;
+    const meta = getActivityMeta(item.action);
+    const action = String(item.action || "").toUpperCase();
+    const actor =
+      action === "CREATE"
+        ? item.actor_name || ""
+        : item.actor_name || "Unknown";
+    const when = item.created_at ? formatActivityDate(item.created_at) : "";
+    const isResigned = action === "RESIGNED";
+    const body =
+      action === "CREATE"
+        ? ""
+        : renderChangedFields(item.old_values, item.new_values);
+
+    html += `
+      <li class="relative mb-6 ms-6">
+        ${
+          !isLastActivity
+            ? `<span class="absolute -start-6 top-3.5 -bottom-6 w-px bg-slate-600" aria-hidden="true"></span>`
+            : ""
+        }
+        <span class="absolute -start-[2.375rem] z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-[var(--dark-color)] ${meta.ring}">
+          <i data-lucide="${meta.icon}" class="h-3.5 w-3.5"></i>
+        </span>
+        <article class="rounded-lg border ${
+          isResigned ? "border-red-500/40 bg-red-950/20" : "border-slate-700 bg-[var(--card-color)]"
+        } p-4">
+          <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-semibold tracking-wide ${meta.color}">${meta.label}</span>
+            ${
+              when
+                ? `<time class="text-xs text-slate-400">${escapeHtml(when)}</time>`
+                : ""
+            }
+          </div>
+          <p class="text-sm text-slate-200">${meta.description(actor)}</p>
+          ${body}
+        </article>
+      </li>`;
+  });
+  html += `</ol>`;
+  $timeline.html(html);
+  refreshIcons();
+}
+
+function loadActivityLog(empNum) {
+  $("#activityTimeline").html(
+    `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
+  );
+  getEmployeeActivityLog(empNum).then(renderActivityLog);
+}
+
 checkLogin()
   .then((emp) => {
     if (emp) {
@@ -10,6 +381,7 @@ checkLogin()
       adminAccess().then((acc) => {
         if (acc) {
           $(document).ready(function () {
+            refreshIcons();
             $(".hello-user").text(empDetails["empFName"]);
             let list = document.querySelectorAll(".navigation li");
             function activeLink() {
@@ -32,67 +404,56 @@ checkLogin()
             ])
               .then(
                 ([modi, grpp, desigp, usrp, appp, clndr, emps, grps, pos]) => {
+                  canModifyEmployee = !!modi;
                   if (modi) {
-                    $("#aeDiv").html(`<button
-                type="button"
-                id="addEmp"
-                class="btn mx-1"
-                title="Add Employee"
-                data-bs-toggle="modal"
-                data-bs-target="#addEmployee"
-                data-bs-dismiss="modal"
-              >
-                <i class="bx bx-fw bxs-user-plus fs-3"></i>
-                ADD EMPLOYEE
-              </button>`);
+                    $("#addEmp").removeClass("hidden");
                   } else {
-                    $(".btn-editEmp").prop("disabled", "true");
+                    $("#addEmp").addClass("hidden");
+                    $(".btn-editEmp").prop("disabled", true);
                     $(document).off("click", ".btn-editEmp");
                     $(document).off("click", "#employeeStat");
                     $(document).off("click", ".btn-cres");
                     $(document).off("click", ".btn-resEmp");
+                    $(document).off("click", "#btn-res");
+                    $(document).off("click", ".action-resign");
+                    $(document).off("click", ".action-edit");
                   }
                   if (grpp) {
-                    $("#acNavLinks")
-                      .append(`<li class="" style="font-weight: 500">
+                    $("#acNavLinks").append(`<li style="font-weight: 500">
                 <a href="../groupList/">
-                <span class="icon"><i class='bx bxs-group' ></i></span>
-                  <span class="title">Group List</span>
+                <span class="icon"><i data-lucide="users-round" class="h-5 w-5"></i></span>
+                  <span class="title">Groups</span>
                 </a>
               </li>`);
                   }
                   if (desigp) {
-                    $("#acNavLinks")
-                      .append(`<li class="" style="font-weight: 500">
+                    $("#acNavLinks").append(`<li style="font-weight: 500">
                     <a href="../designationList/">
-                    <span class="icon"><i class='bx bxs-award' ></i></span>
-                      <span class="title">Designation List</span>
+                    <span class="icon"><i data-lucide="award" class="h-5 w-5"></i></span>
+                      <span class="title">Designations</span>
                     </a>
                   </li>`);
                   }
                   if (usrp) {
-                    $("#acNavLinks")
-                      .append(`<li class="" style="font-weight: 500">
+                    $("#acNavLinks").append(`<li style="font-weight: 500">
                     <a href="../userPermission/">
-                      <span class="icon"><i class="bx bxs-user-badge"></i></span>
-                      <span class="title">User Permission</span>
+                      <span class="icon"><i data-lucide="user-cog" class="h-5 w-5"></i></span>
+                      <span class="title">User Permissions</span>
                     </a>
                   </li>`);
                   }
                   if (appp) {
-                    $("#acNavLinks")
-                      .append(`<li class="" style="font-weight: 500">
+                    $("#acNavLinks").append(`<li style="font-weight: 500">
                 <a href="../appPermission/">
-                  <span class="icon"><i class="bx bxs-window-alt"></i></span>
-                  <span class="title">App Permission</span>
+                  <span class="icon"><i data-lucide="app-window" class="h-5 w-5"></i></span>
+                  <span class="title">Application Permissions</span>
                 </a>
               </li>`);
                   }
                   if (clndr) {
-                    $("#acNavLinks")
-                      .append(`<li class="" style="font-weight: 500">
+                    $("#acNavLinks").append(`<li style="font-weight: 500">
                     <a href="../calendar/">
-                    <span class="icon"><i class='bx bx-calendar'></i></span>
+                    <span class="icon"><i data-lucide="calendar" class="h-5 w-5"></i></span>
                       <span class="title">Calendar</span>
                     </a>
                   </li>`);
@@ -101,6 +462,7 @@ checkLogin()
                   emps.map(fillEmployees);
                   fillGroups(grps);
                   fillPos(pos);
+                  refreshIcons();
                 }
               )
               .catch((error) => {
@@ -120,6 +482,7 @@ checkLogin()
   .catch((error) => {
     alert(`${error}`);
   });
+
 //#region BINDS
 
 $(document).on("click", ".btn-addEmp", function () {
@@ -129,44 +492,165 @@ $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
 });
-$(document).on("click", ".emp", function () {
+
+$(document).on("click", "#addEmp", function () {
+  resetAdd();
+  openModal("#addEmployee");
+});
+
+$(document).on("click", ".emp", function (e) {
+  if ($(e.target).closest(".emp-actions").length) return;
   var eNum = $($(this).children()[0]).text();
   var name = $($(this).children()[1]).text();
-  $("#showEmployee").modal("show");
+  openEmployeeDetails(eNum, name, "details");
+});
+
+$(document).on("click", ".emp-actions-btn", function (e) {
+  e.stopPropagation();
+  const $btn = $(this);
+  const $menu = $btn.siblings(".emp-actions-menu");
+  const wasOpen = !$menu.hasClass("hidden");
+  closeActionMenus();
+  if (!wasOpen) {
+    const rect = this.getBoundingClientRect();
+    $menu
+      .css({
+        position: "fixed",
+        top: rect.bottom + 4 + "px",
+        right: window.innerWidth - rect.right + "px",
+        left: "auto",
+        marginTop: 0,
+      })
+      .removeClass("hidden");
+    $btn.attr("aria-expanded", "true");
+    refreshIcons();
+  }
+});
+
+$(document).on("click", function () {
+  closeActionMenus();
+});
+
+$(document).on("keydown", ".emp-actions-btn", function (e) {
+  if (e.key === "Escape") {
+    closeActionMenus();
+    $(this).focus();
+  }
+  if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    closeActionMenus();
+    $(this).siblings(".emp-actions-menu").removeClass("hidden");
+    $(this).attr("aria-expanded", "true");
+    $(this)
+      .siblings(".emp-actions-menu")
+      .find("[role='menuitem']")
+      .first()
+      .focus();
+  }
+});
+
+$(document).on("keydown", ".emp-actions-menu [role='menuitem']", function (e) {
+  const $items = $(this).closest(".emp-actions-menu").find("[role='menuitem']");
+  const idx = $items.index(this);
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    $items.eq((idx + 1) % $items.length).focus();
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    $items.eq((idx - 1 + $items.length) % $items.length).focus();
+  } else if (e.key === "Escape") {
+    closeActionMenus();
+    $(this).closest(".emp-actions").find(".emp-actions-btn").focus();
+  }
+});
+
+$(document).on("click", ".action-view-details", function (e) {
+  e.stopPropagation();
+  const $row = $(this).closest("tr");
+  openEmployeeDetails(
+    $row.children().eq(0).text(),
+    $row.children().eq(1).text(),
+    "details"
+  );
+  closeActionMenus();
+});
+
+$(document).on("click", ".action-view-activity", function (e) {
+  e.stopPropagation();
+  const $row = $(this).closest("tr");
+  openEmployeeDetails(
+    $row.children().eq(0).text(),
+    $row.children().eq(1).text(),
+    "activity"
+  );
+  closeActionMenus();
+});
+
+$(document).on("click", ".action-edit", function (e) {
+  e.stopPropagation();
+  if (!canModifyEmployee) return;
+  const $row = $(this).closest("tr");
+  openEmployeeDetails(
+    $row.children().eq(0).text(),
+    $row.children().eq(1).text(),
+    "details"
+  );
+  closeActionMenus();
+  setTimeout(function () {
+    $(".btn-editEmp").trigger("click");
+  }, 300);
+});
+
+$(document).on("click", ".action-resign", function (e) {
+  e.stopPropagation();
+  if (!canModifyEmployee) return;
+  const $row = $(this).closest("tr");
+  const eNum = $row.children().eq(0).text();
+  const name = $row.children().eq(1).text();
   $("#empCon").val(name);
   $("#empConid").val(eNum);
-  getEmpDetails(eNum);
-
-  // $(this).prop('dataid',eNum);
+  $("#resPlaceholder").text(name);
+  closeActionMenus();
+  openModal("#resignEmployee");
 });
+
+$(document).on("click", "#tabDetails", function () {
+  setEmployeeTab("details");
+});
+$(document).on("click", "#tabActivity", function () {
+  setEmployeeTab("activity");
+});
+
 $(document).on("click", "#clos", function () {
-  $(this).parent().html(`<button
-  type="button"
-  class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md btn-editEmp"
->
-  Edit Details
-</button>
-    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
-  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("d-none");
-  $("#showEmployee").modal("hide");
+  resetEditFooter();
+  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("hidden");
+  closeModal("#showEmployee");
 });
 $(document).on("click", "#close", function () {
-  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("d-none");
+  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("hidden");
   resetAdd();
+  closeModal("#addEmployee");
 });
 $(document).on("click", "#xadd", function () {
   $("#close").click();
-  resetAdd();
 });
-$(document).on("click", ".btn-close", function () {
-  $("#clos").click();
-  resetAdd();
+$(document).on("click", "[data-close-modal]", function () {
+  const target = $(this).data("close-modal");
+  if (target === "showEmployee") {
+    $("#clos").click();
+  } else if (target === "resConfirm") {
+    closeModal("#resConfirm");
+  } else {
+    closeModal("#" + target);
+  }
 });
+
 $(document).on("click", ".btn-editEmp", function () {
-  $(
-    this
-  ).parent().html(`<button type="button"   class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-green-600 hover:bg-green-800 rounded-md btn-saveEmp" >Save changes</button>
-    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+  if (!canModifyEmployee) return;
+  $(this).parent().html(`
+    <button type="button" class="btn-secondary-ui" id="clos">Close</button>
+    <button type="button" class="btn-success-ui btn-saveEmp">Save changes</button>
+  `);
   $(
     "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
   ).prop("disabled", false);
@@ -178,81 +662,86 @@ $(document).on("keyup", "#searchWord", function () {
   getEmployees().then((emps) => {
     $("#empList").empty();
     emps.map(fillEmployees);
+    refreshIcons();
   });
 });
 $(document).on("search", "#searchWord", function () {
   getEmployees().then((emps) => {
     $("#empList").empty();
     emps.map(fillEmployees);
+    refreshIcons();
   });
 });
 $(document).on("click", "#activeOnly", function () {
   getEmployees().then((emps) => {
     $("#empList").empty();
     emps.map(fillEmployees);
+    refreshIcons();
   });
 });
 $(document).on("click", "#resDate", function () {
   $("#resignEmployee small").addClass("hidden");
-  $("#resDate").removeClass("border border-danger");
+  $("#resDate").removeClass("border border-red-500");
 });
-// $(document).on("click", ".btn-resEmp", function () {
-//   var resdate = $("#resDate").val();
-
-//   if (!resdate) {
-//     $(".r1").removeClass("d-none");
-//     $("#resDate").addClass("border border-danger");
-//     return;
-//   } else {
-//     $("#resignEmployee").modal("hide");
-//     $("#resConfirm").modal("show");
-//     $("#dateCon").val(resdate);
-//   }
-// });
 
 $(document).on("click", "#resback", function () {
-  $("#resignEmployee").modal("show");
-  $("#resConfirm").modal("hide");
+  closeModal("#resConfirm");
+  openModal("#resignEmployee");
 });
 $(document).on("click", "#resclose", function () {
-  $(".r1").addClass("d-none");
-  $("#resDate").removeClass("border border-danger");
+  $(".r1").addClass("hidden");
+  $("#resDate").removeClass("border border-red-500");
   $("#resDate").val("");
+  closeModal("#resignEmployee");
 });
 $(document).on("click", "#rescloseI", function () {
   $("#resclose").click();
 });
 $(document).on("click", "#employeeStat", function () {
+  if (!canModifyEmployee || !currentEmployeeIsActive) return;
   var fname = $("#editFirstname").val();
   var lname = $("#editSurname").val();
   $("#resPlaceholder").text(fname + " " + lname);
-  $("#clos").click();
-  $("#resignEmployee").modal("show");
+  $("#empCon").val(fname + " " + lname);
+  $("#empConid").val($("#editEmpnum").val());
+  closeModal("#showEmployee");
+  openModal("#resignEmployee");
 });
 $(document).on("click", ".btn-cres", function () {
   var empnum = $("#empConid").val();
   var resdate = $("#resDate").val();
-
   resignEmployee(empnum, resdate);
-
-  //if employee is resigned
-
-  // $('#empStat').html(`<label class="form-label" style="color: #333;">Employee Status</label><span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-  // data-bs-target="#resignEmployee" data-bs-toggle="modal" data-bs-dismiss="modal" style="width:50%; height: 35px; background: #f85e5e; cursor: pointer;  font-size: 15px;">Resigned</span>`);
 });
 $(document).on("click", "#btn-res", function () {
   var resDate = $("#resDate").val();
   if (!resDate) {
     $("#resignEmployee small").removeClass("hidden");
-    $("#resDate").addClass("border border-danger");
-
+    $("#resDate").addClass("border border-red-500");
     return;
-  } else {
-    $("#dateCon").val(resDate);
-    $("#resConfirm").modal("show");
-    $("#resignEmployee small").addClass("hidden");
-    $("#resDate").removeClass("border border-danger");
+  }
+  $("#dateCon").val(resDate);
+  $("#resignEmployee small").addClass("hidden");
+  $("#resDate").removeClass("border border-red-500");
+  closeModal("#resignEmployee");
+  openModal("#resConfirm");
+});
+
+$(document).on("keydown", function (e) {
+  if (e.key !== "Escape") return;
+  if ($("#resConfirm").hasClass("flex")) {
+    closeModal("#resConfirm");
+    return;
+  }
+  if ($("#resignEmployee").hasClass("flex")) {
     $("#resclose").click();
+    return;
+  }
+  if ($("#addEmployee").hasClass("flex")) {
+    $("#close").click();
+    return;
+  }
+  if ($("#showEmployee").hasClass("flex")) {
+    $("#clos").click();
   }
 });
 
@@ -469,11 +958,14 @@ function resignEmployee(empnum, resdate) {
         alert(`Save failed: ${data}`);
         return;
       }
-      $("#clos").click();
-      $("#resConfirm").modal("hide");
+      closeModal("#resConfirm");
+      closeModal("#resignEmployee");
+      closeModal("#showEmployee");
+      $("#resDate").val("");
       getEmployees().then((emps) => {
         $("#empList").empty();
         emps.map(fillEmployees);
+        refreshIcons();
       });
     }
   );
@@ -509,21 +1001,51 @@ function getEmployees() {
     });
   });
 }
-function fillEmployees(empDetails) {
-  var addString = ``;
-  var employeeNumber = empDetails["emp_num"];
-  var employeeName = empDetails["emp_name"];
-  var employeeUser = empDetails["emp_user"];
-  var employeeDepartment = empDetails["emp_dept"];
-  var employeeGroup = empDetails["emp_group"];
-  var employeePosition = empDetails["emp_pos"];
-  addString = `<tr class='emp'>
-<td>${employeeNumber}</td>
-<td>${employeeName}</td>
-<td>${employeeUser}</td>
-<td>${employeeDepartment}</td>
-<td>${employeeGroup}</td>
-<td>${employeePosition}</td>
+function fillEmployees(row) {
+  var employeeNumber = row["emp_num"];
+  var employeeName = row["emp_name"];
+  var employeeUser = row["emp_user"];
+  var employeeDepartment = row["emp_dept"];
+  var employeeGroup = row["emp_group"];
+  var employeePosition = row["emp_pos"];
+  var isActive = row["is_active"] == null || Number(row["is_active"]) === 1;
+
+  var modifyItems = "";
+  if (canModifyEmployee) {
+    modifyItems = `
+      <button type="button" role="menuitem" class="action-edit emp-menu-item">
+        <i data-lucide="pencil" class="h-4 w-4"></i> Edit Employee
+      </button>`;
+    if (isActive) {
+      modifyItems += `
+      <div class="my-1 border-t border-slate-600"></div>
+      <button type="button" role="menuitem" class="action-resign emp-menu-item emp-menu-item-danger">
+        <i data-lucide="user-round-x" class="h-4 w-4"></i> Mark as Resigned
+      </button>`;
+    }
+  }
+
+  var addString = `<tr class="emp">
+<td>${escapeHtml(employeeNumber)}</td>
+<td>${escapeHtml(employeeName)}</td>
+<td>${escapeHtml(employeeUser)}</td>
+<td>${escapeHtml(employeeDepartment)}</td>
+<td>${escapeHtml(employeeGroup)}</td>
+<td>${escapeHtml(employeePosition)}</td>
+<td class="emp-actions relative text-right">
+  <button type="button" class="emp-actions-btn inline-flex rounded p-1.5 text-slate-300 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-600" aria-label="Employee actions" aria-haspopup="true" aria-expanded="false">
+    <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
+  </button>
+  <div class="emp-actions-menu absolute right-0 z-20 mt-1 hidden min-w-[180px] rounded-md border border-slate-600 bg-[var(--dark-color)] py-1 shadow-lg" role="menu">
+    <button type="button" role="menuitem" class="action-view-details emp-menu-item">
+      <i data-lucide="user-round" class="h-4 w-4"></i> View Details
+    </button>
+    <button type="button" role="menuitem" class="action-view-activity emp-menu-item">
+      <i data-lucide="clock-3" class="h-4 w-4"></i> View Activity
+    </button>
+    ${modifyItems}
+  </div>
+</td>
 </tr>`;
   $("#empList").append(addString);
 }
@@ -537,6 +1059,9 @@ function getEmpDetails(iVal) {
     function (data) {
       empDeetsArray = $.parseJSON(data);
       fillModal(empDeetsArray);
+      if (!$("#panelActivity").hasClass("hidden")) {
+        loadActivityLog(iVal);
+      }
     }
   );
 }
@@ -570,30 +1095,42 @@ function fillModal(empDeets) {
   $(
     "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
   ).prop("disabled", true);
-  if (!resDate || resDate === "0000-00-00") {
+
+  currentEmployeeIsActive = !resDate || resDate === "0000-00-00";
+
+  if (currentEmployeeIsActive) {
     $(".empStat").html(`
-    <div class="mb-3 col-12 col-md-6" id="empStat">
-    <label class="form-label" >Employee Status</label>
-    <span class="badge rounded-pill d-flex align-items-center justify-content-center" id="employeeStat"
-       style="width:80%; height: 35px; background: #09c46f; cursor: pointer; font-size: 15px;">Active</span>
+    <div id="empStat">
+      <label class="mb-1 block text-sm text-slate-300">Employee Status</label>
+      <button type="button" id="employeeStat"
+        class="flex h-9 w-full max-w-[200px] items-center justify-center rounded-full bg-emerald-500 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-orange-600"
+        ${canModifyEmployee ? 'title="Mark as resigned"' : "disabled"}>
+        Active
+      </button>
+      ${
+        canModifyEmployee
+          ? '<p class="mt-1 text-xs text-slate-500">Click to mark as resigned</p>'
+          : ""
+      }
     </div>
-    <div class="mb-3 col-12 col-md-6 res d-none">
-      <label class="form-label" for="resigdate" >Resignation Effectivity Date</label>
-      <input type="date" class="form-control" id="resigdate"   disabled>
+    <div class="res hidden">
+      <label class="mb-1 block text-sm text-slate-300" for="resigdate">Resignation Date</label>
+      <input type="date" class="form-input" id="resigdate" disabled>
     </div>`);
   } else {
     $(".empStat").html(`
-    <div class="mb-3 col-12 col-md-6" id="empStat">
-    <label class="form-label" >Employee Status</label>
-    <span class="badge rounded-pill d-flex align-items-center justify-content-center" 
-     style="width:80%; height: 35px; background: red;  font-size: 15px;">Resigned</span>
+    <div id="empStat">
+      <label class="mb-1 block text-sm text-slate-300">Employee Status</label>
+      <span class="inline-flex h-9 w-full max-w-[200px] items-center justify-center rounded-full bg-red-600 text-sm font-medium text-white"
+        aria-label="Employee status: Resigned">Resigned</span>
     </div>
-    <div class="mb-3 col-12 col-md-6 res">
-      <label class="form-label" for="resigdate" >Resignation Effectivity Date</label>
-      <input type="date" class="form-control" id="resigdate"   disabled>
+    <div class="res">
+      <label class="mb-1 block text-sm text-slate-300" for="resigdate">Resignation Date</label>
+      <input type="date" class="form-input" id="resigdate" disabled>
     </div>`);
   }
   $("#resigdate").val(resDate);
+  resetEditFooter();
 }
 
 function getGroups() {
@@ -622,7 +1159,7 @@ function getGroups() {
 }
 function fillGroups(groups) {
   groups.forEach((element) => {
-    addString = `<option value='${element.id}' >${element.name}</option>`;
+    var addString = `<option value='${element.id}' >${element.name}</option>`;
     $(".empGroup").append(addString);
   });
 }
@@ -652,7 +1189,7 @@ function getPos() {
 }
 function fillPos(posDetails) {
   posDetails.forEach((element) => {
-    addString = `<option value='${element.id}' >${element.acronym}(${element.name})</option>`;
+    var addString = `<option value='${element.id}' >${element.acronym}(${element.name})</option>`;
     $(".empPos").append(addString);
   });
 }
@@ -671,52 +1208,53 @@ function addEmployee() {
   var email = $(`#addLotus`).val();
   var error = 0;
   var eMsg = ``;
+  $(".errMsg").addClass("hidden");
   if (!fname) {
-    $(".m3").removeClass("d-none");
+    $(".m3").removeClass("hidden");
     error++;
   }
   if (!lname) {
-    $(".m4").removeClass("d-none");
+    $(".m4").removeClass("hidden");
     error++;
   }
   if (!nname) {
-    $(".m5").removeClass("d-none");
+    $(".m5").removeClass("hidden");
     error++;
   }
   if (!bday) {
-    $(".m6").removeClass("d-none");
+    $(".m6").removeClass("hidden");
     error++;
   }
   if (!gender) {
-    $(".m7").removeClass("d-none");
+    $(".m7").removeClass("hidden");
     error++;
   }
   if (!status) {
-    $(".m8").removeClass("d-none");
+    $(".m8").removeClass("hidden");
     error++;
   }
   if (!empnum) {
-    $(".m1").removeClass("d-none");
+    $(".m1").removeClass("hidden");
     error++;
   }
   if (!username) {
-    $(".m2").removeClass("d-none");
+    $(".m2").removeClass("hidden");
     error++;
   }
   if (!group) {
-    $(".m9").removeClass("d-none");
+    $(".m9").removeClass("hidden");
     error++;
   }
   if (!dhired) {
-    $(".m10").removeClass("d-none");
+    $(".m10").removeClass("hidden");
     error++;
   }
   if (!position) {
-    $(".m11").removeClass("d-none");
+    $(".m11").removeClass("hidden");
     error++;
   }
   if (!email) {
-    $(".m12").removeClass("d-none");
+    $(".m12").removeClass("hidden");
     error++;
   }
   if (error > 0) {
@@ -779,6 +1317,7 @@ function addEmployee() {
       getEmployees().then((emps) => {
         $("#empList").empty();
         emps.map(fillEmployees);
+        refreshIcons();
       });
     }
   );
@@ -798,52 +1337,53 @@ function saveEdit() {
   var email = $(`#editLotus`).val();
   var error = 0;
   var eMsg = ``;
+  $(".errMsg").addClass("hidden");
   if (!fname) {
-    $(".m3").removeClass("d-none");
+    $(".m3").removeClass("hidden");
     error++;
   }
   if (!lname) {
-    $(".m4").removeClass("d-none");
+    $(".m4").removeClass("hidden");
     error++;
   }
   if (!nname) {
-    $(".m5").removeClass("d-none");
+    $(".m5").removeClass("hidden");
     error++;
   }
   if (!bday) {
-    $(".m6").removeClass("d-none");
+    $(".m6").removeClass("hidden");
     error++;
   }
   if (!gender) {
-    $(".m7").removeClass("d-none");
+    $(".m7").removeClass("hidden");
     error++;
   }
   if (!status) {
-    $(".m8").removeClass("d-none");
+    $(".m8").removeClass("hidden");
     error++;
   }
   if (!empnum) {
-    $(".m1").removeClass("d-none");
+    $(".m1").removeClass("hidden");
     error++;
   }
   if (!username) {
-    $(".m2").removeClass("d-none");
+    $(".m2").removeClass("hidden");
     error++;
   }
   if (!group) {
-    $(".m9").removeClass("d-none");
+    $(".m9").removeClass("hidden");
     error++;
   }
   if (!dhired) {
-    $(".m10").removeClass("d-none");
+    $(".m10").removeClass("hidden");
     error++;
   }
   if (!position) {
-    $(".m11").removeClass("d-none");
+    $(".m11").removeClass("hidden");
     error++;
   }
   if (!email) {
-    $(".m12").removeClass("d-none");
+    $(".m12").removeClass("hidden");
     error++;
   }
   if (error > 0) {
@@ -864,7 +1404,6 @@ function saveEdit() {
         eMsg = err.join(", ");
         eMsg += " taken";
         if (err.includes("Username")) {
-          idInp = "";
           $("#editPCUser").val("");
         }
         if (err.includes("Email")) {
@@ -901,21 +1440,16 @@ function saveEdit() {
         return;
       }
 
-      $(".btn-saveEmp").parent().html(`<button
-        type="button"
-        class="px-[0.75rem] py-[0.375rem] font-medium shadow-sm bg-orange-600 hover:bg-orange-800 rounded-md btn-editEmp"
-      >
-        Edit Details
-      </button>
-                    <button type="button" class="btn btn-secondary" id="clos" data-bs-dismiss="modal">Close</button>`);
+      resetEditFooter();
       $(
         "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
       ).prop("disabled", true);
-      $(".errMsg").addClass("d-none");
+      $(".errMsg").addClass("hidden");
 
       getEmployees().then((emps) => {
         $("#empList").empty();
         emps.map(fillEmployees);
+        refreshIcons();
       });
     }
   );
@@ -933,7 +1467,7 @@ function resetAdd() {
   $("#addStatus").val("");
   $("#addDatehired").val("");
   $("#addLotus").val("");
-  $(".errMsg").addClass("d-none");
+  $(".errMsg").addClass("hidden");
 }
 
 //#endregion

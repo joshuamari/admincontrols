@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "is_dummy_data": true,
+    "purpose": "Designation Activity Log UI testing only"
+  },
+  "logs": [
+    {
+      "id": "designation-dummy-001",
+      "designation_id": 2,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 13:30:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-002",
+      "designation_id": 2,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-29 10:20:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "On",
+          "new_value": "Off"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-003",
+      "designation_id": 3,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 11:40:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-004",
+      "designation_id": 4,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-31 15:15:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "On",
+          "new_value": "Off"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-005",
+      "designation_id": 6,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 09:25:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-006",
+      "designation_id": 7,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-30 14:05:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-007",
+      "designation_id": 8,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 08:50:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "On",
+          "new_value": "Off"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-008",
+      "designation_id": 9,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-28 16:30:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-009",
+      "designation_id": 9,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 14:10:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "On",
+          "new_value": "Off"
+        }
+      ]
+    },
+    {
+      "id": "designation-dummy-010",
+      "designation_id": 11,
+      "action": "UPDATE",
+      "description": "Manpower Summary updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-31 10:45:00",
+      "changes": [
+        {
+          "field": "manpower_summary",
+          "label": "Manpower Summary",
+          "old_value": "Off",
+          "new_value": "On"
+        }
+      ]
+    }
+  ]
+}

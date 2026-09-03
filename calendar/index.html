@@ -17,7 +17,7 @@
 
     <!--#region BUSTER CALL  -->
     <script>
-      var busterCall = ["js/main.js", "css/index.css"];
+      var busterCall = ["js/lucide.min.js", "js/main.js", "css/index.css"];
       $.post(
         "ajax/getVersion.php",
         {
@@ -217,7 +217,7 @@
     </div>
     <!--#endregion-->
 
-    <div class="h-screen w-full flex">
+    <div class="min-h-screen w-full flex">
       <div class="navigation actived">
         <ul id="acNavLinks">
           <li class="font-semibold">
@@ -288,10 +288,13 @@
           </div>
         </div>
         <div
-          class="w-full h-full xl:h-[calc(100%-100px)] flex flex-col 2xl:flex-row gap-3 lg:px-6 lg:pt-6 pt-0 px-3 pb-6 overflow-auto"
+          class="w-full min-w-0 flex flex-col lg:flex-row gap-3 lg:px-6 lg:pt-6 pt-0 px-3 pb-6 overflow-x-hidden"
         >
           <div
-            class="w-full max-h-[600px] 2xl:max-h-full 2xl:h-full flex-1 bg-[var(--dark-color)] rounded-md p-3 flex flex-col gap-3"
+            class="w-full min-w-0 flex flex-col gap-3 lg:flex-[7] lg:h-full lg:min-h-0 lg:overflow-y-auto"
+          >
+          <div
+            class="w-full min-w-0 min-h-[220px] max-h-[420px] lg:max-h-none lg:min-h-0 lg:flex-1 bg-[var(--dark-color)] rounded-md p-3 flex flex-col gap-3"
           >
             <h5 class="text-[1.7rem]">
               Holiday List for Year
@@ -307,7 +310,7 @@
               >
             </h5>
 
-            <div class="flex justify-between w-full gap-2">
+            <div class="flex justify-between w-full min-w-0 gap-2">
               <div class="relative w-full">
                 <input
                   type="search"
@@ -464,10 +467,10 @@
             </div>
           </div>
           <div
-            class="2xl:h-full w-full 2xl:w-[500px] flex flex-col xl:flex-row 2xl:flex-col gap-3 pb-[50px] xl:pb-0"
+            class="w-full min-w-0 grid grid-cols-1 lg:grid-cols-2 gap-3"
           >
             <div
-              class="bg-[var(--dark-color)] rounded-md p-3 2xl:h-[350px] xl:h-auto w-full max-w-[600px]"
+              class="w-full min-w-0 min-h-[220px] bg-[var(--dark-color)] rounded-md p-3 flex flex-col"
             >
               <h5 class="text-[24px]">
                 Holiday Count this
@@ -477,12 +480,12 @@
                   >Year</span
                 >
               </h5>
-              <div class="h-[calc(100%-20px)] w-full">
+              <div class="h-[calc(100%-20px)] w-full min-w-0 min-h-[180px] flex-1">
                 <canvas id="holidayChart" class="w-full h-auto"></canvas>
               </div>
             </div>
             <div
-              class="bg-[var(--dark-color)] rounded-md p-3 2xl:h-full min-h-[350px] w-full"
+              class="w-full min-w-0 min-h-[220px] bg-[var(--dark-color)] rounded-md p-3 flex flex-col"
             >
               <h5 class="text-[24px]">
                 Holidays for
@@ -501,7 +504,7 @@
                   id="thisYear"
                 ></span>
               </h5>
-              <div class="h-[calc(100%-20px)] w-full overflow-auto top">
+              <div class="h-[calc(100%-20px)] w-full min-w-0 min-h-[180px] flex-1 overflow-auto top">
                 <ul class="list-none py-3" id="monthlyList">
                   <!-- <li class="">
                     <div class="flex justify-between gap-2">
@@ -512,6 +515,25 @@
               </div>
             </div>
           </div>
+          </div>
+          <aside
+            id="calendarActivityPanel"
+            class="flex w-full min-w-0 min-h-[220px] flex-col overflow-hidden rounded-md bg-[var(--dark-color)] p-3 lg:h-full lg:flex-[3] lg:min-h-0"
+          >
+            <div class="mb-4 shrink-0">
+              <h2 class="text-base font-semibold text-white">Activity Log</h2>
+              <p
+                id="calendarActivitySubtitle"
+                class="mb-0 text-sm text-slate-400"
+              >
+                History of changes made to this calendar.
+              </p>
+            </div>
+            <div
+              id="calendarActivityTimeline"
+              class="activity-timeline min-h-0 flex-1 overflow-y-auto"
+            ></div>
+          </aside>
         </div>
       </div>
     </div>

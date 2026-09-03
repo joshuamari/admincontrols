@@ -14,7 +14,7 @@
 
     <!--#region BUSTER CALL  -->
     <script>
-      var busterCall = ["js/main.js", "css/index.css"];
+      var busterCall = ["js/lucide.min.js", "js/main.js", "css/index.css"];
       $.post(
         "ajax/get_version.php",
         {
@@ -31,72 +31,261 @@
   </head>
 
   <body>
-    <!--#region View permission Modal -->
-    <div class="modal fade" data-bs-backdrop="static" id="viewPermissions">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-[var(--dark-color)]">
-          <div class="modal-header bg-[var(--dark-color)] border-0">
-            <h1 class="text-[20px]" id="viewProjTitle">JMR</h1>
-            <button
-              type="button"
-              class="btn-close"
-              id="closeAppModal"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+    <!--#region Application Management Modal -->
+    <div
+      id="viewPermissions"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="viewProjTitle"
+      aria-hidden="true"
+    >
+      <div
+        class="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border !border-slate-700 bg-[var(--dark-color)] shadow-xl"
+      >
+        <div
+          class="flex shrink-0 items-start justify-between gap-3 border-b !border-slate-700 p-3"
+        >
+          <div class="min-w-0">
+            <h1
+              id="viewProjTitle"
+              class="text-base font-semibold text-white"
+            >
+              Application
+            </h1>
+            <p class="mb-0 text-sm text-slate-400">
+              Manage modules, permissions and activity for this application.
+            </p>
           </div>
-          <div class="modal-body pt-0">
-            
-              <div class="col-12 d-flex permissiontab min-h-[400px] max-h-[600px]  mb-2">
-                <div class="sidenav rounded d-flex justify-content-between flex-column">
-                  <ul class="mod-items p-0 h-[calc(100%-34px)] overflow-auto" style="list-style: none">
-                    <li class="mod-item active" mod-id="">Daily Report</li>
-                    <li class="mod-item" mod-id="">JMC</li>
-                    <li class="mod-item" mod-id="">Planning</li>
-                    <li class="mod-item" mod-id="">MS Report</li>
-                  </ul>
-                  <button class="btn btn-secondary" id="btn-addModule">Add Module</button>
-                  <button class="btn d-none" style="background-color: var(--green-color);" id="btn-saveModule">Save Module</button>
+          <button
+            type="button"
+            id="closeAppModal"
+            class="modal-close-btn shrink-0 rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-600"
+            aria-label="Close"
+          >
+            <i data-lucide="x" class="h-5 w-5"></i>
+          </button>
+        </div>
+
+        <div
+          class="flex shrink-0 gap-6 overflow-x-auto border-b !border-slate-700 px-3"
+          role="tablist"
+          aria-label="Application management sections"
+        >
+          <button
+            type="button"
+            id="tabAppModules"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panelAppModules"
+            class="app-mgmt-tab app-mgmt-tab-active inline-flex items-center gap-2 border-x-0 border-t-0 border-b-2 border-b-[var(--primary-color)] px-1 py-3 text-sm font-medium text-white focus:outline-none"
+          >
+            <i data-lucide="layers" class="h-4 w-4"></i>
+            Modules
+          </button>
+          <button
+            type="button"
+            id="tabAppPermissions"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panelAppPermissions"
+            class="app-mgmt-tab inline-flex items-center gap-2 whitespace-nowrap border-x-0 border-t-0 border-b-2 border-transparent px-1 py-3 text-sm font-medium text-slate-400 hover:text-slate-200 focus:outline-none"
+          >
+            <i data-lucide="shield-check" class="h-4 w-4"></i>
+            Module Permissions
+          </button>
+          <button
+            type="button"
+            id="tabAppActivity"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panelAppActivity"
+            class="app-mgmt-tab inline-flex items-center gap-2 whitespace-nowrap border-x-0 border-t-0 border-b-2 border-transparent px-1 py-3 text-sm font-medium text-slate-400 hover:text-slate-200 focus:outline-none"
+          >
+            <i data-lucide="clock-3" class="h-4 w-4"></i>
+            Activity Log
+          </button>
+        </div>
+
+        <div class="flex min-h-0 flex-1 flex-col overflow-hidden px-3 py-3">
+          <div
+            id="panelAppModules"
+            class="h-full min-h-0"
+            role="tabpanel"
+            aria-labelledby="tabAppModules"
+          >
+            <div class="mb-4 shrink-0">
+              <h2 class="text-base font-semibold text-white">Modules</h2>
+              <p class="mb-0 text-sm text-slate-400">
+                Add or rename modules for this application.
+              </p>
+            </div>
+            <div
+              class="mb-4 shrink-0 rounded-lg border !border-slate-700 bg-[var(--card-color)] p-4"
+            >
+              <p class="mb-2 text-sm font-medium text-slate-200">
+                Add New Module
+              </p>
+              <div class="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  id="newModuleName"
+                  class="!block w-full !rounded-md !border !border-slate-700 !bg-[var(--dark-color)] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring focus:ring-orange-700"
+                  placeholder="Enter new module name"
+                />
+                <button
+                  type="button"
+                  id="btn-addModule"
+                  class="inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap !border-0 !bg-[var(--primary-color)] !px-3 !py-2 !text-sm !text-white hover:!bg-[#be5c24] rounded-md"
+                >
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                  Add Module
+                </button>
+              </div>
+            </div>
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <p class="mb-0 text-sm font-medium text-slate-200">
+                Existing Modules
+              </p>
+            </div>
+            <div class="relative mb-3 shrink-0">
+              <i
+                data-lucide="search"
+                class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              ></i>
+              <input
+                type="search"
+                id="moduleSearch"
+                class="!block w-full !rounded-md !border !border-slate-700 !bg-[var(--card-color)] py-2 pl-8 pr-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring focus:ring-orange-700"
+                placeholder="Search modules"
+              />
+            </div>
+            <div
+              id="moduleManageList"
+              class="min-h-0 flex-1 overflow-y-auto rounded-lg border !border-slate-700 bg-[var(--card-color)]"
+            ></div>
+            <p
+              id="moduleCount"
+              class="mb-0 mt-3 shrink-0 text-right text-xs text-slate-400"
+            ></p>
+          </div>
+
+          <div
+            id="panelAppPermissions"
+            class="hidden h-full min-h-0"
+            role="tabpanel"
+            aria-labelledby="tabAppPermissions"
+          >
+            <div
+              class="permissiontab flex h-full min-h-[420px] overflow-hidden !rounded-lg !border !border-slate-700"
+            >
+              <div
+                class="sidenav flex min-h-0 w-full shrink-0 flex-col !rounded-none !border-r !border-slate-700 !bg-[var(--card-color)] !p-4 md:w-[260px]"
+              >
+                <div class="title mb-3 d-flex">
+                  <span class="text-sm font-semibold text-white">Modules</span>
                 </div>
-                <div class="right  w-100 rounded">
-                  
-                <div class="title">
-                  <span>Daily Report Access Types</span>
+                <div class="relative mb-3">
+                  <i
+                    data-lucide="search"
+                    class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                  ></i>
+                  <input
+                    type="search"
+                    id="permModuleSearch"
+                    class="!block w-full !rounded-md !border !border-slate-700 !bg-[var(--dark-color)] py-2 pl-8 pr-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring focus:ring-orange-700"
+                    placeholder="Search modules..."
+                  />
                 </div>
-                <div class="overflow-auto mt-3" style="height: 90%">
-                  <table class="w-full ">
-                    
-                    <tbody id="permList">
-                      <tr >
-                        <td colspan="2" style="vertical-align: middle;">View and Edit</td>
-                        
-                      </tr>
-                      <tr >
-                        <td colspan="2" style="vertical-align: middle;">View and Edit</td>
-                        
-                      </tr>
-                     
-                      <tr id="row-addAT">
-                        <td colspan="2" ><button class="btn text-center  w-100" id="btn-addAccessType"><i class='bx bx-plus me-1'></i>Add Access Type</button></td>
-                      </tr>
-                     
-                    </tbody>
-                  </table>
+                <ul
+                  class="mod-items mb-0 min-h-0 flex-1 list-none overflow-y-auto p-0"
+                  style="list-style: none"
+                ></ul>
+              </div>
+              <div
+                class="right flex min-h-0 min-w-0 flex-1 flex-col !rounded-none !bg-[var(--dark-color)] !p-4"
+              >
+                <div class="mb-3 shrink-0">
+                  <div class="title mb-1">
+                    <span
+                      id="permSelectedTitle"
+                      class="text-sm font-semibold text-white"
+                      >Module Permissions</span
+                    >
+                  </div>
+                  <p class="mb-0 text-xs text-slate-400">
+                    Add or rename permissions for this module.
+                  </p>
                 </div>
+                <div
+                  class="mb-4 shrink-0 rounded-lg border !border-slate-700 bg-[var(--card-color)] p-3"
+                >
+                  <p class="mb-2 text-sm font-medium text-slate-200">
+                    Add New Permission
+                  </p>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      id="newPermissionName"
+                      class="!block w-full !rounded-md !border !border-slate-700 !bg-[var(--dark-color)] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring focus:ring-orange-700"
+                      placeholder="Enter permission name"
+                    />
+                    <button
+                      type="button"
+                      id="btn-addAccessType"
+                      class="inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap !border-0 !bg-[var(--primary-color)] !px-3 !py-2 !text-sm !text-white hover:!bg-[#be5c24] rounded-md"
+                    >
+                      <i data-lucide="plus" class="h-4 w-4"></i>
+                      Add Permission
+                    </button>
+                  </div>
+                </div>
+                <div class="mb-2 shrink-0">
+                  <p class="mb-0 text-sm font-medium text-slate-200">
+                    Existing Permissions
+                  </p>
+                </div>
+                <div class="relative mb-3 shrink-0">
+                  <i
+                    data-lucide="search"
+                    class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                  ></i>
+                  <input
+                    type="search"
+                    id="permissionSearch"
+                    class="!block w-full !rounded-md !border !border-slate-700 !bg-[var(--card-color)] py-2 pl-8 pr-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring focus:ring-orange-700"
+                    placeholder="Search permissions"
+                  />
+                </div>
+                <div
+                  id="permManageList"
+                  class="min-h-0 flex-1 overflow-y-auto rounded-lg border !border-slate-700 bg-[var(--card-color)]"
+                ></div>
+                <p
+                  id="permissionCount"
+                  class="mb-0 mt-3 shrink-0 text-right text-xs text-slate-400"
+                ></p>
               </div>
             </div>
           </div>
-          <!-- <div class="modal-footer">
-        <button type="button" class="btn btn-addEmp">Add Access</button>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          id="close"
-          data-bs-dismiss="modal"
-        >
-          Close
-        </button>
-      </div> -->
+
+          <div
+            id="panelAppActivity"
+            class="hidden h-full min-h-0 overflow-y-auto"
+            role="tabpanel"
+            aria-labelledby="tabAppActivity"
+          >
+            <div class="mb-4">
+              <h2 class="text-base font-semibold text-white">Activity Log</h2>
+              <p class="mb-0 text-sm text-slate-400">
+                History of changes made to this application.
+              </p>
+            </div>
+            <div
+              id="appPermissionActivityTimeline"
+              class="activity-timeline"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
@@ -289,7 +478,7 @@
             </h5>
           </div>
         </div>
-        <div class="w-full h-[calc(100%-60px)] flex p-6 flex-col overflow-y-auto">
+        <div class="admin-scrollbar w-full h-[calc(100%-60px)] flex p-6 flex-col overflow-y-auto">
          
           <div class="flex justify-between">
               <h1 class="text-[24px]">Application Permission</h1>
@@ -311,54 +500,6 @@
 
             <div class="mt-4 card-cont">
               <div class="position-relative  d-flex row m-0" id="cardContainer">
-                <div class="col-md-6  col-xl-3 col-12  mb-3" >
-                  <div class="shadow  card-item">
-                    <div class="card-title d-flex align-items-center gap-2">
-                      <span class="try color1"></span>
-                      <span>JMR</span>
-                    </div>
-               
-                    <ul class="list-unstyled module-list mt-3 px-3">
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="col-md-6  col-xl-3 col-12  mb-3" >
-                  <div class="shadow  card-item">
-                    <div class="card-title d-flex align-items-center gap-2">
-                      <span class="try color1"></span>
-                      <span>JMR</span>
-                    </div>
-               
-                    <ul class="list-unstyled module-list mt-3 px-3">
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                      <li>Daily Report</li>
-                      <li>JMC</li>
-                      <li>Planning</li>
-                      <li>MH Report</li>
-                    </ul>
-                  </div>
-                </div>
-               
               </div>
             </div>
     

@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "is_dummy_data": true,
+    "purpose": "Application Permission Activity Log UI testing only"
+  },
+  "logs": [
+    {
+      "id": "app-permission-dummy-001",
+      "application_id": 1,
+      "action": "CREATE",
+      "event_type": "MODULE_CREATED",
+      "description": "Module added",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 15:10:00",
+      "details": {
+        "module_id": 101,
+        "module_name": "Planning"
+      }
+    },
+    {
+      "id": "app-permission-dummy-002",
+      "application_id": 1,
+      "action": "UPDATE",
+      "event_type": "MODULE_RENAMED",
+      "description": "Module name updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Collene Keith"
+      },
+      "created_at": "2026-09-02 13:20:00",
+      "details": {
+        "module_id": 102,
+        "old_value": "Daily Report",
+        "new_value": "Daily Report Module"
+      }
+    },
+    {
+      "id": "app-permission-dummy-003",
+      "application_id": 1,
+      "action": "CREATE",
+      "event_type": "PERMISSION_CREATED",
+      "description": "Permission added",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Erwin Tan"
+      },
+      "created_at": "2026-09-02 13:35:00",
+      "details": {
+        "module_id": 100,
+        "module_name": "JMC",
+        "permission_id": 1001,
+        "permission_name": "Export"
+      }
+    },
+    {
+      "id": "app-permission-dummy-004",
+      "application_id": 1,
+      "action": "UPDATE",
+      "event_type": "PERMISSION_RENAMED",
+      "description": "Permission name updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Collene Keith"
+      },
+      "created_at": "2026-09-02 13:42:00",
+      "details": {
+        "module_id": 100,
+        "module_name": "JMC",
+        "permission_id": 1002,
+        "old_value": "Access",
+        "new_value": "View and Edit"
+      }
+    }
+  ]
+}

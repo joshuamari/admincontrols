@@ -1,0 +1,126 @@
+{
+  "_meta": {
+    "is_dummy_data": true,
+    "purpose": "User Permission Activity Log UI testing only"
+  },
+  "logs": [
+    {
+      "id": "permission-dummy-001",
+      "employee_id": 10,
+      "action": "UPDATE",
+      "description": "User permissions updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Collene Keith"
+      },
+      "created_at": "2026-09-01 13:25:00",
+      "applications": [
+        {
+          "app_name": "Web JMR",
+          "added": [
+            "Daily Report Module / Override",
+            "MH Report Module / All group access"
+          ],
+          "removed": [
+            "JMC Module / Import"
+          ]
+        },
+        {
+          "app_name": "QMS",
+          "added": [
+            "My Team / Access"
+          ],
+          "removed": []
+        }
+      ]
+    },
+    {
+      "id": "permission-dummy-002",
+      "employee_id": 10,
+      "action": "UPDATE",
+      "description": "User permissions updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Erwin Tan"
+      },
+      "created_at": "2026-08-29 10:20:00",
+      "applications": [
+        {
+          "app_name": "Forms",
+          "added": [
+            "Leave Form / Access"
+          ],
+          "removed": []
+        }
+      ]
+    },
+    {
+      "id": "permission-dummy-003",
+      "employee_id": 21,
+      "action": "UPDATE",
+      "description": "User permissions updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Collene Keith"
+      },
+      "created_at": "2026-09-01 14:05:00",
+      "applications": [
+        {
+          "app_name": "Passport Control System",
+          "added": [
+            "Admin / Access",
+            "Dispatch List / Access"
+          ],
+          "removed": []
+        }
+      ]
+    },
+    {
+      "id": "permission-dummy-004",
+      "employee_id": 37,
+      "action": "UPDATE",
+      "description": "User permissions updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-30 15:40:00",
+      "applications": [
+        {
+          "app_name": "Web JMR",
+          "added": [],
+          "removed": [
+            "Careless Mistake Report Module / Access"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permission-dummy-005",
+      "employee_id": 55,
+      "action": "UPDATE",
+      "description": "User permissions updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Collene Keith"
+      },
+      "created_at": "2026-09-01 09:50:00",
+      "applications": [
+        {
+          "app_name": "Logs Viewer",
+          "added": [
+            "Combined AMS and Bio Logs / Access"
+          ],
+          "removed": []
+        },
+        {
+          "app_name": "AMS",
+          "added": [
+            "AMS Correction / Access"
+          ],
+          "removed": []
+        }
+      ]
+    }
+  ]
+}

@@ -157,6 +157,24 @@ $(document).on("change", ".toggleActive", function () {
     }
   });
 });
+$(document).on("click", ".btn-viewDesignationActivity", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var $row = $(this).closest("tr");
+  var designationId = $row.attr("pos-id");
+  var designationName = $row.find("td:eq(1)").text();
+  $(this).closest(".dropdown-menu").removeClass("show");
+  openDesignationActivityModal(designationId, designationName);
+});
+$(document).on("click", "[data-close-designation-activity]", function () {
+  closeDesignationActivityModal();
+});
+$(document).on("keydown", function (e) {
+  if (e.key !== "Escape") return;
+  if ($("#designationActivityModal").hasClass("flex")) {
+    closeDesignationActivityModal();
+  }
+});
 //#endregion
 
 //#region FUNCTIONS
@@ -367,6 +385,8 @@ function initializeSortable() {
           });
           // updateTableRanking();
         },
+        filter: isDesignationActivityMenuTarget,
+        preventOnFilter: false,
       });
     } else {
       // Initialize Sortable for the first time
@@ -398,7 +418,9 @@ function initializeSortable() {
           });
         },
         filter: (event) =>
-          $(event.target).closest("tr").hasClass("exclude-sortable"),
+          $(event.target).closest("tr").hasClass("exclude-sortable") ||
+          isDesignationActivityMenuTarget(event),
+        preventOnFilter: false,
       });
     }
   }
@@ -469,12 +491,271 @@ function fillDesignations(desigs) {
     tr.append(
       `<td><div><input type="checkbox" class="checkbox toggleActive" role="switch" ${isChecked}></div></td>`
     );
-    tr.append(
-      `<td><div class="flex justify-center items-center">${sortableIcon}</div></td>`
-    );
+    tr.append(`<td>
+      <div class="flex justify-center items-center gap-1">
+        ${sortableIcon}
+        <div
+          class="flex justify-center items-center"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bx bx-dots-vertical-rounded btn-edit"></i>
+        </div>
+        <ul class="bg-[var(--dark-color)] dropdown-menu">
+          <li class="hover:bg-[var(--light-color)]">
+            <a
+              class="hover:bg-[var(--light-color)] dropdown-item flex gap-2 items-center text-white btn-viewDesignationActivity cursor-pointer"
+              ><i data-lucide="history" class="h-4 w-4"></i
+              >View Activity</a
+            >
+          </li>
+        </ul>
+      </div>
+    </td>`);
     $("#sortable").append(tr);
   });
+  refreshIcons();
 }
+
+//#region DESIGNATION ACTIVITY LOG
+const USE_DUMMY_DESIGNATION_ACTIVITY_LOGS = true;
+
+function refreshIcons() {
+  if (typeof lucide !== "undefined" && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function isDesignationActivityMenuTarget(event) {
+  return !!$(event.target).closest(
+    "[data-bs-toggle='dropdown'], .dropdown-menu, .btn-viewDesignationActivity"
+  ).length;
+}
+
+function formatDesignationActivityDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hh = String(hours).padStart(2, "0");
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} • ${hh}:${minutes} ${ampm}`;
+}
+
+function escapeDesignationActivityHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+async function getDummyDesignationActivity(designationId) {
+  if (!USE_DUMMY_DESIGNATION_ACTIVITY_LOGS) {
+    return [];
+  }
+
+  const response = await fetch("assets/mock/designation-activity.mock.json");
+
+  if (!response.ok) {
+    console.error("Failed to load dummy designation activity logs.");
+    return [];
+  }
+
+  const data = await response.json();
+
+  return (data.logs || [])
+    .filter((log) => Number(log.designation_id) === Number(designationId))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+function ensureLegacyDesignationCreate(logs) {
+  const items = Array.isArray(logs) ? [...logs] : [];
+  const hasCreate = items.some(
+    (item) => String(item.action || "").toUpperCase() === "CREATE"
+  );
+  if (!hasCreate) {
+    items.push({
+      action: "CREATE",
+      description: "Designation created",
+      actor_name: null,
+      created_at: null,
+      changes: [],
+    });
+  }
+  return items;
+}
+
+function getDesignationActivityMeta(action) {
+  const a = String(action || "").toUpperCase();
+  if (a === "CREATE") {
+    return {
+      label: "CREATE",
+      color: "text-emerald-400",
+      ring: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40",
+      icon: "plus",
+      description: "Designation created",
+    };
+  }
+  return {
+    label: "UPDATE",
+    color: "text-sky-400",
+    ring: "bg-sky-500/15 text-sky-400 ring-1 ring-sky-500/40",
+    icon: "pencil",
+    description: "Manpower Summary updated",
+  };
+}
+
+function formatDesignationActivityDescription(item, meta) {
+  const action = String(item.action || "").toUpperCase();
+  const actor = item.actor_name || (item.actor && item.actor.name) || "";
+  if (action === "CREATE") {
+    return actor
+      ? `Designation created by ${escapeDesignationActivityHtml(actor)}.`
+      : "Designation created";
+  }
+  if (action === "UPDATE" && actor) {
+    return `Manpower Summary updated by ${escapeDesignationActivityHtml(actor)}.`;
+  }
+  return escapeDesignationActivityHtml(item.description || meta.description);
+}
+
+function renderDesignationChangedFields(changes) {
+  if (!Array.isArray(changes) || !changes.length) return "";
+
+  const rows = changes
+    .map((change) => {
+      const label = change.label || change.field || "";
+      const oldVal = change.old_value != null ? change.old_value : "";
+      const newVal = change.new_value != null ? change.new_value : "";
+      if (String(oldVal) === String(newVal)) return "";
+      return `<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+        <span class="min-w-[8rem] text-slate-400">${escapeDesignationActivityHtml(label)}</span>
+        <span class="text-slate-300">${escapeDesignationActivityHtml(oldVal)}</span>
+        <span class="text-slate-500">→</span>
+        <span class="text-emerald-400">${escapeDesignationActivityHtml(newVal)}</span>
+      </div>`;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!rows) return "";
+  return `<div class="mt-[0.75rem] rounded-md border-[1px] border-solid border-slate-700 bg-[var(--bg-color)] p-[0.75rem] space-y-2">${rows}</div>`;
+}
+
+function renderDesignationActivityLog(activities) {
+  const $timeline = $("#designationActivityTimeline");
+  $timeline.empty();
+
+  const logs = ensureLegacyDesignationCreate(activities).filter((item) => {
+    const action = String(item.action || "").toUpperCase();
+    return action === "CREATE" || action === "UPDATE";
+  });
+
+  const sorted = [...logs].sort((a, b) => {
+    const aCreate = String(a.action || "").toUpperCase() === "CREATE";
+    const bCreate = String(b.action || "").toUpperCase() === "CREATE";
+    if (aCreate && !bCreate) return 1;
+    if (bCreate && !aCreate) return -1;
+    const ta = a.created_at
+      ? new Date(String(a.created_at).replace(" ", "T")).getTime()
+      : 0;
+    const tb = b.created_at
+      ? new Date(String(b.created_at).replace(" ", "T")).getTime()
+      : 0;
+    return tb - ta;
+  });
+
+  let html = `<ol class="relative ms-[0.75rem]">`;
+  sorted.forEach((item, index) => {
+    const isLastActivity = index === sorted.length - 1;
+    const meta = getDesignationActivityMeta(item.action);
+    const action = String(item.action || "").toUpperCase();
+    const when = item.created_at
+      ? formatDesignationActivityDate(item.created_at)
+      : "";
+    const body =
+      action === "CREATE" ? "" : renderDesignationChangedFields(item.changes);
+    const descriptionHtml = formatDesignationActivityDescription(item, meta);
+
+    html += `
+      <li class="relative mb-6 ms-6">
+        ${
+          !isLastActivity
+            ? `<span class="absolute -start-6 top-3.5 -bottom-6 w-px bg-slate-600" aria-hidden="true"></span>`
+            : ""
+        }
+        <span class="absolute -start-[2.375rem] z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-[var(--dark-color)] ${meta.ring}">
+          <i data-lucide="${meta.icon}" class="h-3.5 w-3.5"></i>
+        </span>
+        <article class="rounded-lg border-[1px] border-solid border-slate-700 bg-[var(--card-color)] p-[1rem]">
+          <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-semibold tracking-wide ${meta.color}">${meta.label}</span>
+            ${
+              when
+                ? `<time class="text-xs text-slate-400">${escapeDesignationActivityHtml(when)}</time>`
+                : ""
+            }
+          </div>
+          <p class="text-sm text-slate-200">${descriptionHtml}</p>
+          ${body}
+        </article>
+      </li>`;
+  });
+  html += `</ol>`;
+  $timeline.html(html);
+  refreshIcons();
+}
+
+function loadDesignationActivityLog(designationId) {
+  $("#designationActivityTimeline").html(
+    `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
+  );
+  getDummyDesignationActivity(designationId)
+    .then(renderDesignationActivityLog)
+    .catch((err) => {
+      console.error("Failed to load dummy designation activity logs.", err);
+      renderDesignationActivityLog([]);
+    });
+}
+
+function openDesignationActivityModal(designationId, designationName) {
+  $("#designationActivityName").text(designationName);
+  $("#designationActivityModal")
+    .removeClass("hidden")
+    .addClass("flex")
+    .attr("aria-hidden", "false");
+  $("body").addClass("overflow-hidden");
+  refreshIcons();
+  loadDesignationActivityLog(designationId);
+}
+
+function closeDesignationActivityModal() {
+  $("#designationActivityModal")
+    .addClass("hidden")
+    .removeClass("flex")
+    .attr("aria-hidden", "true");
+  $("body").removeClass("overflow-hidden");
+}
+//#endregion
 function searchDesig() {
   const keyword = $("#searchBar").val();
   const searchResults = designations.filter((desig) => {

@@ -45,6 +45,7 @@ checkLogin()
         if (clndr) {
           $(document).ready(function () {
             $(".hello-user").text(empDetails["empFName"]);
+            refreshIcons();
             let list = document.querySelectorAll(".navigation li");
             function activeLink() {
               list.forEach((item) => item.classList.remove("active"));
@@ -176,6 +177,7 @@ $(document).on("click", ".calendar-item", function () {
   $(".calendar-item").removeClass("active");
   $(this).addClass("active");
   selectedLoc = $(this).attr("loc-id");
+  loadCalendarActivityLog(selectedLoc);
   Promise.all([getHolidays(), currentYMHolidays()])
     .then(([hols, cmHols]) => {
       monthlyHolidayData = hols;
@@ -315,12 +317,54 @@ function getCurrentMonthYear() {
   $("#thisYear").text(currentYear);
   $("#thisMonth").text(currentMonthName);
 }
+function renderCalendarPanelEmptyState(icon, title, message) {
+  return `<div class="flex h-full min-h-[12rem] flex-col items-center justify-center px-4 py-8 text-center">
+      <i data-lucide="${icon}" class="h-8 w-8 text-slate-500"></i>
+      <p class="mt-3 mb-0 text-sm font-medium text-slate-300">${escapeCalendarActivityHtml(title)}</p>
+      <p class="mt-1 mb-0 max-w-[16rem] text-sm text-slate-400">${escapeCalendarActivityHtml(message)}</p>
+    </div>`;
+}
+
+function renderHolidayListEmptyState(isFiltered) {
+  $("#holidayList").addClass("h-full");
+  const calendarName = getSelectedCalendarLabel();
+  const year = selectedYear || $("#selectedYear").val() || currentYear;
+  const icon = isFiltered ? "search-x" : "calendar-days";
+  const title = isFiltered ? "No holidays found" : "No holidays added yet";
+  const message = isFiltered
+    ? "No holidays match your current search or filters."
+    : `No holidays have been added to ${calendarName} for ${year}.`;
+  const $cell = $("<td>")
+    .attr("colspan", 4)
+    .addClass("!w-full !text-center align-middle hover:!bg-transparent");
+  $cell.html(renderCalendarPanelEmptyState(icon, title, message));
+  $("#mainHoliday").append($("<tr>").addClass("h-full").append($cell));
+  refreshIcons();
+}
+
 function fillHolidayMonthList(monthlyHolidayData) {
-  $("#monthlyList").empty();
+  $("#monthlyList").empty().removeClass("h-full !py-0");
   const monthVal = currentMonthIndex + 1;
   const filteredHolidays = monthlyHolidayData.filter(
     (holiday) => holiday.holMonth === `${monthVal}`
   );
+  if (!filteredHolidays.length) {
+    const monthName = currentMonthName;
+    const year = currentYear;
+    $("#monthlyList")
+      .addClass("h-full !py-0")
+      .html(
+        `<li class="h-full !border-0 !bg-transparent !p-0 hover:!bg-transparent">
+        ${renderCalendarPanelEmptyState(
+          "calendar-x",
+          `No holidays for ${monthName} ${year}`,
+          "There are no holidays scheduled for this month."
+        )}
+      </li>`
+      );
+    refreshIcons();
+    return;
+  }
   filteredHolidays.forEach(function (holiday) {
     var holName = holiday.holName;
     var holDate = `${monthNames[holiday.holMonth - 1]} ${
@@ -337,6 +381,7 @@ function fillHolidayMonthList(monthlyHolidayData) {
   });
 }
 function fillMainHoliday(monthlyHolidayData) {
+  $("#holidayList").removeClass("h-full");
   monthlyHolidayData.forEach((holiday, index) => {
     const monthName = monthNames[parseInt(holiday.holMonth) - 1];
     const formattedDate = `${monthName} ${holiday.holDay}, ${selectedYear}`;
@@ -526,6 +571,28 @@ function holidayChart() {
     holidayCounts[monthIndex]++;
   });
 
+  const totalHolidayCount = holidayCounts.reduce(
+    (sum, count) => sum + count,
+    0
+  );
+  $("#holidayCountEmpty").remove();
+  $("#holidayChart").removeClass("hidden");
+  if (totalHolidayCount === 0) {
+    const year = selectedYear || $("#selectedYear").val() || currentYear;
+    $("#holidayChart").addClass("hidden");
+    $("#holidayChart").parent().append(`
+      <div id="holidayCountEmpty" class="h-full">
+        ${renderCalendarPanelEmptyState(
+          "bar-chart-3",
+          `No holiday data for ${year}`,
+          "Holiday counts will appear here once holidays are added."
+        )}
+      </div>
+    `);
+    refreshIcons();
+    return;
+  }
+
   // Get the canvas element for the chart
   var ctx = document.getElementById("holidayChart").getContext("2d");
 
@@ -633,6 +700,10 @@ function searchHoliday() {
       isHolidayTypeValid
     );
   });
+  if (!searchResults.length) {
+    renderHolidayListEmptyState(monthlyHolidayData.length > 0);
+    return;
+  }
   fillMainHoliday(searchResults);
 }
 function fillHolidayType($selectElement) {
@@ -872,4 +943,290 @@ function currentYMHolidays() {
     });
   });
 }
+
+//#region CALENDAR ACTIVITY LOG
+const USE_DUMMY_CALENDAR_ACTIVITY_LOGS = true;
+
+function refreshIcons() {
+  if (typeof lucide !== "undefined" && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function escapeCalendarActivityHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatCalendarActivityDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(String(dateStr).replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hh = String(hours).padStart(2, "0");
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} • ${hh}:${minutes} ${ampm}`;
+}
+
+function getSelectedCalendarLabel() {
+  const label = String($(".calendar-item.active").first().text() || "").trim();
+  return label || "this calendar";
+}
+
+function updateCalendarActivitySubtitle() {
+  $("#calendarActivitySubtitle").text(
+    `History of changes made to ${getSelectedCalendarLabel()}.`
+  );
+}
+
+async function getDummyCalendarActivity(calendarId) {
+  if (!USE_DUMMY_CALENDAR_ACTIVITY_LOGS) {
+    return [];
+  }
+
+  try {
+    const response = await fetch("assets/mock/calendar-activity.mock.json");
+    if (!response.ok) {
+      console.error("Failed to load dummy calendar activity logs.");
+      return [];
+    }
+    const data = await response.json();
+    return (data.logs || [])
+      .filter(
+        (log) => Number(log.calendar_id) === Number(calendarId)
+      )
+      .sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+  } catch (err) {
+    console.error("Failed to load dummy calendar activity logs.", err);
+    return [];
+  }
+}
+
+function getCalendarActivityMeta(action) {
+  const a = String(action || "").toUpperCase();
+  if (a === "CREATE") {
+    return {
+      label: "CREATE",
+      color: "text-emerald-400",
+      ring: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40",
+      icon: "plus",
+      description: "Holiday created",
+    };
+  }
+  if (a === "DELETE") {
+    return {
+      label: "DELETE",
+      color: "text-red-400",
+      ring: "bg-red-500/15 text-red-400 ring-1 ring-red-500/40",
+      icon: "trash-2",
+      description: "Holiday deleted",
+    };
+  }
+  return {
+    label: "UPDATE",
+    color: "text-sky-400",
+    ring: "bg-sky-500/15 text-sky-400 ring-1 ring-sky-500/40",
+    icon: "pencil",
+    description: "Holiday information updated",
+  };
+}
+
+function formatCalendarActivityDescription(item) {
+  const action = String(item.action || "").toUpperCase();
+  const actor = (item.actor && item.actor.name) || item.actor_name || "";
+  if (action === "CREATE") {
+    return actor
+      ? `Holiday created by ${escapeCalendarActivityHtml(actor)}.`
+      : "Holiday created";
+  }
+  if (action === "DELETE") {
+    return actor
+      ? `Holiday deleted by ${escapeCalendarActivityHtml(actor)}.`
+      : "Holiday deleted";
+  }
+  if (action === "UPDATE") {
+    return actor
+      ? `Holiday information updated by ${escapeCalendarActivityHtml(actor)}.`
+      : "Holiday information updated";
+  }
+  return escapeCalendarActivityHtml(item.description || "");
+}
+
+function renderCalendarChangeValue(oldVal, newVal) {
+  return `<span class="text-slate-300">${escapeCalendarActivityHtml(oldVal)}</span>
+    <span class="text-slate-500">→</span>
+    <span class="text-emerald-400">${escapeCalendarActivityHtml(newVal)}</span>`;
+}
+
+function renderCalendarActivityDetailRows(rows) {
+  const html = rows
+    .filter((row) => row && row.value)
+    .map(
+      (row) => `<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+        <span class="min-w-[8rem] text-slate-400">${escapeCalendarActivityHtml(row.label)}</span>
+        <span class="text-slate-200">${row.value}</span>
+      </div>`
+    )
+    .join("");
+  if (!html) return "";
+  return `<div class="mt-3 rounded-md border !border-slate-700 bg-[var(--bg-color)] p-3 space-y-2">${html}</div>`;
+}
+
+function isHolidayNameChange(change) {
+  const field = String((change && change.field) || "").toLowerCase();
+  const label = String((change && change.label) || "").toLowerCase();
+  return (
+    field === "holiday_name" ||
+    field === "name" ||
+    label === "holiday name"
+  );
+}
+
+function renderCalendarActivityDetails(item) {
+  const action = String(item.action || "").toUpperCase();
+  const holiday = item.holiday || {};
+  const name = holiday.name || "";
+  const changes = Array.isArray(item.changes) ? item.changes : [];
+
+  if (action === "CREATE" || action === "DELETE") {
+    return renderCalendarActivityDetailRows([
+      { label: "Holiday", value: escapeCalendarActivityHtml(name) },
+    ]);
+  }
+
+  if (action === "UPDATE") {
+    const rows = [];
+    const nameChanged = changes.some(isHolidayNameChange);
+    if (name && !nameChanged) {
+      rows.push({
+        label: "Holiday",
+        value: escapeCalendarActivityHtml(name),
+      });
+    }
+    changes.forEach((change) => {
+      const oldVal = change.old_value != null ? change.old_value : "";
+      const newVal = change.new_value != null ? change.new_value : "";
+      if (String(oldVal) === String(newVal)) return;
+      rows.push({
+        label: change.label || change.field || "",
+        value: renderCalendarChangeValue(oldVal, newVal),
+      });
+    });
+    return renderCalendarActivityDetailRows(rows);
+  }
+
+  return "";
+}
+
+function renderCalendarActivityLog(activities) {
+  const $timeline = $("#calendarActivityTimeline");
+  $timeline.empty();
+
+  const logs = (Array.isArray(activities) ? activities : []).filter((item) => {
+    const action = String(item.action || "").toUpperCase();
+    return action === "CREATE" || action === "UPDATE" || action === "DELETE";
+  });
+
+  if (!logs.length) {
+    $timeline.html(`
+      <div class="flex h-full min-h-[12rem] flex-col items-center justify-center px-4 py-8 text-center">
+        <i data-lucide="history" class="h-8 w-8 text-slate-500"></i>
+        <p class="mt-3 mb-0 text-sm font-medium text-slate-300">No activity recorded yet</p>
+        <p class="mt-1 mb-0 max-w-[16rem] text-sm text-slate-400">Changes made to holidays in this calendar will appear here.</p>
+      </div>
+    `);
+    refreshIcons();
+    return;
+  }
+
+  const sorted = [...logs].sort((a, b) => {
+    const ta = a.created_at
+      ? new Date(String(a.created_at).replace(" ", "T")).getTime()
+      : 0;
+    const tb = b.created_at
+      ? new Date(String(b.created_at).replace(" ", "T")).getTime()
+      : 0;
+    return tb - ta;
+  });
+
+  let html = `<ol class="relative ms-3">`;
+  sorted.forEach((item, index) => {
+    const isLastActivity = index === sorted.length - 1;
+    const action = String(item.action || "").toUpperCase();
+    const meta = getCalendarActivityMeta(action);
+    const when = item.created_at
+      ? formatCalendarActivityDate(item.created_at)
+      : "";
+    const descriptionHtml = formatCalendarActivityDescription(item);
+    const body = renderCalendarActivityDetails(item);
+    const isDelete = action === "DELETE";
+
+    html += `
+      <li class="relative mb-6 ms-6">
+        ${
+          !isLastActivity
+            ? `<span class="absolute -start-6 top-3.5 -bottom-6 w-px bg-slate-600" aria-hidden="true"></span>`
+            : ""
+        }
+        <span class="absolute -start-[2.375rem] z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-[var(--dark-color)] ${meta.ring}">
+          <i data-lucide="${meta.icon}" class="h-3.5 w-3.5"></i>
+        </span>
+        <article class="rounded-lg border ${
+          isDelete
+            ? "!border-red-500/40 bg-red-950/20"
+            : "!border-slate-700 bg-[var(--card-color)]"
+        } p-4">
+          <div class="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-semibold tracking-wide ${meta.color}">${meta.label}</span>
+            ${
+              when
+                ? `<time class="text-xs text-slate-400">${escapeCalendarActivityHtml(when)}</time>`
+                : ""
+            }
+          </div>
+          <p class="mb-0 text-sm text-slate-200">${descriptionHtml}</p>
+          ${body}
+        </article>
+      </li>`;
+  });
+  html += `</ol>`;
+  $timeline.html(html);
+  refreshIcons();
+}
+
+function loadCalendarActivityLog(calendarId) {
+  updateCalendarActivitySubtitle();
+  $("#calendarActivityTimeline").html(
+    `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
+  );
+  getDummyCalendarActivity(calendarId)
+    .then(renderCalendarActivityLog)
+    .catch((err) => {
+      console.error("Failed to load dummy calendar activity logs.", err);
+      renderCalendarActivityLog([]);
+    });
+}
+//#endregion
 //#endregion

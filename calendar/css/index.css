@@ -49,8 +49,11 @@ body {
   margin: 0;
 }
 .navigation {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
   width: 270px;
-  height: 100vh;
   background: var(--card-color);
   border-left: 10px solid var(--card-color);
   transition: 0.5s width ease;
@@ -164,13 +167,16 @@ body {
 /*main*/
 .main {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
+  margin-left: 270px;
   width: calc(100% - 270px);
-overflow: hidden;
+  overflow-x: hidden;
   background: var(--bg-color);
   transition: 0.5s width ease;
 }
 .main.actived {
+  margin-left: 80px;
   width: calc(100% - 80px);
 
 }
@@ -330,6 +336,7 @@ font-weight: 500;
   .main.actived{
     left: 0;
     width: 100%;
+    margin-left: 0;
   }
 }
 
@@ -349,6 +356,7 @@ font-weight: 500;
     width: 100%;
     left: 0;
     height: 100%;
+    margin-left: 0;
   }
 }
 

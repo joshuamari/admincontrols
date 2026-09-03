@@ -434,49 +434,63 @@ td{
   cursor: pointer;
 }
 
-.sidenav {
+#panelPermissions .sidenav {
   background: var(--card-color);
-  padding: 8px;
+  padding: 1rem;
 }
-.sidenav .title span,
-.right .title span {
-  font-size: 20px;
-  font-weight: 400;
+#panelPermissions .sidenav .title span,
+#panelPermissions #permSelectedTitle {
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.sidenav .app-items .app-item {
-  padding: 8px;
+#panelPermissions .sidenav .app-items .app-item {
+  padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  color: var(--text-color);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.sidenav .app-items .app-item:hover {
+#panelPermissions .sidenav .app-items .app-item:hover {
   background-color: #d9713592;
 }
-.sidenav .app-items .app-item.active {
+#panelPermissions .sidenav .app-items .app-item.active {
   background-color: var(--primary-color);
+  color: #fff;
 }
-.permissiontab .right {
-  background: var(--card-color);
+#panelPermissions .permissiontab .right {
+  background: var(--dark-color);
   width: 100%;
-  margin-left: 5px;
-  padding: 8px;
+  margin-left: 0;
+  padding: 1rem;
 }
-.permissiontab .right .title #modPermission {
-  background-color: var(--primary-color);
-  color: #e7e7e7;
+#panelPermissions .permission-item .title {
+  font-size: 14px;
+  font-weight: 500;
 }
-.permissiontab .right .title #savePermission {
-  background-color: #01b636;
-  color: #e7e7e7;
-}
-.permission-item span {
-  font-size: 18px;
-}
-.permission-items,
-.app-items {
-  max-height: 450px;
+#panelPermissions .permission-items,
+#panelPermissions .app-items {
   overflow-y: auto;
+}
+#panelPermissions .form-check-input {
+  background-color: transparent;
+  border-color: #64748b;
+}
+#panelPermissions .form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+#panelPermissions .form-check-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(230, 123, 66, 0.25);
+}
+#panelPermissions #editingEnabledBadge {
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-del {
@@ -520,8 +534,19 @@ td{
 .jmr-badge {
   background-color: #396299;
 }
+@media screen and (max-width: 1100px) {
+  #panelPermissions .right {
+    width: auto !important;
+  }
+}
 @media screen and (max-width: 991px) {
-  .right .title {
+  #panelPermissions .permissiontab {
     flex-direction: column;
+    max-height: none;
+  }
+  #panelPermissions .sidenav {
+    width: 100% !important;
+    border-right-width: 0 !important;
+    border-bottom: 1px solid #334155;
   }
 }

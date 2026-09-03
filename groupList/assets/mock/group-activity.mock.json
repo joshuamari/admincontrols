@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "is_dummy_data": true,
+    "purpose": "Group Activity Log UI testing only"
+  },
+  "logs": [
+    {
+      "id": "group-dummy-001",
+      "group_id": 16,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 09:15:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Management Group",
+          "new_value": "Managerial Group"
+        }
+      ]
+    },
+    {
+      "id": "group-dummy-002",
+      "group_id": 6,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 09:45:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Chemical Engineering Group",
+          "new_value": "Chemical Group"
+        }
+      ]
+    },
+    {
+      "id": "group-dummy-003",
+      "group_id": 10,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-09-01 10:20:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Environment Group",
+          "new_value": "Environmental Group"
+        }
+      ]
+    },
+    {
+      "id": "group-dummy-004",
+      "group_id": 12,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-09-01 11:05:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Information Technology Group",
+          "new_value": "IT Group"
+        }
+      ]
+    },
+    {
+      "id": "group-dummy-005",
+      "group_id": 2,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-09-01 13:10:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Administration Group",
+          "new_value": "Admin"
+        }
+      ]
+    },
+    {
+      "id": "group-dummy-006",
+      "group_id": 16,
+      "action": "UPDATE",
+      "description": "Group information updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo Administrator"
+      },
+      "created_at": "2026-08-28 14:30:00",
+      "changes": [
+        {
+          "field": "name",
+          "label": "Group Name",
+          "old_value": "Managers Group",
+          "new_value": "Management Group"
+        }
+      ]
+    }
+  ]
+}

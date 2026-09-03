@@ -1,0 +1,158 @@
+{
+  "_meta": {
+    "is_dummy_data": true,
+    "purpose": "Employee Activity Log UI testing only"
+  },
+  "logs": [
+    {
+      "id": "dummy-001",
+      "employee_id": 10,
+      "action": "UPDATE",
+      "description": "Employee information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-08-27 09:15:00",
+      "changes": [
+        {
+          "field": "group",
+          "label": "Group",
+          "old_value": "Managerial Group",
+          "new_value": "Admin Group"
+        },
+        {
+          "field": "position",
+          "label": "Position",
+          "old_value": "Senior Manager",
+          "new_value": "General Manager"
+        }
+      ]
+    },
+    {
+      "id": "dummy-002",
+      "employee_id": 21,
+      "action": "UPDATE",
+      "description": "Employee information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-08-27 10:05:00",
+      "changes": [
+        {
+          "field": "pc_username",
+          "label": "PC Username",
+          "old_value": "kuyabert",
+          "new_value": "rsantos-kdt"
+        },
+        {
+          "field": "group",
+          "label": "Group",
+          "old_value": "Admin Group",
+          "new_value": "Managerial Group"
+        }
+      ]
+    },
+    {
+      "id": "dummy-003",
+      "employee_id": 25,
+      "action": "UPDATE",
+      "description": "Employee information updated",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo HR Administrator"
+      },
+      "created_at": "2026-08-27 11:20:00",
+      "changes": [
+        {
+          "field": "group",
+          "label": "Group",
+          "old_value": "Chemical Group",
+          "new_value": "Environmental Group"
+        },
+        {
+          "field": "position",
+          "label": "Position",
+          "old_value": "Department Manager",
+          "new_value": "Assistant Manager"
+        },
+        {
+          "field": "pc_username",
+          "label": "PC Username",
+          "old_value": "derigay-g1",
+          "new_value": "derigay-kdt"
+        }
+      ]
+    },
+    {
+      "id": "dummy-004",
+      "employee_id": 30,
+      "action": "RESIGNED",
+      "description": "Employee marked as resigned",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo HR Administrator"
+      },
+      "created_at": "2026-08-27 13:30:00",
+      "changes": [
+        {
+          "field": "employee_status",
+          "label": "Employee Status",
+          "old_value": "Active",
+          "new_value": "Resigned"
+        },
+        {
+          "field": "resignation_date",
+          "label": "Resignation Date",
+          "old_value": null,
+          "new_value": "2026-08-27"
+        }
+      ]
+    },
+    {
+      "id": "dummy-005",
+      "employee_id": 37,
+      "action": "UPDATE",
+      "description": "Employee information updated",
+      "actor": {
+        "employee_id": 9999,
+        "name": "Test Administrator"
+      },
+      "created_at": "2026-08-27 14:10:00",
+      "changes": [
+        {
+          "field": "outlook_email",
+          "label": "Outlook Email",
+          "old_value": "old.username@global.kawasaki.com",
+          "new_value": "new.username@global.kawasaki.com"
+        }
+      ]
+    },
+    {
+      "id": "dummy-006",
+      "employee_id": 55,
+      "action": "RESIGNED",
+      "description": "Employee marked as resigned",
+      "actor": {
+        "employee_id": 9998,
+        "name": "Demo HR Administrator"
+      },
+      "created_at": "2026-08-27 15:00:00",
+      "changes": [
+        {
+          "field": "employee_status",
+          "label": "Employee Status",
+          "old_value": "Active",
+          "new_value": "Resigned"
+        },
+        {
+          "field": "resignation_date",
+          "label": "Resignation Date",
+          "old_value": null,
+          "new_value": "2026-08-27"
+        }
+      ]
+    }
+  ]
+}
