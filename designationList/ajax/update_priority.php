@@ -22,11 +22,11 @@ requirePermission($actorEmpNum, 40);
 #region Initialize Variable
 $msg = array();
 $sectionID = NULL;
-if (!empty($_POST['secID'])) {
+if (isset($_POST['secID']) && $_POST['secID'] !== '') {
     $sectionID = filter_var($_POST['secID'], FILTER_VALIDATE_INT);
 }
 $posID = NULL;
-if (!empty($_POST['posID'])) {
+if (isset($_POST['posID']) && $_POST['posID'] !== '') {
     $posID = filter_var($_POST['posID'], FILTER_VALIDATE_INT);
 }
 $oldIndex = NULL;
@@ -52,42 +52,79 @@ if ($posID === false || $posID === NULL || (int)$posID <= 0) {
     exit;
 }
 $posID = (int)$posID;
-if ($oldIndex === false || $oldIndex === NULL || (int)$oldIndex <= 0) {
+if ($oldIndex === false || $oldIndex === NULL || (int)$oldIndex < 0) {
     $msg["isSuccess"] = false;
     $msg["message"] = "Unable to update designation.";
     echo json_encode($msg);
     exit;
 }
 $oldIndex = (int)$oldIndex;
-if ($newIndex === false || $newIndex === NULL || (int)$newIndex <= 0) {
+if ($newIndex === false || $newIndex === NULL || (int)$newIndex < 0) {
     $msg["isSuccess"] = false;
     $msg["message"] = "Unable to update designation.";
     echo json_encode($msg);
     exit;
 }
-$newIndex = (int)$newIndex;
-if (!designationExists($posID)) {
-    $msg["isSuccess"] = false;
-    $msg["message"] = "Unable to update designation.";
-    echo json_encode($msg);
-    exit;
-}
-
-$maxPrio = getMax($sectionID);
-if ($newIndex > $maxPrio) {
-    $msg["isSuccess"] = true;
-    $msg['message'] = "new: $newIndex, max: $maxPrio";
-    echo json_encode($msg);
-    exit;
-}
+$newPriority = (int)$newIndex;
 #endregion
 
 #region Entries Query
 try {
     $conn_new_disable->beginTransaction();
-    $updateCurrentQ = "UPDATE `designation_list` SET `priority` = :newIndex WHERE id=:posID AND `show_man_sum`=1";
+
+    $oldPriority = getDesignationPriority($posID, $sectionID);
+    if ($oldPriority === NULL) {
+        $conn_new_disable->rollBack();
+        $msg["isSuccess"] = false;
+        $msg["message"] = "Unable to update designation.";
+        echo json_encode($msg);
+        exit;
+    }
+
+    $maxPrio = getMax($sectionID);
+    if ($newPriority < 1 || $newPriority > $maxPrio) {
+        $conn_new_disable->rollBack();
+        $msg["isSuccess"] = false;
+        $msg["message"] = "Unable to update designation.";
+        echo json_encode($msg);
+        exit;
+    }
+
+    if ($oldPriority === $newPriority) {
+        $conn_new_disable->commit();
+        $msg["isSuccess"] = true;
+        $msg["message"] = "Update Priority successfull";
+        echo json_encode($msg);
+        exit;
+    }
+
+    if ($newPriority < $oldPriority) {
+        $updateQ = "UPDATE `designation_list` SET `priority` = `priority` + 1 WHERE `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 AND id<>:posID AND `priority` >= :newPriority AND `priority` < :oldPriority";
+        $updateStmt = $conn_new_disable->prepare($updateQ);
+        if ($updateStmt === false || $updateStmt->execute([":sectionID" => $sectionID, ":posID" => $posID, ":newPriority" => $newPriority, ":oldPriority" => $oldPriority]) === false) {
+            $conn_new_disable->rollBack();
+            error_log("update_priority mutation failed");
+            $msg["isSuccess"] = false;
+            $msg["message"] = "Unable to update designation.";
+            echo json_encode($msg);
+            exit;
+        }
+    } else if ($oldPriority < $newPriority) {
+        $updateQ = "UPDATE `designation_list` SET `priority` = `priority` - 1 WHERE `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 AND id<>:posID AND `priority` > :oldPriority AND `priority` <= :newPriority";
+        $updateStmt = $conn_new_disable->prepare($updateQ);
+        if ($updateStmt === false || $updateStmt->execute([":sectionID" => $sectionID, ":posID" => $posID, ":newPriority" => $newPriority, ":oldPriority" => $oldPriority]) === false) {
+            $conn_new_disable->rollBack();
+            error_log("update_priority mutation failed");
+            $msg["isSuccess"] = false;
+            $msg["message"] = "Unable to update designation.";
+            echo json_encode($msg);
+            exit;
+        }
+    }
+
+    $updateCurrentQ = "UPDATE `designation_list` SET `priority` = :newPriority WHERE id=:posID AND `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0";
     $updateStmt = $conn_new_disable->prepare($updateCurrentQ);
-    if ($updateStmt === false || $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID]) === false) {
+    if ($updateStmt === false || $updateStmt->execute([":newPriority" => $newPriority, ":posID" => $posID, ":sectionID" => $sectionID]) === false) {
         $conn_new_disable->rollBack();
         error_log("update_priority mutation failed");
         $msg["isSuccess"] = false;
@@ -95,37 +132,34 @@ try {
         echo json_encode($msg);
         exit;
     }
-    if ($newIndex != $oldIndex) {
-        if ($newIndex < $oldIndex) {
-            $updateQ = "UPDATE `designation_list` SET `priority` = `priority` + 1 WHERE `priority` >= :newIndex AND id<>:posID AND `priority`<>0 AND `priority` < :oldIndex AND `show_man_sum`=1";
-            $updateStmt = $conn_new_disable->prepare($updateQ);
-            if ($updateStmt === false || $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID, ":oldIndex" => $oldIndex]) === false) {
-                $conn_new_disable->rollBack();
-                error_log("update_priority mutation failed");
-                $msg["isSuccess"] = false;
-                $msg["message"] = "Unable to update designation.";
-                echo json_encode($msg);
-                exit;
-            }
-        } else if ($oldIndex < $newIndex) {
-            $updateQ = "UPDATE `designation_list` SET `priority` = `priority` - 1 WHERE `priority` <= :newIndex AND id<>:posID AND `priority`<>0 AND `priority` > :oldIndex AND `show_man_sum`=1";
-            $updateStmt = $conn_new_disable->prepare($updateQ);
-            if ($updateStmt === false || $updateStmt->execute([":newIndex" => $newIndex, ":posID" => $posID, ":oldIndex" => $oldIndex]) === false) {
-                $conn_new_disable->rollBack();
-                error_log("update_priority mutation failed");
-                $msg["isSuccess"] = false;
-                $msg["message"] = "Unable to update designation.";
-                echo json_encode($msg);
-                exit;
-            }
-        }
+
+    $verifyQ = "SELECT `priority` FROM `designation_list` WHERE id=:posID AND `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 LIMIT 1";
+    $verifyStmt = $conn_new_disable->prepare($verifyQ);
+    if ($verifyStmt === false || $verifyStmt->execute([":posID" => $posID, ":sectionID" => $sectionID]) === false) {
+        $conn_new_disable->rollBack();
+        error_log("update_priority mutation failed");
+        $msg["isSuccess"] = false;
+        $msg["message"] = "Unable to update designation.";
+        echo json_encode($msg);
+        exit;
+    }
+    $updatedPriority = $verifyStmt->fetchColumn();
+    if ($updatedPriority === false || (int)$updatedPriority !== $newPriority) {
+        $conn_new_disable->rollBack();
+        error_log("update_priority mutation failed");
+        $msg["isSuccess"] = false;
+        $msg["message"] = "Unable to update designation.";
+        echo json_encode($msg);
+        exit;
     }
 
     $conn_new_disable->commit();
     $msg["isSuccess"] = true;
     $msg["message"] = "Update Priority successfull";
 } catch (Exception $e) {
-    $conn_new_disable->rollBack();
+    if ($conn_new_disable->inTransaction()) {
+        $conn_new_disable->rollBack();
+    }
     error_log("update_priority mutation failed");
     $msg["isSuccess"] = false;
     $msg["message"] = "Unable to update designation.";
@@ -135,19 +169,25 @@ try {
 echo json_encode($msg);
 
 #region Functions
-function designationExists($posid)
+function getDesignationPriority($posid, $secid)
 {
     global $conn_new_disable;
-    $posQ = "SELECT id FROM `designation_list` WHERE id=:posID LIMIT 1";
+    $posQ = "SELECT `priority` FROM `designation_list` WHERE id=:posID AND `section`=:secID AND `show_man_sum`=1 AND `priority`<>0 LIMIT 1 FOR UPDATE";
     $posStmt = $conn_new_disable->prepare($posQ);
-    $posStmt->execute([":posID" => $posid]);
-    return $posStmt->fetchColumn() !== false;
+    if ($posStmt === false || $posStmt->execute([":posID" => $posid, ":secID" => $secid]) === false) {
+        return NULL;
+    }
+    $fetched = $posStmt->fetchColumn();
+    if ($fetched === false || $fetched === NULL) {
+        return NULL;
+    }
+    return (int)$fetched;
 }
 function getMax($secid)
 {
     global $conn_new_disable;
     $max = 0;
-    $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
+    $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid AND `show_man_sum`=1 AND `priority`<>0 FOR UPDATE";
     $maxStmt = $conn_new_disable->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
     $fetched = $maxStmt->fetchColumn();
