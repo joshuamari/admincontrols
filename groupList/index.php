@@ -1,31 +1,19 @@
+<?php require_once __DIR__ . '/../php/asset_v.php'; ?>
 <!DOCTYPE html>
 <html>
   <head>
     <title>Admin Controls</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
-
-    <link rel="stylesheet" href="css/boxicons.css" />
-    <!--COMMON-->
-    <script src="js/jquery.js"></script>
-    <!--COMMON-->
-
-    <!--#region BUSTER CALL  -->
-    <script>
-      var busterCall = ["js/lucide.min.js", "js/main.js", "css/index.css"];
-      $.post(
-        "ajax/get_version.php",
-        {
-          busterCall: busterCall,
-          titleName: "Admin Controls",
-        },
-        function (data) {
-          $("head").html(data);
-        }
-      );
-    </script>
-
-    <!--#endregion -->
+    <link rel="stylesheet" href="<?= asset_v('../tailwindcss.min.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('css/boxicons.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('css/neoBootstrap.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
+    <script src="<?= asset_v('js/jquery.js') ?>"></script>
+    <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
+    <script src="<?= asset_v('js/neoBootstrap.js') ?>"></script>
+    <script src="<?= asset_v('js/lucide.min.js') ?>"></script>
+    <script src="<?= asset_v('js/main.js') ?>"></script>
   </head>
 
   <body>

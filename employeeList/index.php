@@ -1,23 +1,16 @@
+<?php require_once __DIR__ . '/../php/asset_v.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <title>Admin Controls</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
-    <script src="js/jquery.js"></script>
-    <script>
-      var busterCall = ["js/main.js", "css/index.css"];
-      $.post(
-        "ajax/get_version.php",
-        {
-          busterCall: busterCall,
-          titleName: "Admin Controls",
-        },
-        function (data) {
-          $("head").html(data);
-        }
-      );
-    </script>
+    <link rel="stylesheet" href="<?= asset_v('../tailwindcss.min.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
+    <script src="<?= asset_v('js/jquery.js') ?>"></script>
+    <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
+    <script src="<?= asset_v('js/lucide.min.js') ?>"></script>
+    <script src="<?= asset_v('js/main.js') ?>"></script>
   </head>
 
   <body>
