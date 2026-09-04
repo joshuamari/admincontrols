@@ -54,15 +54,15 @@ try {
     $connDisableQMS->beginTransaction();
     $conn_new_disable->beginTransaction();
     $insertQMSQuery = "INSERT INTO group_history(fldStartDate,fldEvent,fldLocation,fldEmployeeNumber,fldGroupName,fldPosition)  VALUES(:resdate,'Resign','KDT',:empnum,(SELECT fldGroup FROM emp_prof WHERE fldEmployeeNum=:empnum),(SELECT fldDesig FROM emp_prof WHERE fldEmployeeNum=:empnum))";
-    $insertQMSStmt = $connqms->prepare($insertQMSQuery);
+    $insertQMSStmt = $connDisableQMS->prepare($insertQMSQuery);
     $insertQMSStmt->execute([":resdate" => $resdate, ":empnum" => $empnum]);
 
     $editKDTQuery = "UPDATE emp_prof SET fldResignDate=:resdate  WHERE fldEmployeeNum=:empnum";
-    $editKDTStmt = $connkdt->prepare($editKDTQuery);
+    $editKDTStmt = $connDisable->prepare($editKDTQuery);
     $editKDTStmt->execute([":resdate" => $resdate, ":empnum" => $empnum]);
     if ($karendate >= $resdate) {
         $editActiveKDTQuery = "UPDATE emp_prof SET fldActive=0  WHERE fldEmployeeNum=:empnum";
-        $editActiveKDTStmt = $connkdt->prepare($editActiveKDTQuery);
+        $editActiveKDTStmt = $connDisable->prepare($editActiveKDTQuery);
         $editActiveKDTStmt->execute([":empnum" => $empnum]);
     }
 
