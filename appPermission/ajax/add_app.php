@@ -1,33 +1,65 @@
 <?php
 #region DB Connect
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt)) {
+    error_log("add_app missing database connection");
+    authJsonFail("Unable to save application.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 20);
+
 #region Initialize Variable
 $appName = NULL;
 if (!empty($_POST['appName'])) {
-    $appName = $_POST['appName'];
+    $appName = trim($_POST['appName']);
 }
 $appColor = NULL;
 if (!empty($_POST['appColor'])) {
-    $appColor = $_POST['appColor'];
+    $appColor = trim($_POST['appColor']);
 }
-$err = FALSE;
+
+if ($appName === NULL || $appName === '') {
+    authJsonFail("Application name is required.");
+}
+if ($appColor === NULL || $appColor === '') {
+    authJsonFail("Application color is required.");
+}
+
+$dupQ = "SELECT project_id FROM kdtwebprojects WHERE project_name = :appName LIMIT 1";
+$dupStmt = $connkdt->prepare($dupQ);
+$dupStmt->execute([":appName" => $appName]);
+if ($dupStmt->fetchColumn() !== false) {
+    authJsonFail("Duplicate application name.");
+}
 #endregion
 
 #region Entries Query
 try {
     $appQ = "INSERT INTO kdtwebprojects(project_name,project_css_class) VALUES (:appName,:appColor)";
     $appStmt = $connkdt->prepare($appQ);
-    $appStmt->execute([":appName" => $appName, ":appColor" => $appColor]);
+    if ($appStmt === false || $appStmt->execute([":appName" => $appName, ":appColor" => $appColor]) === false) {
+        $errInfo = $appStmt ? $appStmt->errorInfo() : [];
+        if (isset($errInfo[1]) && (int)$errInfo[1] === 1062) {
+            authJsonFail("Duplicate application name.");
+        }
+        error_log("add_app mutation failed");
+        authJsonFail("Unable to save application.");
+    }
 } catch (Exception $e) {
-    $err = $e;
+    error_log("add_app mutation failed");
+    authJsonFail("Unable to save application.");
 }
 
 #endregion
 
-echo json_encode($err, JSON_PRETTY_PRINT);
+echo json_encode(false);

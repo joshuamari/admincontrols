@@ -1,71 +1,81 @@
 <?php
 #region DB Connect
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectwebjmr.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-#region Initialize Variable
-$msg = array();
-$empNumber = NULL;
-if (!empty($_POST['empID'])) {
-    $empNumber = $_POST['empID'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Employee Number Missing";
-}
-$holidayName = NULL;
-if (!empty($_POST['holName'])) {
-    $holidayName = $_POST['holName'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Holiday Name Missing";
-}
-$startDate = date("Y-m-d");
-if (!empty($_POST['holDate'])) {
-    $startDate = $_POST['holDate'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Date Missing";
-}
-$locID = 0;
-$locName = NULL;
-if (!empty($_POST['locID'])) {
-    $locID = $_POST['locID'];
-    $locName = getLocationName($locID);
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Location Missing";
-}
-$holidayType = 0;
-if (isset($_POST['holType'])) {
-    $holidayType = $_POST['holType'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = $_POST['holType'];
-}
-if (checkDuplicate($startDate, $locID)) {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Holiday Duplicate";
+if (!isset($connkdt, $connwebjmr)) {
+    error_log("add_holiday missing database connection");
+    authJsonFail("Unable to save holiday.");
 }
 
-$insertQ = "INSERT INTO `kdtholiday`(`fldLocation`,`fldLocID`,`fldDate`,`fldHoliday`,`fldHolidayType`,`fldModified`) VALUES (:locName,:locID,:startDate,:holidayName,:holidayType,:empNumber)";
-$insertStmt = $connkdt->prepare($insertQ);
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 41);
+
+#region Initialize Variable
+$holidayName = NULL;
+if (!empty($_POST['holName'])) {
+    $holidayName = trim($_POST['holName']);
+}
+$startDate = NULL;
+if (!empty($_POST['holDate'])) {
+    $startDate = $_POST['holDate'];
+}
+$locID = NULL;
+if (!empty($_POST['locID'])) {
+    $locID = filter_var($_POST['locID'], FILTER_VALIDATE_INT);
+}
+$holidayType = NULL;
+if (isset($_POST['holType']) && $_POST['holType'] !== '') {
+    $holidayType = filter_var($_POST['holType'], FILTER_VALIDATE_INT);
+}
+
+if ($holidayName === NULL || $holidayName === '') {
+    authJsonFail("Holiday name is required.");
+}
+if ($startDate === NULL || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+    authJsonFail("Holiday date is required.");
+}
+if ($locID === false || $locID === NULL || (int)$locID <= 0) {
+    authJsonFail("Location is required.");
+}
+$locID = (int)$locID;
+$locName = getLocationName($locID);
+if ($locName === NULL || $locName === '') {
+    authJsonFail("Location was not found.");
+}
+if ($holidayType === false || $holidayType === NULL || (int)$holidayType < 0 || (int)$holidayType > 2) {
+    authJsonFail("Holiday type is required.");
+}
+$holidayType = (int)$holidayType;
+
+if (checkDuplicate($startDate, $locID)) {
+    authJsonFail("Duplicate holiday.");
+}
+
+$msg = array();
 #endregion
 
 #region Entries Query
 try {
-    if (empty($msg)) {
-        $insertStmt->execute([":locName" => $locName, ":locID" => $locID, ":startDate" => $startDate, ":holidayName" => $holidayName, ":holidayType" => $holidayType, ":empNumber" => $empNumber]);
-        $msg["isSuccess"] = true;
-        $msg["message"] = "Adding holiday successfull";
+    $insertQ = "INSERT INTO `kdtholiday`(`fldLocation`,`fldLocID`,`fldDate`,`fldHoliday`,`fldHolidayType`,`fldModified`) VALUES (:locName,:locID,:startDate,:holidayName,:holidayType,:empNumber)";
+    $insertStmt = $connkdt->prepare($insertQ);
+    if ($insertStmt === false || $insertStmt->execute([":locName" => $locName, ":locID" => $locID, ":startDate" => $startDate, ":holidayName" => $holidayName, ":holidayType" => $holidayType, ":empNumber" => $actorEmpNum]) === false) {
+        error_log("add_holiday mutation failed");
+        authJsonFail("Unable to save holiday.");
     }
+    $msg["isSuccess"] = true;
+    $msg["message"] = "Adding holiday successfull";
 } catch (Exception $e) {
-    $msg["isSuccess"] = false;
-    $msg['message'] =  "Connection failed: " . $e->getMessage();
+    error_log("add_holiday mutation failed");
+    authJsonFail("Unable to save holiday.");
 }
 
 #endregion
@@ -77,10 +87,10 @@ function checkDuplicate($startdate, $locationid)
 {
     global $connkdt;
     $isDuplicate = FALSE;
-    $dupQ = "SELECT * FROM `kdtholiday` WHERE fldLocID=:locationid AND fldDate=:startdate";
+    $dupQ = "SELECT fldID FROM `kdtholiday` WHERE fldLocID=:locationid AND fldDate=:startdate LIMIT 1";
     $dupStmt = $connkdt->prepare($dupQ);
     $dupStmt->execute([":startdate" => $startdate, ":locationid" => $locationid]);
-    if ($dupStmt->rowCount() > 0) {
+    if ($dupStmt->fetchColumn() !== false) {
         $isDuplicate = TRUE;
     }
     return $isDuplicate;
@@ -89,11 +99,12 @@ function getLocationName($locationid)
 {
     global $connwebjmr;
     $name = NULL;
-    $nameQ = "SELECT fldLocation FROM `dispatch_locations` WHERE fldID=:locationid";
+    $nameQ = "SELECT fldLocation FROM `dispatch_locations` WHERE fldID=:locationid LIMIT 1";
     $nameStmt = $connwebjmr->prepare($nameQ);
     $nameStmt->execute([":locationid" => $locationid]);
-    if ($nameStmt->rowCount() > 0) {
-        $name = $nameStmt->fetchColumn();
+    $fetched = $nameStmt->fetchColumn();
+    if ($fetched !== false) {
+        $name = $fetched;
     }
     return $name;
 }

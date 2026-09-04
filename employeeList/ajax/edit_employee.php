@@ -1,14 +1,27 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectnew.php';
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectqms.php';
 require_once '../../dbconn/formsdb.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
+
+if (
+    !isset($connkdt, $connqms, $connnew, $connDisable, $connDisableQMS, $conn_new_disable)
+) {
+    error_log("edit_employee missing database connection");
+    authJsonFail("Unable to save employee.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 17);
 
 #region initialize variables
 $fname = NULL;
@@ -42,7 +55,7 @@ if (!empty($_POST['status'])) {
 }
 $empnum = NULL;
 if (!empty($_POST['empnum'])) {
-    $empnum = $_POST['empnum'];
+    $empnum = filter_var($_POST['empnum'], FILTER_VALIDATE_INT);
 }
 $username = NULL;
 if (!empty($_POST['username'])) {
@@ -51,8 +64,10 @@ if (!empty($_POST['username'])) {
 $group = NULL;
 $groupID = 0;
 if (!empty($_POST['group'])) {
-    $groupID = $_POST['group'];
-    $group = getGroupAbbr($groupID);
+    $groupID = filter_var($_POST['group'], FILTER_VALIDATE_INT);
+    if ($groupID !== false) {
+        $group = getGroupAbbr($groupID);
+    }
 }
 $dhired = NULL;
 if (!empty($_POST['dhired'])) {
@@ -61,26 +76,46 @@ if (!empty($_POST['dhired'])) {
 $position = NULL;
 $positionID = 0;
 if (!empty($_POST['position'])) {
-    $positionID = $_POST['position'];
-    $position = getDesigAbbr($positionID);
+    $positionID = filter_var($_POST['position'], FILTER_VALIDATE_INT);
+    if ($positionID !== false) {
+        $position = getDesigAbbr($positionID);
+    }
 }
 $email = NULL;
 if (!empty($_POST['email'])) {
     $email = $_POST['email'];
 }
+
+if (
+    $empnum === false || $empnum === NULL || (int)$empnum <= 0 ||
+    empty($fname) || empty($lname) || empty($nname) || empty($bday) ||
+    empty($gender) || empty($status) || empty($username) ||
+    $groupID === false || (int)$groupID <= 0 || $group === NULL ||
+    empty($dhired) ||
+    $positionID === false || (int)$positionID <= 0 || $position === NULL ||
+    empty($email)
+) {
+    authJsonFail("Unable to save employee.");
+}
+$empnum = (int)$empnum;
+$groupID = (int)$groupID;
+$positionID = (int)$positionID;
+
+if (!targetEmployeeExists($empnum)) {
+    authJsonFail("Unable to save employee.");
+}
+
 $addHash = password_hash($username, PASSWORD_DEFAULT);
 $addPic = "pic_" . $empnum . ".jpg";
 $addLotus = $email . "/P/KHI";
 $addOutlook = $email . "@global.kawasaki.com";
-
-$err = FALSE;
-$connDisable->beginTransaction();
-$connDisableQMS->beginTransaction();
-$conn_new_disable->beginTransaction();
 #endregion
 
 #region main
 try {
+    $connDisable->beginTransaction();
+    $connDisableQMS->beginTransaction();
+    $conn_new_disable->beginTransaction();
     $editQMSQuery = "UPDATE emp_prof SET fldName=:fullName,fldSurname=:lname,fldFirstname=:fname,fldNick=:nname,fldUser=:username,fldGroup=:group,fldDesig=:position,fldBirthDate=:bday,fldGender=:gender,fldStatus=:cstatus,fldDateHired=:dhired,fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
     $editQMSStmt = $connDisableQMS->prepare($editQMSQuery);
     $editQMSStmt->execute([":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":username" => $username, ":group" => $group, ":position" => $position, ":bday" => $bday, ":gender" => $gender, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":empnum" => $empnum]);
@@ -101,10 +136,11 @@ try {
     $connDisableQMS->commit();
     $conn_new_disable->commit();
 } catch (Exception $e) {
-    $err = $e->getMessage();
     $connDisable->rollBack();
     $connDisableQMS->rollBack();
     $conn_new_disable->rollBack();
+    error_log("edit_employee mutation failed");
+    authJsonFail("Unable to save employee.");
 }
 #endregion
 
@@ -133,5 +169,13 @@ function getDesigAbbr($desigid)
     }
     return $abbr;
 }
+function targetEmployeeExists($empnum)
+{
+    global $connkdt;
+    $empQ = "SELECT fldEmployeeNum FROM emp_prof WHERE fldEmployeeNum = :empnum LIMIT 1";
+    $empStmt = $connkdt->prepare($empQ);
+    $empStmt->execute([":empnum" => $empnum]);
+    return $empStmt->fetchColumn() !== false;
+}
 #endregion
-echo json_encode($err, JSON_PRETTY_PRINT);
+echo json_encode(false);

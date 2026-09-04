@@ -1,59 +1,73 @@
 <?php
 #region DB Connect
-// require_once '../../dbconn/dbconnectkdtph.php';
+ob_start();
+require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt, $connnew)) {
+    error_log("add_designation missing database connection");
+    authJsonFail("Unable to save designation.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 40);
+
 #region Initialize Variable
-$msg = array();
 $posName = NULL;
 if (!empty($_POST['name'])) {
-    $posName = $_POST['name'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Position Name Missing";
+    $posName = trim($_POST['name']);
 }
 $posAcr = NULL;
 if (!empty($_POST['acro'])) {
-    $posAcr = $_POST['acro'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Position Acro Missing";
+    $posAcr = trim($_POST['acro']);
 }
-$section = NULL;
-$sectionID = 0;
-$prio = 0;
+$sectionID = NULL;
 if (!empty($_POST['sectionID'])) {
-    $sectionID = $_POST['sectionID'];
-    // $section = getSectionName($sectionID);
-    $prio = getMax($sectionID);
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "SectionID Missing";
-}
-if (checkDuplicate($posName, $posAcr)) {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "Desig Duplicate";
+    $sectionID = filter_var($_POST['sectionID'], FILTER_VALIDATE_INT);
 }
 
-$insertQ = "INSERT INTO `designation_list`(`acronym`,`name`,`section`,`priority`) VALUES (:posAcr,:posName,:sectionID,:prio)";
-$insertStmt = $connnew->prepare($insertQ);
+if ($posName === NULL || $posName === '') {
+    authJsonFail("Position name is required.");
+}
+if ($posAcr === NULL || $posAcr === '') {
+    authJsonFail("Position acronym is required.");
+}
+if ($sectionID === false || $sectionID === NULL || (int)$sectionID <= 0) {
+    authJsonFail("Section is required.");
+}
+$sectionID = (int)$sectionID;
+if (checkDuplicate($posName, $posAcr)) {
+    authJsonFail("Duplicate designation.");
+}
+$prio = getMax($sectionID);
+
+$msg = array();
 #endregion
 
 #region Entries Query
 try {
-    if (empty($msg)) {
-        $insertStmt->execute([":posAcr" => $posAcr, ":posName" => $posName, ":sectionID" => $sectionID, ":prio" => $prio]);
-        $msg["isSuccess"] = true;
-        $msg["message"] = "Adding designation successfull";
+    $insertQ = "INSERT INTO `designation_list`(`acronym`,`name`,`section`,`priority`) VALUES (:posAcr,:posName,:sectionID,:prio)";
+    $insertStmt = $connnew->prepare($insertQ);
+    if ($insertStmt === false || $insertStmt->execute([":posAcr" => $posAcr, ":posName" => $posName, ":sectionID" => $sectionID, ":prio" => $prio]) === false) {
+        $errInfo = $insertStmt ? $insertStmt->errorInfo() : [];
+        if (isset($errInfo[1]) && (int)$errInfo[1] === 1062) {
+            authJsonFail("Duplicate designation.");
+        }
+        error_log("add_designation mutation failed");
+        authJsonFail("Unable to save designation.");
     }
+    $msg["isSuccess"] = true;
+    $msg["message"] = "Adding designation successfull";
 } catch (Exception $e) {
-    $msg["isSuccess"] = false;
-    $msg['message'] =  "Connection failed: " . $e->getMessage();
+    error_log("add_designation mutation failed");
+    authJsonFail("Unable to save designation.");
 }
 
 #endregion
@@ -65,25 +79,13 @@ function checkDuplicate($posName, $posAcr)
 {
     global $connnew;
     $isDuplicate = FALSE;
-    $dupQ = "SELECT * FROM `designation_list` WHERE `name`=:posName OR `acronym`=:posAcr";
+    $dupQ = "SELECT id FROM `designation_list` WHERE `name`=:posName OR `acronym`=:posAcr LIMIT 1";
     $dupStmt = $connnew->prepare($dupQ);
     $dupStmt->execute([":posName" => $posName, ":posAcr" => $posAcr]);
-    if ($dupStmt->rowCount() > 0) {
+    if ($dupStmt->fetchColumn() !== false) {
         $isDuplicate = TRUE;
     }
     return $isDuplicate;
-}
-function getSectionName($secid)
-{
-    global $connnew;
-    $name = NULL;
-    $nameQ = "SELECT fldSection FROM `kdtpositions_sections` WHERE fldSectionID=:secid";
-    $nameStmt = $connnew->prepare($nameQ);
-    $nameStmt->execute([":secid" => $secid]);
-    if ($nameStmt->rowCount() > 0) {
-        $name = $nameStmt->fetchColumn();
-    }
-    return $name;
 }
 function getMax($secid)
 {
@@ -92,8 +94,9 @@ function getMax($secid)
     $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
     $maxStmt = $connnew->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
-    if ($maxStmt->rowCount() > 0) {
-        $max = (int)$maxStmt->fetchColumn();
+    $fetched = $maxStmt->fetchColumn();
+    if ($fetched !== false && $fetched !== NULL) {
+        $max = (int)$fetched;
     }
     return $max + 1;
 }

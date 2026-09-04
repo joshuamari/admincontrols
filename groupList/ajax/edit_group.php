@@ -1,116 +1,145 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt, $connnew)) {
+    error_log("edit_group missing database connection");
+    authJsonFail("Unable to save group.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 39);
+
 #region initialize variables
 $result = array();
 $groupID = NULL;
 if (!empty($_POST['groupID'])) {
-    $groupID = $_POST['groupID'];
+    $groupID = filter_var($_POST['groupID'], FILTER_VALIDATE_INT);
 }
 $groupName = NULL;
 if (!empty($_POST['groupName'])) {
-    $groupName = $_POST['groupName'];
+    $groupName = trim($_POST['groupName']);
 }
 $groupCode = NULL;
 if (!empty($_POST['groupCode'])) {
-    $groupCode = $_POST['groupCode'];
+    $groupCode = trim($_POST['groupCode']);
 }
 $deptName = NULL;
 if (!empty($_POST['deptName'])) {
-    $deptName = $_POST['deptName'];
+    $deptName = trim($_POST['deptName']);
 }
 $deptID = NULL;
-if(!empty($_POST['deptID'])){
-    $deptID = $_POST['deptID'];
+if (!empty($_POST['deptID'])) {
+    $deptID = filter_var($_POST['deptID'], FILTER_VALIDATE_INT);
+}
+
+if ($groupID === false || $groupID === NULL || (int)$groupID <= 0) {
+    $result["isSuccess"] = false;
+    $result["message"] = "Unable to save group.";
+    echo json_encode($result);
+    exit;
+}
+$groupID = (int)$groupID;
+if ($groupName === NULL || $groupName === '' || $groupCode === NULL || $groupCode === '' || $deptName === NULL || $deptName === '') {
+    $result["isSuccess"] = false;
+    $result["message"] = "Unable to save group.";
+    echo json_encode($result);
+    exit;
+}
+if ($deptID === false || $deptID === NULL || (int)$deptID <= 0) {
+    $result["isSuccess"] = false;
+    $result["message"] = "Unable to save group.";
+    echo json_encode($result);
+    exit;
+}
+$deptID = (int)$deptID;
+if (!groupExists($groupID)) {
+    $result["isSuccess"] = false;
+    $result["message"] = "Unable to save group.";
+    echo json_encode($result);
+    exit;
 }
 #endregion
 
 #region main
 try {
-    if (checkDuplicateCode($groupCode)) {
+    if (checkDuplicateCode($groupCode, $groupID)) {
         $result["isSuccess"] = false;
         $result["message"] = "Duplicate Group Code";
-        echo json_encode($result, JSON_PRETTY_PRINT);
+        echo json_encode($result);
         exit;
     }
-    if (checkDuplicateName($groupName)) {
+    if (checkDuplicateName($groupName, $groupID)) {
         $result["isSuccess"] = false;
         $result["message"] = "Duplicate Group Name";
-        echo json_encode($result, JSON_PRETTY_PRINT);
+        echo json_encode($result);
         exit;
     }
-    // $insertGroupQ = "UPDATE `kdtbu` SET fldBUName=:groupName, fldBU=:groupCode, fldDepartment=:deptName WHERE fldID=:groupID";
-    // $insertGroupStmt = $connkdt->prepare($insertGroupQ);
-    // $insertGroupStmt->execute([":groupCode" => $groupCode, ":groupName" => $groupName, ":deptName" => $deptName, ":groupID" => $groupID]);
-    $insertGroupQ = "UPDATE `group_list` SET `name`=:groupName, `abbreviation`=:groupCode, dept_id=:deptId WHERE `id`=:groupID";
-    $insertGroupStmt = $connkdt->prepare($insertGroupQ);
-    $insertGroupStmt->execute([":groupCode" => $groupCode, ":groupName" => $groupName, ":deptId" => $deptID, ":groupID" => $groupID]);
+    $updateGroupQ = "UPDATE `group_list` SET `name`=:groupName, `abbreviation`=:groupCode, dept_id=:deptId WHERE `id`=:groupID";
+    $updateGroupStmt = $connnew->prepare($updateGroupQ);
+    if ($updateGroupStmt === false || $updateGroupStmt->execute([":groupCode" => $groupCode, ":groupName" => $groupName, ":deptId" => $deptID, ":groupID" => $groupID]) === false) {
+        $errInfo = $updateGroupStmt ? $updateGroupStmt->errorInfo() : [];
+        if (isset($errInfo[1]) && (int)$errInfo[1] === 1062) {
+            $result["isSuccess"] = false;
+            $result["message"] = "Duplicate Group Name";
+            echo json_encode($result);
+            exit;
+        }
+        error_log("edit_group mutation failed");
+        $result["isSuccess"] = false;
+        $result["message"] = "Unable to save group.";
+        echo json_encode($result);
+        exit;
+    }
     $result["isSuccess"] = true;
 } catch (Exception $e) {
+    error_log("edit_group mutation failed");
     $result["isSuccess"] = false;
-    $result["message"] = $e->getMessage();
+    $result["message"] = "Unable to save group.";
 }
 #endregion
 
 #region function
-// function checkDuplicateCode($groupcode)
-// {
-//     global $connkdt;
-//     global $groupID;
-//     $isDuplicate = false;
-//     $countQ = "SELECT * FROM `kdtbu` WHERE `fldBU`=:groupcode AND fldID <> :groupID";
-//     $countStmt = $connkdt->prepare($countQ);
-//     $countStmt->execute([":groupcode" => $groupcode, ":groupID" => $groupID]);
-//     if ($countStmt->rowCount() > 0) {
-//         $isDuplicate = true;
-//     }
-//     return $isDuplicate;
-// }
-// function checkDuplicateName($groupname)
-// {
-//     global $connkdt;
-//     global $groupID;
-//     $isDuplicate = false;
-//     $countQ = "SELECT * FROM `kdtbu` WHERE `fldBUName`=:groupname AND fldID <> :groupID";
-//     $countStmt = $connkdt->prepare($countQ);
-//     $countStmt->execute([":groupname" => $groupname, ":groupID" => $groupID]);
-//     if ($countStmt->rowCount() > 0) {
-//         $isDuplicate = true;
-//     }
-//     return $isDuplicate;
-// }
-function checkDuplicateCode($groupcode)
+function groupExists($groupid)
 {
     global $connnew;
-    global $groupID;
+    $grpQ = "SELECT id FROM `group_list` WHERE `id`=:groupID LIMIT 1";
+    $grpStmt = $connnew->prepare($grpQ);
+    $grpStmt->execute([":groupID" => $groupid]);
+    return $grpStmt->fetchColumn() !== false;
+}
+function checkDuplicateCode($groupcode, $groupid)
+{
+    global $connnew;
     $isDuplicate = false;
-    $countQ = "SELECT * FROM `group_list` WHERE `abbreviation`=:groupcode AND `id` <> :groupID";
+    $countQ = "SELECT id FROM `group_list` WHERE `abbreviation`=:groupcode AND `id` <> :groupID LIMIT 1";
     $countStmt = $connnew->prepare($countQ);
-    $countStmt->execute([":groupcode" => $groupcode, ":groupID" => $groupID]);
-    if ($countStmt->rowCount() > 0) {
+    $countStmt->execute([":groupcode" => $groupcode, ":groupID" => $groupid]);
+    if ($countStmt->fetchColumn() !== false) {
         $isDuplicate = true;
     }
     return $isDuplicate;
 }
-function checkDuplicateName($groupname)
+function checkDuplicateName($groupname, $groupid)
 {
     global $connnew;
-    global $groupID;
     $isDuplicate = false;
-    $countQ = "SELECT * FROM `group_list` WHERE `name`=:groupname AND `id` <> :groupID";
+    $countQ = "SELECT id FROM `group_list` WHERE `name`=:groupname AND `id` <> :groupID LIMIT 1";
     $countStmt = $connnew->prepare($countQ);
-    $countStmt->execute([":groupname" => $groupname, ":groupID" => $groupID]);
-    if ($countStmt->rowCount() > 0) {
+    $countStmt->execute([":groupname" => $groupname, ":groupID" => $groupid]);
+    if ($countStmt->fetchColumn() !== false) {
         $isDuplicate = true;
     }
     return $isDuplicate;
 }
 #endregion
-echo json_encode($result, JSON_PRETTY_PRINT);
+echo json_encode($result);

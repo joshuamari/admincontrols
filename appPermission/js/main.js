@@ -790,6 +790,22 @@ function renamePermissionLocal(modId, permId, newName) {
     });
   });
 }
+function alertAddFailed(data) {
+  var parsed = data;
+  if (typeof data === "string") {
+    try {
+      parsed = $.parseJSON(data);
+    } catch (e) {
+      alert(`Add failed: ${data}`);
+      return true;
+    }
+  }
+  if (parsed) {
+    alert(`Add failed: ${parsed.error || data}`);
+    return true;
+  }
+  return false;
+}
 function addApp(name, color) {
   $.post(
     "ajax/add_app.php",
@@ -798,8 +814,7 @@ function addApp(name, color) {
       appColor: color,
     },
     function (data) {
-      if ($.parseJSON(data)) {
-        alert(`Add failed: ${data}`);
+      if (alertAddFailed(data)) {
         return;
       }
       getProjects().then((prjs) => {
@@ -823,8 +838,7 @@ function saveModule(modName) {
       projID: project_id,
     },
     function (data) {
-      if ($.parseJSON(data)) {
-        alert(`Add failed: ${data}`);
+      if (alertAddFailed(data)) {
         return;
       }
       $("#newModuleName").val("");
@@ -850,8 +864,7 @@ function saveAccess(accName) {
       accName: name,
     },
     function (data) {
-      if ($.parseJSON(data)) {
-        alert(`Add failed: ${data}`);
+      if (alertAddFailed(data)) {
         return;
       }
       $("#newPermissionName").val("");

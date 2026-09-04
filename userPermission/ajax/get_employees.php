@@ -8,20 +8,27 @@ date_default_timezone_set('Asia/Manila');
 #endregion
 
 #region Initialize Variable
-$searchWord = NULL;
 $searchStmt = '';
+$searchExec = [];
 if (!empty($_POST['searchWord'])) {
-    $searchWord = $_POST['searchWord'];
-    $searchStmt = " AND (fldSurname LIKE '%$searchWord%' OR fldFirstname LIKE '%$searchWord%' OR CONCAT(fldFirstname,' ',fldSurname) LIKE '%$searchWord%' OR fldEmployeeNum LIKE '%$searchWord%')";
+    $searchStmt = " AND (fldSurname LIKE :search1 OR fldFirstname LIKE :search2 OR CONCAT(fldFirstname,' ',fldSurname) LIKE :search3 OR fldEmployeeNum LIKE :search4)";
+    $likeSearch = "%" . $_POST['searchWord'] . "%";
+    $searchExec = [
+        ":search1" => $likeSearch,
+        ":search2" => $likeSearch,
+        ":search3" => $likeSearch,
+        ":search4" => $likeSearch,
+    ];
 }
 $permissionsArray = array();
 #endregion
 
 #region Entries Query
 $permissionQ = "SELECT ep.fldEmployeeNum,CONCAT(ep.fldFirstname,' ',ep.fldSurname) AS ename, GROUP_CONCAT(DISTINCT kp.project_name ORDER BY kp.project_id) AS projs FROM (SELECT * FROM emp_prof WHERE fldActive = 1 AND (fldNick<>'' OR fldDesig='KDTP') $searchStmt) AS ep LEFT JOIN `user_permissions` AS up ON ep.fldEmployeeNum = up.fldEmployeeNum LEFT JOIN p_permissions AS p ON up.permission_id = p.permission_id LEFT JOIN kdtproject_modules AS km ON p.module_id = km.module_id LEFT JOIN kdtwebprojects AS kp ON km.project_id = kp.project_id GROUP BY ep.fldEmployeeNum ORDER BY ep.fldEmployeeNum";
-$permissionStmt = $connkdt->query($permissionQ);
-if ($permissionStmt->rowCount() > 0) {
-    $permArr = $permissionStmt->fetchAll();
+$permissionStmt = $connkdt->prepare($permissionQ);
+$permissionStmt->execute($searchExec);
+$permArr = $permissionStmt->fetchAll();
+if ($permArr) {
     foreach ($permArr as $perm) {
         $output = array();
         $projKey = array();

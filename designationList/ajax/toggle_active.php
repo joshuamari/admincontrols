@@ -1,62 +1,77 @@
 <?php
 #region DB Connect
-// require_once '../../dbconn/dbconnectkdtph.php';
+ob_start();
+require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-#region Initialize Variable
-$msg = array();
-$sectionID = 0;
-$prio = 0;
-if (!empty($_POST['sectionID'])) {
-    $sectionID = $_POST['sectionID'];
-    $prio = getMax($sectionID);
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "SectionID Missing";
-}
-$posID = 0;
-if (!empty($_POST['posID'])) {
-    $posID = $_POST['posID'];
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "PosID Missing";
+if (!isset($connkdt, $connnew)) {
+    error_log("toggle_active missing database connection");
+    authJsonFail("Unable to update designation.");
 }
 
-$toggleState = false;
-if (!empty($_POST['toggleState'])) {
-    $toggleState = json_decode($_POST['toggleState']);
-} else {
-    $msg["isSuccess"] = false;
-    $msg['message'] = "ToggleState Missing";
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 40);
+
+#region Initialize Variable
+$sectionID = NULL;
+if (!empty($_POST['sectionID'])) {
+    $sectionID = filter_var($_POST['sectionID'], FILTER_VALIDATE_INT);
 }
-// $offQ = "UPDATE `kdtpositions` SET fldPrio = 0, fldShowManSum = 0 WHERE id=:posID";
-// $onQ = "UPDATE `kdtpositions` SET fldPrio=:prio, fldShowManSum = 1 WHERE id=:posID";
+$posID = NULL;
+if (!empty($_POST['posID'])) {
+    $posID = filter_var($_POST['posID'], FILTER_VALIDATE_INT);
+}
+$toggleState = NULL;
+if (isset($_POST['toggleState'])) {
+    $toggleState = json_decode($_POST['toggleState']);
+}
+
+if ($sectionID === false || $sectionID === NULL || (int)$sectionID <= 0) {
+    authJsonFail("Unable to update designation.");
+}
+$sectionID = (int)$sectionID;
+if ($posID === false || $posID === NULL || (int)$posID <= 0) {
+    authJsonFail("Unable to update designation.");
+}
+$posID = (int)$posID;
+if (!is_bool($toggleState)) {
+    authJsonFail("Unable to update designation.");
+}
+if (!designationExists($posID)) {
+    authJsonFail("Unable to update designation.");
+}
+
+$prio = getMax($sectionID);
+$msg = array();
 $offQ = "UPDATE `designation_list` SET `priority` = 0, `show_man_sum` = 0 WHERE id=:posID";
 $onQ = "UPDATE `designation_list` SET `priority`=:prio, `show_man_sum` = 1 WHERE id=:posID";
 #endregion
 
 #region Entries Query
 try {
-    if (empty($msg)) {
-        if ($toggleState) {
-            $updateStmt = $connnew->prepare($onQ);
-            $updateStmt->execute([":prio" => $prio, ":posID" => $posID]);
-        } else {
-            $updateStmt = $connnew->prepare($offQ);
-            $updateStmt->execute([":posID" => $posID]);
-        }
-
-        $msg["isSuccess"] = true;
-        $msg["message"] = "Update designation successfull";
+    if ($toggleState) {
+        $updateStmt = $connnew->prepare($onQ);
+        $executed = ($updateStmt !== false) && $updateStmt->execute([":prio" => $prio, ":posID" => $posID]);
+    } else {
+        $updateStmt = $connnew->prepare($offQ);
+        $executed = ($updateStmt !== false) && $updateStmt->execute([":posID" => $posID]);
     }
+    if (empty($executed)) {
+        error_log("toggle_active mutation failed");
+        authJsonFail("Unable to update designation.");
+    }
+    $msg["isSuccess"] = true;
+    $msg["message"] = "Update designation successfull";
 } catch (Exception $e) {
-    $msg["isSuccess"] = false;
-    $msg['message'] =  "Connection failed: " . $e->getMessage();
+    error_log("toggle_active mutation failed");
+    authJsonFail("Unable to update designation.");
 }
 
 #endregion
@@ -64,6 +79,14 @@ echo json_encode($msg);
 
 
 #region Functions
+function designationExists($posid)
+{
+    global $connnew;
+    $posQ = "SELECT id FROM `designation_list` WHERE id=:posID LIMIT 1";
+    $posStmt = $connnew->prepare($posQ);
+    $posStmt->execute([":posID" => $posid]);
+    return $posStmt->fetchColumn() !== false;
+}
 function getMax($secid)
 {
     global $connnew;
@@ -71,8 +94,9 @@ function getMax($secid)
     $maxQ = "SELECT MAX(`priority`) FROM `designation_list` WHERE `section`=:secid";
     $maxStmt = $connnew->prepare($maxQ);
     $maxStmt->execute([":secid" => $secid]);
-    if ($maxStmt->rowCount() > 0) {
-        $max = (int)$maxStmt->fetchColumn();
+    $fetched = $maxStmt->fetchColumn();
+    if ($fetched !== false && $fetched !== NULL) {
+        $max = (int)$fetched;
     }
     return $max + 1;
 }
