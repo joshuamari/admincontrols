@@ -9,8 +9,8 @@ if (!empty($userHash)) {
     $loginQ = "SELECT fldEmployeeNum FROM kdtlogin WHERE fldUserHash = :hash LIMIT 1";
     $loginStmt = $connkdt->prepare($loginQ);
     $loginStmt->execute([":hash" => $userHash]);
-    if ($loginStmt->rowCount() > 0) {
-        $userLogin = $loginStmt->fetchColumn();
+    $userLogin = $loginStmt->fetchColumn();
+    if ($userLogin !== false && $userLogin !== null && $userLogin !== '') {
         $output += ["empNum" => $userLogin];
         $empDeetsQ = "SELECT fldGroup, fldFirstname, fldSurname, fldNick, fldDateHired, fldDesig FROM emp_prof WHERE fldEmployeeNum = :empNum";
         $empDeetsStmt = $connkdt->prepare($empDeetsQ);
