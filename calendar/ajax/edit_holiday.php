@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectwebjmr.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -45,7 +46,8 @@ if ($holidayID === false || $holidayID === NULL || (int)$holidayID <= 0) {
     authJsonFail("Unable to save holiday.");
 }
 $holidayID = (int)$holidayID;
-if (!holidayExists($holidayID)) {
+$oldHoliday = audit_fetch_holiday($holidayID);
+if ($oldHoliday === null) {
     authJsonFail("Unable to save holiday.");
 }
 if ($holidayName === NULL || $holidayName === '') {
@@ -82,6 +84,18 @@ try {
         error_log("edit_holiday mutation failed");
         authJsonFail("Unable to save holiday.");
     }
+    $calendarId = isset($oldHoliday["loc_id"]) ? (int)$oldHoliday["loc_id"] : $locID;
+    if ($calendarId <= 0) {
+        $calendarId = $locID;
+    }
+    audit_log($actorEmpNum, "UPDATE", "holiday", $calendarId, $oldHoliday, [
+        "holiday_id" => $holidayID,
+        "name" => $holidayName,
+        "holiday_type" => audit_holiday_type_label($holidayType),
+        "date" => $startDate,
+        "loc_id" => $locID,
+        "location" => $locName,
+    ]);
     $msg["isSuccess"] = true;
     $msg["message"] = "Editing holiday successfull";
 } catch (Exception $e) {
@@ -94,14 +108,6 @@ echo json_encode($msg);
 
 
 #region Functions
-function holidayExists($holidayid)
-{
-    global $connkdt;
-    $holQ = "SELECT fldID FROM `kdtholiday` WHERE fldID=:holidayid LIMIT 1";
-    $holStmt = $connkdt->prepare($holQ);
-    $holStmt->execute([":holidayid" => $holidayid]);
-    return $holStmt->fetchColumn() !== false;
-}
 function checkDuplicate($startdate, $locationid, $holidayid)
 {
     global $connkdt;

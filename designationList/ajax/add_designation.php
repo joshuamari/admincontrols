@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -62,6 +63,15 @@ try {
         }
         error_log("add_designation mutation failed");
         authJsonFail("Unable to save designation.");
+    }
+    $newPosId = (int)$connnew->lastInsertId();
+    if ($newPosId > 0) {
+        $created = audit_fetch_designation($newPosId);
+        audit_log($actorEmpNum, "CREATE", "designation", $newPosId, null, $created !== null ? $created : [
+            "name" => $posName,
+            "acronym" => $posAcr,
+            "priority" => $prio,
+        ]);
     }
     $msg["isSuccess"] = true;
     $msg["message"] = "Adding designation successfull";

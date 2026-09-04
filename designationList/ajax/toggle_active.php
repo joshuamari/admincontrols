@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -44,7 +45,8 @@ $posID = (int)$posID;
 if (!is_bool($toggleState)) {
     authJsonFail("Unable to update designation.");
 }
-if (!designationExists($posID)) {
+$oldDesig = audit_fetch_designation($posID);
+if ($oldDesig === null) {
     authJsonFail("Unable to update designation.");
 }
 
@@ -67,6 +69,13 @@ try {
         error_log("toggle_active mutation failed");
         authJsonFail("Unable to update designation.");
     }
+    audit_log($actorEmpNum, "UPDATE", "designation", $posID, [
+        "manpower_summary" => $oldDesig["manpower_summary"],
+        "priority" => $oldDesig["priority"],
+    ], [
+        "manpower_summary" => $toggleState ? "On" : "Off",
+        "priority" => $toggleState ? $prio : 0,
+    ]);
     $msg["isSuccess"] = true;
     $msg["message"] = "Update designation successfull";
 } catch (Exception $e) {
@@ -79,14 +88,6 @@ echo json_encode($msg);
 
 
 #region Functions
-function designationExists($posid)
-{
-    global $connnew;
-    $posQ = "SELECT id FROM `designation_list` WHERE id=:posID LIMIT 1";
-    $posStmt = $connnew->prepare($posQ);
-    $posStmt->execute([":posID" => $posid]);
-    return $posStmt->fetchColumn() !== false;
-}
 function getMax($secid)
 {
     global $connnew;

@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -154,6 +155,11 @@ try {
     }
 
     $conn_new_disable->commit();
+    audit_log($actorEmpNum, "UPDATE", "designation", $posID, [
+        "priority" => $oldPriority,
+    ], [
+        "priority" => $newPriority,
+    ]);
     $msg["isSuccess"] = true;
     $msg["message"] = "Update Priority successfull";
 } catch (Exception $e) {

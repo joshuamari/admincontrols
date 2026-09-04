@@ -648,13 +648,26 @@ function saveModuleRename($row) {
     renderModulesTabList(project_id);
     return;
   }
-  const renamed = renameModuleLocal(modId, newName);
-  if (!renamed) {
-    renderModulesTabList(project_id);
-    return;
-  }
-  displayProjects();
-  getModules(project_id);
+  $.post(
+    "ajax/edit_module.php",
+    {
+      modID: modId,
+      modName: newName,
+    },
+    function (data) {
+      if (alertAddFailed(data)) {
+        renderModulesTabList(project_id);
+        return;
+      }
+      getProjects().then((prjs) => {
+        $("#cardContainer").empty();
+        projects = prjs;
+        displayProjects();
+        getModules(project_id);
+        loadAppPermissionActivityLog(project_id);
+      });
+    }
+  );
 }
 function renameModuleLocal(modId, newName) {
   let renamed = false;
@@ -774,16 +787,32 @@ function enterPermissionEditMode($row) {
 }
 function savePermissionRename($row) {
   const permId = Number($row.attr("data-perm-id"));
-  const modId = Number($row.attr("data-mod-id"));
   const oldName = String($row.attr("data-perm-name") || "");
   const newName = String($row.find(".perm-rename-input").val() || "").trim();
   if (!newName || newName === oldName) {
     clickModule();
     return;
   }
-  renamePermissionLocal(modId, permId, newName);
-  displayProjects();
-  clickModule();
+  $.post(
+    "ajax/edit_access.php",
+    {
+      permID: permId,
+      accName: newName,
+    },
+    function (data) {
+      if (alertAddFailed(data)) {
+        clickModule();
+        return;
+      }
+      getProjects().then((prjs) => {
+        $("#cardContainer").empty();
+        projects = prjs;
+        displayProjects();
+        getModules(project_id);
+        loadAppPermissionActivityLog(project_id);
+      });
+    }
+  );
 }
 function renamePermissionLocal(modId, permId, newName) {
   Object.values(projects).forEach((projectDetails) => {
@@ -860,6 +889,7 @@ function saveModule(modName) {
         projects = prjs;
         displayProjects();
         getModules(project_id);
+        loadAppPermissionActivityLog(project_id);
       });
     }
   );
@@ -886,13 +916,14 @@ function saveAccess(accName) {
         projects = prjs;
         displayProjects();
         getModules(project_id);
+        loadAppPermissionActivityLog(project_id);
       });
     }
   );
 }
 
 //#region APPLICATION PERMISSION ACTIVITY LOG
-const USE_DUMMY_APP_PERMISSION_ACTIVITY_LOGS = true;
+const USE_DUMMY_APP_PERMISSION_ACTIVITY_LOGS = false;
 
 function escapeAppHtml(str) {
   return String(str ?? "")
@@ -1155,17 +1186,44 @@ function renderAppPermissionActivityLog(activities) {
   refreshIcons();
 }
 
+function getAppPermissionActivityLog(applicationId) {
+  return new Promise((resolve) => {
+    if (USE_DUMMY_APP_PERMISSION_ACTIVITY_LOGS) {
+      getDummyAppPermissionActivity(applicationId)
+        .then(resolve)
+        .catch((err) => {
+          console.error(
+            "Failed to load dummy application permission activity logs.",
+            err
+          );
+          resolve([]);
+        });
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_app_permission_activity.php",
+      data: { projID: applicationId },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
+        resolve([]);
+      },
+    });
+  });
+}
+
 function loadAppPermissionActivityLog(applicationId) {
   $("#appPermissionActivityTimeline").html(
     `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
   );
-  getDummyAppPermissionActivity(applicationId)
+  getAppPermissionActivityLog(applicationId)
     .then(renderAppPermissionActivityLog)
     .catch((err) => {
-      console.error(
-        "Failed to load dummy application permission activity logs.",
-        err
-      );
+      console.error("Failed to load application permission activity logs.", err);
       renderAppPermissionActivityLog([]);
     });
 }

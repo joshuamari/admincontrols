@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -62,7 +63,8 @@ if ($deptID === false || $deptID === NULL || (int)$deptID <= 0) {
     exit;
 }
 $deptID = (int)$deptID;
-if (!groupExists($groupID)) {
+$oldGroup = audit_fetch_group($groupID);
+if ($oldGroup === null) {
     $result["isSuccess"] = false;
     $result["message"] = "Unable to save group.";
     echo json_encode($result);
@@ -100,6 +102,11 @@ try {
         echo json_encode($result);
         exit;
     }
+    audit_log($actorEmpNum, "UPDATE", "group", $groupID, $oldGroup, [
+        "name" => $groupName,
+        "abbreviation" => $groupCode,
+        "department" => $deptName,
+    ]);
     $result["isSuccess"] = true;
 } catch (Exception $e) {
     error_log("edit_group mutation failed");
@@ -109,14 +116,6 @@ try {
 #endregion
 
 #region function
-function groupExists($groupid)
-{
-    global $connnew;
-    $grpQ = "SELECT id FROM `group_list` WHERE `id`=:groupID LIMIT 1";
-    $grpStmt = $connnew->prepare($grpQ);
-    $grpStmt->execute([":groupID" => $groupid]);
-    return $grpStmt->fetchColumn() !== false;
-}
 function checkDuplicateCode($groupcode, $groupid)
 {
     global $connnew;

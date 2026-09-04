@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectwebjmr.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -70,6 +71,17 @@ try {
     if ($insertStmt === false || $insertStmt->execute([":locName" => $locName, ":locID" => $locID, ":startDate" => $startDate, ":holidayName" => $holidayName, ":holidayType" => $holidayType, ":empNumber" => $actorEmpNum]) === false) {
         error_log("add_holiday mutation failed");
         authJsonFail("Unable to save holiday.");
+    }
+    $newHolidayId = (int)$connkdt->lastInsertId();
+    if ($newHolidayId > 0) {
+        audit_log($actorEmpNum, "CREATE", "holiday", $locID, null, [
+            "holiday_id" => $newHolidayId,
+            "name" => $holidayName,
+            "holiday_type" => audit_holiday_type_label($holidayType),
+            "date" => $startDate,
+            "loc_id" => $locID,
+            "location" => $locName,
+        ]);
     }
     $msg["isSuccess"] = true;
     $msg["message"] = "Adding holiday successfull";

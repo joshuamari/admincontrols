@@ -529,7 +529,7 @@ function fillDesignations(desigs) {
 }
 
 //#region DESIGNATION ACTIVITY LOG
-const USE_DUMMY_DESIGNATION_ACTIVITY_LOGS = true;
+const USE_DUMMY_DESIGNATION_ACTIVITY_LOGS = false;
 
 function refreshIcons() {
   if (typeof lucide !== "undefined" && lucide.createIcons) {
@@ -643,7 +643,8 @@ function formatDesignationActivityDescription(item, meta) {
       : "Designation created";
   }
   if (action === "UPDATE" && actor) {
-    return `Manpower Summary updated by ${escapeDesignationActivityHtml(actor)}.`;
+    const base = item.description || meta.description;
+    return `${escapeDesignationActivityHtml(base)} by ${escapeDesignationActivityHtml(actor)}.`;
   }
   return escapeDesignationActivityHtml(item.description || meta.description);
 }
@@ -735,14 +736,41 @@ function renderDesignationActivityLog(activities) {
   refreshIcons();
 }
 
+function getDesignationActivityLog(designationId) {
+  return new Promise((resolve) => {
+    if (USE_DUMMY_DESIGNATION_ACTIVITY_LOGS) {
+      getDummyDesignationActivity(designationId)
+        .then(resolve)
+        .catch((err) => {
+          console.error("Failed to load dummy designation activity logs.", err);
+          resolve([]);
+        });
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_designation_activity.php",
+      data: { posID: designationId },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
+        resolve([]);
+      },
+    });
+  });
+}
+
 function loadDesignationActivityLog(designationId) {
   $("#designationActivityTimeline").html(
     `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
   );
-  getDummyDesignationActivity(designationId)
+  getDesignationActivityLog(designationId)
     .then(renderDesignationActivityLog)
     .catch((err) => {
-      console.error("Failed to load dummy designation activity logs.", err);
+      console.error("Failed to load designation activity logs.", err);
       renderDesignationActivityLog([]);
     });
 }

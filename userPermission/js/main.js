@@ -543,6 +543,7 @@ function savePermissions() {
         $("#empList").empty();
         emps.map(fillEmployees);
       });
+      loadUserPermissionActivityLog(empID);
     }
   );
 }
@@ -572,7 +573,7 @@ function setPermissionTab(tab) {
 }
 
 //#region USER PERMISSION ACTIVITY LOG
-const USE_DUMMY_USER_PERMISSION_ACTIVITY_LOGS = true;
+const USE_DUMMY_USER_PERMISSION_ACTIVITY_LOGS = false;
 
 function formatUserPermissionActivityDate(dateStr) {
   if (!dateStr) return "";
@@ -752,14 +753,41 @@ function renderUserPermissionActivityLog(activities) {
   refreshIcons();
 }
 
+function getUserPermissionActivityLog(employeeId) {
+  return new Promise((resolve) => {
+    if (USE_DUMMY_USER_PERMISSION_ACTIVITY_LOGS) {
+      getDummyUserPermissionActivity(employeeId)
+        .then(resolve)
+        .catch((err) => {
+          console.error("Failed to load dummy user permission activity logs.", err);
+          resolve([]);
+        });
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_user_permission_activity.php",
+      data: { empID: employeeId },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
+        resolve([]);
+      },
+    });
+  });
+}
+
 function loadUserPermissionActivityLog(employeeId) {
   $("#permissionActivityTimeline").html(
     `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
   );
-  getDummyUserPermissionActivity(employeeId)
+  getUserPermissionActivityLog(employeeId)
     .then(renderUserPermissionActivityLog)
     .catch((err) => {
-      console.error("Failed to load dummy user permission activity logs.", err);
+      console.error("Failed to load user permission activity logs.", err);
       renderUserPermissionActivityLog([]);
     });
 }

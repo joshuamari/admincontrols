@@ -472,6 +472,7 @@ function addHoliday() {
               searchHoliday();
               resetAddModal();
               $("#newHoliday .btn-close").click();
+              loadCalendarActivityLog(selectedLoc);
             })
             .catch((error) => {
               alert(`${error}`);
@@ -550,6 +551,7 @@ function deleteHoliday(delete_id) {
             $("#mainHoliday").empty();
             searchHoliday();
             $("#deleteHolidayModal .btn-close").click();
+            loadCalendarActivityLog(selectedLoc);
           })
           .catch((error) => {
             alert(`${error}`);
@@ -777,6 +779,7 @@ function saveHoliday() {
               $("#mainHoliday").empty();
               searchHoliday();
               $("#editHolidayModal .btn-close").click();
+              loadCalendarActivityLog(selectedLoc);
             })
             .catch((error) => {
               alert(`${error}`);
@@ -955,7 +958,7 @@ function currentYMHolidays() {
 }
 
 //#region CALENDAR ACTIVITY LOG
-const USE_DUMMY_CALENDAR_ACTIVITY_LOGS = true;
+const USE_DUMMY_CALENDAR_ACTIVITY_LOGS = false;
 
 function refreshIcons() {
   if (typeof lucide !== "undefined" && lucide.createIcons) {
@@ -1085,18 +1088,23 @@ function formatCalendarActivityDescription(item) {
 }
 
 function renderCalendarChangeValue(oldVal, newVal) {
-  return `<span class="text-slate-300">${escapeCalendarActivityHtml(oldVal)}</span>
+  const oldText = oldVal != null ? String(oldVal) : "";
+  const newText = newVal != null ? String(newVal) : "";
+  if (oldText && newText && oldText !== newText) {
+    return `<span class="text-slate-300">${escapeCalendarActivityHtml(oldText)}</span>
     <span class="text-slate-500">→</span>
-    <span class="text-emerald-400">${escapeCalendarActivityHtml(newVal)}</span>`;
+    <span class="text-emerald-400">${escapeCalendarActivityHtml(newText)}</span>`;
+  }
+  return escapeCalendarActivityHtml(newText || oldText);
 }
 
 function renderCalendarActivityDetailRows(rows) {
   const html = rows
     .filter((row) => row && row.value)
     .map(
-      (row) => `<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span class="min-w-[8rem] text-slate-400">${escapeCalendarActivityHtml(row.label)}</span>
-        <span class="text-slate-200">${row.value}</span>
+      (row) => `<div class="flex items-baseline gap-x-2 text-sm">
+        <span class="w-32 shrink-0 text-slate-400">${escapeCalendarActivityHtml(row.label)}</span>
+        <span class="min-w-0 text-slate-200">${row.value}</span>
       </div>`
     )
     .join("");
@@ -1114,28 +1122,50 @@ function isHolidayNameChange(change) {
   );
 }
 
+function isHolidayDateChange(change) {
+  const field = String((change && change.field) || "").toLowerCase();
+  const label = String((change && change.label) || "").toLowerCase();
+  return field === "date" || label === "date";
+}
+
+function formatHolidayDisplayDate(dateStr) {
+  if (!dateStr) return "";
+  const raw = String(dateStr).trim();
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    const monthIndex = Number(iso[2]) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return `${monthNames[monthIndex]} ${Number(iso[3])}, ${iso[1]}`;
+    }
+  }
+  return raw;
+}
+
 function renderCalendarActivityDetails(item) {
   const action = String(item.action || "").toUpperCase();
   const holiday = item.holiday || {};
   const name = holiday.name || "";
+  const holidayDate = formatHolidayDisplayDate(holiday.date);
   const changes = Array.isArray(item.changes) ? item.changes : [];
+  const isUpdate = action === "UPDATE";
+  const nameChange = isUpdate ? changes.find(isHolidayNameChange) : null;
+  const dateChange = isUpdate ? changes.find(isHolidayDateChange) : null;
 
-  if (action === "CREATE" || action === "DELETE") {
-    return renderCalendarActivityDetailRows([
-      { label: "Holiday", value: escapeCalendarActivityHtml(name) },
-    ]);
-  }
+  const holidayValue = nameChange
+    ? renderCalendarChangeValue(nameChange.old_value, nameChange.new_value)
+    : escapeCalendarActivityHtml(name);
+  const dateValue = dateChange
+    ? renderCalendarChangeValue(dateChange.old_value, dateChange.new_value)
+    : escapeCalendarActivityHtml(holidayDate);
+
+  const rows = [
+    { label: "Holiday", value: holidayValue },
+    { label: "Date", value: dateValue },
+  ];
 
   if (action === "UPDATE") {
-    const rows = [];
-    const nameChanged = changes.some(isHolidayNameChange);
-    if (name && !nameChanged) {
-      rows.push({
-        label: "Holiday",
-        value: escapeCalendarActivityHtml(name),
-      });
-    }
     changes.forEach((change) => {
+      if (isHolidayNameChange(change) || isHolidayDateChange(change)) return;
       const oldVal = change.old_value != null ? change.old_value : "";
       const newVal = change.new_value != null ? change.new_value : "";
       if (String(oldVal) === String(newVal)) return;
@@ -1144,10 +1174,9 @@ function renderCalendarActivityDetails(item) {
         value: renderCalendarChangeValue(oldVal, newVal),
       });
     });
-    return renderCalendarActivityDetailRows(rows);
   }
 
-  return "";
+  return renderCalendarActivityDetailRows(rows);
 }
 
 function renderCalendarActivityLog(activities) {
@@ -1226,15 +1255,37 @@ function renderCalendarActivityLog(activities) {
   refreshIcons();
 }
 
+function getCalendarActivityLog(calendarId) {
+  return new Promise((resolve) => {
+    if (USE_DUMMY_CALENDAR_ACTIVITY_LOGS) {
+      getDummyCalendarActivity(calendarId).then(resolve);
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_calendar_activity.php",
+      data: { locID: calendarId },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
+        resolve([]);
+      },
+    });
+  });
+}
+
 function loadCalendarActivityLog(calendarId) {
   updateCalendarActivitySubtitle();
   $("#calendarActivityTimeline").html(
     `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
   );
-  getDummyCalendarActivity(calendarId)
+  getCalendarActivityLog(calendarId)
     .then(renderCalendarActivityLog)
     .catch((err) => {
-      console.error("Failed to load dummy calendar activity logs.", err);
+      console.error("Failed to load calendar activity logs.", err);
       renderCalendarActivityLog([]);
     });
 }

@@ -4,6 +4,7 @@ ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -58,6 +59,17 @@ try {
 } catch (Exception $e) {
     error_log("add_app mutation failed");
     authJsonFail("Unable to save application.");
+}
+
+$newAppId = (int)$connkdt->lastInsertId();
+if ($newAppId > 0) {
+    audit_log($actorEmpNum, "CREATE", "app_permission", $newAppId, null, [
+        "event_type" => "APPLICATION_CREATED",
+        "description" => "Application created",
+        "details" => [
+            "application_name" => $appName,
+        ],
+    ]);
 }
 
 #endregion

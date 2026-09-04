@@ -4,6 +4,7 @@ ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -27,7 +28,8 @@ if ($delID === false || $delID === NULL || (int)$delID <= 0) {
     authJsonFail("Unable to delete holiday.");
 }
 $delID = (int)$delID;
-if (!holidayExists($delID)) {
+$oldHoliday = audit_fetch_holiday($delID);
+if ($oldHoliday === null) {
     authJsonFail("Unable to delete holiday.");
 }
 
@@ -42,6 +44,10 @@ try {
         error_log("delete_holiday mutation failed");
         authJsonFail("Unable to delete holiday.");
     }
+    $calendarId = isset($oldHoliday["loc_id"]) ? (int)$oldHoliday["loc_id"] : 0;
+    if ($calendarId > 0) {
+        audit_log($actorEmpNum, "DELETE", "holiday", $calendarId, $oldHoliday, null);
+    }
     $msg["isSuccess"] = true;
     $msg["message"] = "Deleting holiday successfull";
 } catch (Exception $e) {
@@ -51,15 +57,3 @@ try {
 
 #endregion
 echo json_encode($msg);
-
-
-#region Functions
-function holidayExists($holidayid)
-{
-    global $connkdt;
-    $holQ = "SELECT fldID FROM `kdtholiday` WHERE fldID=:holidayid LIMIT 1";
-    $holStmt = $connkdt->prepare($holQ);
-    $holStmt->execute([":holidayid" => $holidayid]);
-    return $holStmt->fetchColumn() !== false;
-}
-#endregion

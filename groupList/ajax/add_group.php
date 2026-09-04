@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -91,6 +92,14 @@ try {
         $result["message"] = "Unable to save group.";
         echo json_encode($result);
         exit;
+    }
+    $newGroupId = (int)$connnew->lastInsertId();
+    if ($newGroupId > 0) {
+        audit_log($actorEmpNum, "CREATE", "group", $newGroupId, null, [
+            "name" => $groupName,
+            "abbreviation" => $groupCode,
+            "department" => $deptName,
+        ]);
     }
     $result["isSuccess"] = true;
 } catch (Exception $e) {

@@ -293,7 +293,7 @@ function fillGroups(grps) {
 }
 
 //#region GROUP ACTIVITY LOG
-const USE_DUMMY_GROUP_ACTIVITY_LOGS = true;
+const USE_DUMMY_GROUP_ACTIVITY_LOGS = false;
 
 function refreshIcons() {
   if (typeof lucide !== "undefined" && lucide.createIcons) {
@@ -484,14 +484,41 @@ function renderGroupActivityLog(activities) {
   refreshIcons();
 }
 
+function getGroupActivityLog(groupId) {
+  return new Promise((resolve) => {
+    if (USE_DUMMY_GROUP_ACTIVITY_LOGS) {
+      getDummyGroupActivity(groupId)
+        .then(resolve)
+        .catch((err) => {
+          console.error("Failed to load dummy group activity logs.", err);
+          resolve([]);
+        });
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_group_activity.php",
+      data: { groupID: groupId },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
+        resolve([]);
+      },
+    });
+  });
+}
+
 function loadGroupActivityLog(groupId) {
   $("#groupActivityTimeline").html(
     `<div class="py-6 text-center text-sm text-slate-400">Loading activity…</div>`
   );
-  getDummyGroupActivity(groupId)
+  getGroupActivityLog(groupId)
     .then(renderGroupActivityLog)
     .catch((err) => {
-      console.error("Failed to load dummy group activity logs.", err);
+      console.error("Failed to load group activity logs.", err);
       renderGroupActivityLog([]);
     });
 }

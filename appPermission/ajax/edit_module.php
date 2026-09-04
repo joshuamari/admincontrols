@@ -12,25 +12,24 @@ date_default_timezone_set('Asia/Manila');
 #endregion
 
 if (!isset($connkdt)) {
-    error_log("add_access missing database connection");
+    error_log("edit_module missing database connection");
     authJsonFail("Unable to save application.");
 }
 
 $actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 20);
 
-#region Initialize Variable
-$accName = NULL;
-if (!empty($_POST['accName'])) {
-    $accName = trim($_POST['accName']);
+$modName = NULL;
+if (!empty($_POST['modName'])) {
+    $modName = trim($_POST['modName']);
 }
 $modID = NULL;
 if (!empty($_POST['modID'])) {
     $modID = filter_var($_POST['modID'], FILTER_VALIDATE_INT);
 }
 
-if ($accName === NULL || $accName === '') {
-    authJsonFail("Permission name is required.");
+if ($modName === NULL || $modName === '') {
+    authJsonFail("Module name is required.");
 }
 if ($modID === false || $modID === NULL || (int)$modID <= 0) {
     authJsonFail("Selected module was not found.");
@@ -44,48 +43,48 @@ $modRow = $modStmt->fetch();
 if ($modRow === false) {
     authJsonFail("Selected module was not found.");
 }
+
+$oldName = $modRow['module_name'];
 $projID = (int)$modRow['project_id'];
-$modName = $modRow['module_name'];
 
-$dupQ = "SELECT permission_id FROM p_permissions WHERE module_id = :modID AND permission_name = :accName LIMIT 1";
-$dupStmt = $connkdt->prepare($dupQ);
-$dupStmt->execute([":modID" => $modID, ":accName" => $accName]);
-if ($dupStmt->fetchColumn() !== false) {
-    authJsonFail("Duplicate permission name.");
+if ($modName === $oldName) {
+    echo json_encode(false);
+    exit;
 }
-#endregion
 
-#region Entries Query
+$dupQ = "SELECT module_id FROM kdtproject_modules WHERE project_id = :projID AND module_name = :modName AND module_id <> :modID LIMIT 1";
+$dupStmt = $connkdt->prepare($dupQ);
+$dupStmt->execute([":projID" => $projID, ":modName" => $modName, ":modID" => $modID]);
+if ($dupStmt->fetchColumn() !== false) {
+    authJsonFail("Duplicate module name.");
+}
+
 try {
-    $appQ = "INSERT INTO p_permissions(module_id,permission_name) VALUES (:modID,:accName)";
-    $appStmt = $connkdt->prepare($appQ);
-    if ($appStmt === false || $appStmt->execute([":accName" => $accName, ":modID" => $modID]) === false) {
-        $errInfo = $appStmt ? $appStmt->errorInfo() : [];
+    $updateQ = "UPDATE kdtproject_modules SET module_name = :modName WHERE module_id = :modID";
+    $updateStmt = $connkdt->prepare($updateQ);
+    if ($updateStmt === false || $updateStmt->execute([":modName" => $modName, ":modID" => $modID]) === false) {
+        $errInfo = $updateStmt ? $updateStmt->errorInfo() : [];
         if (isset($errInfo[1]) && (int)$errInfo[1] === 1062) {
-            authJsonFail("Duplicate permission name.");
+            authJsonFail("Duplicate module name.");
         }
-        error_log("add_access mutation failed");
+        error_log("edit_module mutation failed");
         authJsonFail("Unable to save application.");
     }
 } catch (Exception $e) {
-    error_log("add_access mutation failed");
+    error_log("edit_module mutation failed");
     authJsonFail("Unable to save application.");
 }
 
-$newPermId = (int)$connkdt->lastInsertId();
 if ($projID > 0) {
-    audit_log($actorEmpNum, "CREATE", "app_permission", $projID, null, [
-        "event_type" => "PERMISSION_CREATED",
-        "description" => "Permission added",
+    audit_log($actorEmpNum, "UPDATE", "app_permission", $projID, null, [
+        "event_type" => "MODULE_RENAMED",
+        "description" => "Module name updated",
         "details" => [
             "module_id" => $modID,
-            "module_name" => $modName,
-            "permission_id" => $newPermId > 0 ? $newPermId : null,
-            "permission_name" => $accName,
+            "old_value" => $oldName,
+            "new_value" => $modName,
         ],
     ]);
 }
-
-#endregion
 
 echo json_encode(false);

@@ -1,7 +1,10 @@
 <?php
 #region DB Connect
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -102,6 +105,26 @@ try {
     authJsonFail("Unable to update permissions.");
 }
 
+if (!empty($newPermissions) || !empty($removePermissions)) {
+    $projName = getProjectName($projID);
+    $labelMap = getPermissionChangeLabels(array_merge($newPermissions, $removePermissions));
+    $added = [];
+    foreach ($newPermissions as $permID) {
+        $added[] = isset($labelMap[$permID]) ? $labelMap[$permID] : ("Permission " . $permID);
+    }
+    $removed = [];
+    foreach ($removePermissions as $permID) {
+        $removed[] = isset($labelMap[$permID]) ? $labelMap[$permID] : ("Permission " . $permID);
+    }
+    audit_log($actorEmpNum, "UPDATE", "user_permission", $empID, null, [
+        "applications" => [[
+            "app_name" => $projName,
+            "added" => $added,
+            "removed" => $removed,
+        ]],
+    ]);
+}
+
 #endregion
 
 echo json_encode(false);
@@ -139,5 +162,52 @@ function getProjectPermissionIds($projID)
         }
     }
     return $allowed;
+}
+
+function getProjectName($projID)
+{
+    global $connkdt;
+    $projQ = "SELECT project_name FROM kdtwebprojects WHERE project_id = :projID LIMIT 1";
+    $projStmt = $connkdt->prepare($projQ);
+    if ($projStmt === false) {
+        return "";
+    }
+    $projStmt->execute([":projID" => $projID]);
+    $name = $projStmt->fetchColumn();
+    if ($name === false || $name === null) {
+        return "";
+    }
+    return $name;
+}
+
+function getPermissionChangeLabels($permIds)
+{
+    global $connkdt;
+    $labels = [];
+    $ids = [];
+    foreach ($permIds as $permID) {
+        $permID = (int)$permID;
+        if ($permID > 0 && !in_array($permID, $ids, true)) {
+            $ids[] = $permID;
+        }
+    }
+    if (empty($ids) || !isset($connkdt)) {
+        return $labels;
+    }
+    $placeholders = implode(",", array_fill(0, count($ids), "?"));
+    $permQ = "SELECT p.permission_id, km.module_name, p.permission_name
+              FROM p_permissions AS p
+              JOIN kdtproject_modules AS km ON p.module_id = km.module_id
+              WHERE p.permission_id IN ($placeholders)";
+    $permStmt = $connkdt->prepare($permQ);
+    if ($permStmt === false) {
+        return $labels;
+    }
+    $permStmt->execute($ids);
+    $rows = $permStmt->fetchAll();
+    foreach ($rows as $row) {
+        $labels[(int)$row['permission_id']] = $row['module_name'] . " / " . $row['permission_name'];
+    }
+    return $labels;
 }
 #endregion
