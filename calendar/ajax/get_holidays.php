@@ -1,20 +1,34 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt)) {
+    error_log("get_holidays missing database connection");
+    authJsonFail("Unable to load holidays.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 41);
+
 #region initialize variables
 $holidays = array();
 $locID = 1;
 if (!empty($_POST['locID'])) {
-    $locID = $_POST['locID'];
+    $parsedLoc = filter_var($_POST['locID'], FILTER_VALIDATE_INT);
+    if ($parsedLoc !== false && (int)$parsedLoc > 0) {
+        $locID = (int)$parsedLoc;
+    }
 }
 $selectedYear = date("Y");
-if (!empty($_POST['selectedYear'])) {
+if (!empty($_POST['selectedYear']) && preg_match('/^\d{4}$/', $_POST['selectedYear'])) {
     $selectedYear = $_POST['selectedYear'];
 }
 #endregion
@@ -38,8 +52,4 @@ if ($holidayStmt->rowCount() > 0) {
 }
 #endregion
 
-#region function
-
-#endregion
-//$.ajaxSetup({async: false});
 echo json_encode($holidays);

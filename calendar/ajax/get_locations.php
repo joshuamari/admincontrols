@@ -1,11 +1,23 @@
 <?php
 #region Require Database Connections
+ob_start();
+require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectwebjmr.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
+
+if (!isset($connkdt, $connwebjmr)) {
+    error_log("get_locations missing database connection");
+    authJsonFail("Unable to load locations.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 41);
 
 #region initialize variables
 $locations = array();
@@ -26,7 +38,4 @@ if ($locationStmt->rowCount() > 0) {
 }
 #endregion
 
-#region function
-
-#endregion
 echo json_encode($locations);

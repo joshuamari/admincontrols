@@ -1,11 +1,22 @@
 <?php
 #region DB Connect
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
+
+if (!isset($connkdt)) {
+    error_log("get_employees missing database connection");
+    authJsonFail("Unable to load employees.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 18);
 
 #region Initialize Variable
 $searchStmt = '';

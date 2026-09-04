@@ -1,11 +1,22 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
+
+if (!isset($connkdt)) {
+    error_log("get_departments missing database connection");
+    authJsonFail("Unable to load departments.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 39);
 
 #region initialize variables
 $deptsArray = [];
@@ -26,10 +37,6 @@ if ($deptsStmt->rowCount() > 0) {
         array_push($deptsArray, $output);
     }
 }
-#endregion
-
-#region function
-
 #endregion
 
 echo json_encode($deptsArray);

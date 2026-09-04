@@ -1,18 +1,32 @@
 <?php
 #region Require Database Connections
-// require_once '../../dbconn/dbconnectkdtph.php';
+ob_start();
+require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt, $connnew)) {
+    error_log("get_designations missing database connection");
+    authJsonFail("Unable to load designations.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 40);
+
 #region initialize variables
 $designations = array();
 $sectionID = 1;
 if (!empty($_POST['sectionID'])) {
-    $sectionID = $_POST['sectionID'];
+    $parsedSection = filter_var($_POST['sectionID'], FILTER_VALIDATE_INT);
+    if ($parsedSection !== false && (int)$parsedSection > 0) {
+        $sectionID = (int)$parsedSection;
+    }
 }
 #endregion
 
@@ -33,8 +47,4 @@ if ($desigStmt->rowCount() > 0) {
 }
 #endregion
 
-#region function
-
-#endregion
-//$.ajaxSetup({async: false});
 echo json_encode($designations);

@@ -1,15 +1,25 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+if (!isset($connkdt)) {
+    error_log("get_years missing database connection");
+    authJsonFail("Unable to load years.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 41);
+
 #region initialize variables
 $years = array();
-
 #endregion
 
 #region main
@@ -22,7 +32,4 @@ if ($yearStmt->rowCount() > 0) {
 }
 #endregion
 
-#region function
-
-#endregion
 echo json_encode($years);

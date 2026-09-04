@@ -1,31 +1,32 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-#region initialize variables
-$searchWord = NULL;
-$searchStmt = '';
-$searchExec = [];
-if (!empty($_POST['searchWord'])) {
-    $searchWord = $_POST['searchWord'];
-    $searchStmt = " AND (fldBUName LIKE :searchWord)";
-    $searchExec = [":searchWord" => "%$searchWord%"];
+if (!isset($connkdt, $connnew)) {
+    error_log("get_groups missing database connection");
+    authJsonFail("Unable to load groups.");
 }
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 39);
+
+#region initialize variables
 $groupsArray = [];
 #endregion
 
 #region main query
-// $grpsQ = "SELECT * FROM `kdtbu` WHERE fldBU NOT IN ('SHI','INT') AND fldDepartment<>'' $searchStmt ORDER BY fldBU";
-// $grpsStmt = $connkdt->prepare($grpsQ);
 $grpsQ = "SELECT gl.*, dl.`name` AS dept FROM `group_list` AS gl JOIN `department_list` AS dl ON gl.dept_id=dl.id ORDER BY gl.abbreviation";
 $grpsStmt = $connnew->prepare($grpsQ);
-$grpsStmt->execute($searchExec);
+$grpsStmt->execute();
 if ($grpsStmt->rowCount() > 0) {
     $grpsArr = $grpsStmt->fetchAll();
     foreach ($grpsArr as $grps) {
@@ -41,10 +42,6 @@ if ($grpsStmt->rowCount() > 0) {
         array_push($groupsArray, $output);
     }
 }
-#endregion
-
-#region function
-
 #endregion
 
 echo json_encode($groupsArray);

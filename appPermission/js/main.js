@@ -83,10 +83,13 @@ checkLogin()
               });
           });
         } else {
-          alert("Not logged in");
-          window.location.href = `${rootFolder}/KDTPortalLogin`;
+          alert("Access denied");
+          window.location.href = rootFolder;
         }
       });
+    } else {
+      alert("Not logged in");
+      window.location.href = `${rootFolder}`;
     }
   })
   .catch((error) => {

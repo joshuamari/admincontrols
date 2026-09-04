@@ -1,11 +1,22 @@
 <?php
 #region Require Database Connections
+ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+ob_end_clean();
+require_once '../../php/require_auth.php';
 #endregion
 
 #region Set Timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
+
+if (!isset($connkdt)) {
+    error_log("get_employees missing database connection");
+    authJsonFail("Unable to load employees.");
+}
+
+$actorEmpNum = requireAuthenticatedUser();
+requirePermission($actorEmpNum, 16);
 
 $result = [];
 
@@ -17,11 +28,14 @@ if (!empty($_POST['searchWord'])) {
 
 $active = 0;
 if (!empty($_POST['active'])) {
-    $active = $_POST['active'];
+    $active = filter_var($_POST['active'], FILTER_VALIDATE_INT);
+    if ($active === false) {
+        $active = 0;
+    }
 }
 
 $activeStatement = '';
-if ($active == 1) {
+if ((int)$active === 1) {
     $activeStatement = " AND (
         ep.fldResignDate IS NULL
         OR ep.fldResignDate = '0000-00-00'
@@ -66,7 +80,8 @@ try {
         $result = $empStmt->fetchAll();
     }
 } catch (Exception $e) {
-    echo "Connection failed: " . $e->getMessage();
+    error_log("get_employees query failed");
+    authJsonFail("Unable to load employees.");
 }
 #endregion
 

@@ -11,34 +11,76 @@ function authJsonFail($message)
     exit;
 }
 
-function requireAuthenticatedUser()
+function findAuthenticatedUser()
 {
     global $connkdt;
+
+    if (!isset($connkdt)) {
+        error_log("findAuthenticatedUser missing database connection");
+        return null;
+    }
 
     $userHash = '';
     if (isset($_COOKIE['userID'])) {
         $userHash = $_COOKIE['userID'];
     }
     if ($userHash === '') {
-        authJsonFail("Not authenticated.");
+        return null;
     }
 
     try {
         $loginQ = "SELECT fldEmployeeNum FROM kdtlogin WHERE fldUserHash = :hash LIMIT 1";
         $loginStmt = $connkdt->prepare($loginQ);
         if ($loginStmt === false) {
-            error_log("requireAuthenticatedUser prepare failed");
-            authJsonFail("Unable to complete request.");
+            error_log("findAuthenticatedUser prepare failed");
+            return null;
         }
         $loginStmt->execute([":hash" => $userHash]);
         $empNum = $loginStmt->fetchColumn();
         if ($empNum === false || $empNum === null || $empNum === '') {
-            authJsonFail("Not authenticated.");
+            return null;
         }
         return $empNum;
     } catch (Exception $e) {
-        error_log("requireAuthenticatedUser failed");
-        authJsonFail("Unable to complete request.");
+        error_log("findAuthenticatedUser failed");
+        return null;
+    }
+}
+
+function requireAuthenticatedUser()
+{
+    $empNum = findAuthenticatedUser();
+    if ($empNum === null) {
+        authJsonFail("Not authenticated.");
+    }
+    return $empNum;
+}
+
+function userHasPermission($empNum, $permissionId)
+{
+    global $connkdt;
+
+    $permissionId = filter_var($permissionId, FILTER_VALIDATE_INT);
+    if ($permissionId === false || (int)$permissionId <= 0) {
+        return false;
+    }
+    if ($empNum === null || $empNum === false || $empNum === '') {
+        return false;
+    }
+    $permissionId = (int)$permissionId;
+
+    try {
+        $accessQ = "SELECT COUNT(*) FROM `user_permissions` WHERE `fldEmployeeNum` = :empNum AND `permission_id` = :pID";
+        $accessStmt = $connkdt->prepare($accessQ);
+        if ($accessStmt === false) {
+            error_log("userHasPermission prepare failed");
+            return false;
+        }
+        $accessStmt->execute([":empNum" => $empNum, ":pID" => $permissionId]);
+        return (bool)$accessStmt->fetchColumn();
+    } catch (Exception $e) {
+        error_log("userHasPermission failed");
+        return false;
     }
 }
 
