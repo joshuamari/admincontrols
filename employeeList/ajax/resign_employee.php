@@ -6,6 +6,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectqms.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -41,7 +42,8 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $resdate)) {
     authJsonFail("Unable to save employee.");
 }
 
-if (!targetEmployeeExists($empnum)) {
+$oldEmployee = audit_fetch_employee($empnum);
+if ($oldEmployee === null) {
     authJsonFail("Unable to save employee.");
 }
 
@@ -81,17 +83,14 @@ try {
     authJsonFail("Unable to save employee.");
 }
 
-
+$nowResigned = ($karendate >= $resdate);
+audit_log($actorEmpNum, "RESIGNED", "employee", $empnum, [
+    "status" => $oldEmployee["status"],
+    "resignation_date" => $oldEmployee["resignation_date"],
+], [
+    "status" => $nowResigned ? "Resigned" : "Active",
+    "resignation_date" => $resdate,
+]);
 #endregion
 
-#region function
-function targetEmployeeExists($empnum)
-{
-    global $connkdt;
-    $empQ = "SELECT fldEmployeeNum FROM emp_prof WHERE fldEmployeeNum = :empnum LIMIT 1";
-    $empStmt = $connkdt->prepare($empQ);
-    $empStmt->execute([":empnum" => $empnum]);
-    return $empStmt->fetchColumn() !== false;
-}
-#endregion
 echo json_encode(false);

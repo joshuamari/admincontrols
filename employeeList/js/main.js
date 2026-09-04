@@ -138,7 +138,7 @@ function escapeHtml(str) {
  *   }
  * ]
  */
-const USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS = true;
+const USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS = false;
 
 async function getDummyEmployeeActivity(employeeId) {
   if (!USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS) {
@@ -168,40 +168,47 @@ async function getDummyEmployeeActivity(employeeId) {
 
 function getEmployeeActivityLog(empNum) {
   return new Promise((resolve) => {
-    // Future backend hook (keep payload shape stable):
-    // $.ajax({
-    //   type: "POST",
-    //   url: "ajax/get_employee_activity.php",
-    //   data: { empNum: empNum },
-    //   dataType: "json",
-    //   success: (data) => resolve(Array.isArray(data) ? data : []),
-    //   error: () => resolve([]),
-    // });
-    getDummyEmployeeActivity(empNum)
-      .then((logs) => {
-        const mapped = (logs || []).map((log) => {
-          const old_values = {};
-          const new_values = {};
-          (log.changes || []).forEach((change) => {
-            const key = change.label || change.field;
-            old_values[key] = change.old_value;
-            new_values[key] = change.new_value;
+    if (USE_DUMMY_EMPLOYEE_ACTIVITY_LOGS) {
+      getDummyEmployeeActivity(empNum)
+        .then((logs) => {
+          const mapped = (logs || []).map((log) => {
+            const old_values = {};
+            const new_values = {};
+            (log.changes || []).forEach((change) => {
+              const key = change.label || change.field;
+              old_values[key] = change.old_value;
+              new_values[key] = change.new_value;
+            });
+            return {
+              id: log.id,
+              action: log.action,
+              actor_name: (log.actor && log.actor.name) || "",
+              created_at: log.created_at,
+              old_values,
+              new_values,
+            };
           });
-          return {
-            id: log.id,
-            action: log.action,
-            actor_name: (log.actor && log.actor.name) || "",
-            created_at: log.created_at,
-            old_values,
-            new_values,
-          };
+          resolve(mapped);
+        })
+        .catch((err) => {
+          console.error("Failed to load dummy employee activity logs.", err);
+          resolve([]);
         });
-        resolve(mapped);
-      })
-      .catch((err) => {
-        console.error("Failed to load dummy employee activity logs.", err);
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "ajax/get_employee_activity.php",
+      data: { empNum: empNum },
+      dataType: "json",
+      success: function (data) {
+        resolve(Array.isArray(data) ? data : []);
+      },
+      error: function () {
         resolve([]);
-      });
+      },
+    });
   });
 }
 

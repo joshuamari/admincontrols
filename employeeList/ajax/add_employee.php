@@ -7,6 +7,7 @@ require_once '../../dbconn/dbconnectqms.php';
 require_once '../../dbconn/formsdb.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -158,6 +159,21 @@ try {
     error_log("add_employee mutation failed");
     authJsonFail("Unable to save employee.");
 }
+audit_log($actorEmpNum, "CREATE", "employee", $empnum, null, [
+    "firstname" => $fname,
+    "surname" => $lname,
+    "nickname" => $nname,
+    "username" => $username,
+    "group" => $group,
+    "position" => $position,
+    "birthdate" => $bday,
+    "gender" => $gender,
+    "marital_status" => $status,
+    "date_hired" => $dhired,
+    "email" => $addOutlook,
+    "status" => "Active",
+    "resignation_date" => null,
+]);
 #endregion
 
 #region function

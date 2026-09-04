@@ -7,6 +7,7 @@ require_once '../../dbconn/dbconnectqms.php';
 require_once '../../dbconn/formsdb.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/audit_log.php';
 #endregion
 
 #region set timezone
@@ -101,7 +102,8 @@ $empnum = (int)$empnum;
 $groupID = (int)$groupID;
 $positionID = (int)$positionID;
 
-if (!targetEmployeeExists($empnum)) {
+$oldEmployee = audit_fetch_employee($empnum);
+if ($oldEmployee === null) {
     authJsonFail("Unable to save employee.");
 }
 
@@ -142,6 +144,21 @@ try {
     error_log("edit_employee mutation failed");
     authJsonFail("Unable to save employee.");
 }
+audit_log($actorEmpNum, "UPDATE", "employee", $empnum, $oldEmployee, [
+    "firstname" => $fname,
+    "surname" => $lname,
+    "nickname" => $nname,
+    "username" => $username,
+    "group" => $group,
+    "position" => $position,
+    "birthdate" => $bday,
+    "gender" => $gender,
+    "marital_status" => $status,
+    "date_hired" => $dhired,
+    "email" => $addOutlook,
+    "status" => $oldEmployee["status"],
+    "resignation_date" => $oldEmployee["resignation_date"],
+]);
 #endregion
 
 #region function
@@ -168,14 +185,6 @@ function getDesigAbbr($desigid)
         $abbr = $groupStmt->fetchColumn();
     }
     return $abbr;
-}
-function targetEmployeeExists($empnum)
-{
-    global $connkdt;
-    $empQ = "SELECT fldEmployeeNum FROM emp_prof WHERE fldEmployeeNum = :empnum LIMIT 1";
-    $empStmt = $connkdt->prepare($empQ);
-    $empStmt->execute([":empnum" => $empnum]);
-    return $empStmt->fetchColumn() !== false;
 }
 #endregion
 echo json_encode(false);
