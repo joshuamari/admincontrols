@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to complete request.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 16);
 
 #region initialize variables

@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to load departments.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 39);
 
 #region initialize variables

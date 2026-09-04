@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../dbconn/dbconnectkdtph.php';
+require_once __DIR__ . '/csrf.php';
 
 /**
  * Temporary compatibility: this app's AJAX callers treat HTTP 200 + truthy JSON as
@@ -54,6 +55,12 @@ function requireAuthenticatedUser()
         authJsonFail("Not authenticated.");
     }
     return $empNum;
+}
+
+function requireAuthenticatedCsrfUser()
+{
+    csrf_require();
+    return requireAuthenticatedUser();
 }
 
 function userHasPermission($empNum, $permissionId)

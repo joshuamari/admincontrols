@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../php/asset_v.php'; ?>
+<?php require_once __DIR__ . '/../php/csrf.php'; ?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="<?= asset_v('css/neoBootstrap.css') ?>" />
     <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
     <script src="<?= asset_v('js/jquery.js') ?>"></script>
+    <?= csrf_script_tag() ?>
     <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
     <script src="<?= asset_v('js/neoBootstrap.js') ?>"></script>
     <script src="<?= asset_v('../sortable.js') ?>"></script>

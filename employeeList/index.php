@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../php/asset_v.php'; ?>
+<?php require_once __DIR__ . '/../php/csrf.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="<?= asset_v('../tailwindcss.min.css') ?>" />
     <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
     <script src="<?= asset_v('js/jquery.js') ?>"></script>
+    <?= csrf_script_tag() ?>
     <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
     <script src="<?= asset_v('js/lucide.min.js') ?>"></script>
     <script src="<?= asset_v('js/main.js') ?>"></script>

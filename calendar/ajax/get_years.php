@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to load years.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 41);
 
 #region initialize variables

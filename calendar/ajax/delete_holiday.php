@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to delete holiday.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 41);
 
 #region Initialize Variable

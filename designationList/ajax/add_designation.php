@@ -16,7 +16,7 @@ if (!isset($connkdt, $connnew)) {
     authJsonFail("Unable to save designation.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 40);
 
 #region Initialize Variable

@@ -10,6 +10,7 @@ require_once '../../php/require_auth.php';
 date_default_timezone_set('Asia/Manila');
 #endregion
 
+csrf_require_boolean();
 $access = FALSE;
 $actorEmpNum = findAuthenticatedUser();
 if ($actorEmpNum !== null && userHasPermission($actorEmpNum, 17)) {

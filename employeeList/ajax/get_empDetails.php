@@ -16,7 +16,7 @@ if (!isset($connkdt, $connnew)) {
     authJsonFail("Unable to load employee.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 16);
 
 #region initialize variables

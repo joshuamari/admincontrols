@@ -16,7 +16,7 @@ if (!isset($connkdt, $connnew)) {
     authJsonFail("Unable to load groups.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 39);
 
 #region initialize variables

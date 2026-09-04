@@ -16,7 +16,7 @@ if (!isset($connkdt, $connwebjmr)) {
     authJsonFail("Unable to save holiday.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 41);
 
 #region Initialize Variable

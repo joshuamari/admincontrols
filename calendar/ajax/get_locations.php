@@ -16,7 +16,7 @@ if (!isset($connkdt, $connwebjmr)) {
     authJsonFail("Unable to load locations.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 41);
 
 #region initialize variables

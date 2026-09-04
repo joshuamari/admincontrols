@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to load sections.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 40);
 
 #region initialize variables

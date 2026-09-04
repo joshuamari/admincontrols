@@ -16,7 +16,7 @@ if (!isset($connkdt, $connnew)) {
     authJsonFail("Unable to load designations.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 40);
 
 #region initialize variables

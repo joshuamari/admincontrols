@@ -8,7 +8,7 @@ require_once '../../php/require_auth.php';
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 19);
 
 #region Initialize Variable

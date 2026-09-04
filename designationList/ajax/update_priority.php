@@ -16,7 +16,7 @@ if (!isset($connkdt, $conn_new_disable)) {
     authJsonFail("Unable to update designation.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 40);
 
 #region Initialize Variable

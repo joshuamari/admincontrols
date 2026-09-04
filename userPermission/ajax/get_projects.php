@@ -15,7 +15,7 @@ if (!isset($connkdt)) {
     authJsonFail("Unable to load projects.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 18);
 
 #region Initialize Variable

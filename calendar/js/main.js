@@ -1,3 +1,13 @@
+if (typeof jQuery !== "undefined") {
+  $.ajaxSetup({
+    beforeSend: function (xhr) {
+      if (window.CSRF_TOKEN) {
+        xhr.setRequestHeader("X-CSRF-Token", window.CSRF_TOKEN);
+      }
+    },
+  });
+}
+
 //#region GLOBALS
 const rootFolder = `//${document.location.hostname}`;
 let empDetails = [];

@@ -20,7 +20,7 @@ if (
     authJsonFail("Unable to save employee.");
 }
 
-$actorEmpNum = requireAuthenticatedUser();
+$actorEmpNum = requireAuthenticatedCsrfUser();
 requirePermission($actorEmpNum, 17);
 
 #region initialize variables
