@@ -6,13 +6,14 @@ require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
 require_once '../../php/audit_log.php';
+require_once '../../php/kdt_position_sync.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-if (!isset($connkdt, $connnew)) {
+if (!isset($connkdt, $connnew, $connDisable)) {
     error_log("toggle_active missing database connection");
     authJsonFail("Unable to update designation.");
 }
@@ -58,6 +59,8 @@ $onQ = "UPDATE `designation_list` SET `priority`=:prio, `show_man_sum` = 1 WHERE
 
 #region Entries Query
 try {
+    $connnew->beginTransaction();
+    $connDisable->beginTransaction();
     if ($toggleState) {
         $updateStmt = $connnew->prepare($onQ);
         $executed = ($updateStmt !== false) && $updateStmt->execute([":prio" => $prio, ":posID" => $posID]);
@@ -65,20 +68,26 @@ try {
         $updateStmt = $connnew->prepare($offQ);
         $executed = ($updateStmt !== false) && $updateStmt->execute([":posID" => $posID]);
     }
-    if (empty($executed)) {
+    $newPriority = $toggleState ? $prio : 0;
+    $newShow = $toggleState ? 1 : 0;
+    if (empty($executed) || syncKdtPosition($posID, $oldDesig["acronym"], $oldDesig["name"], $sectionID, $newPriority, $newShow) === false) {
+        rollbackDesignationWrites();
         error_log("toggle_active mutation failed");
         authJsonFail("Unable to update designation.");
     }
+    $connnew->commit();
+    $connDisable->commit();
     audit_log($actorEmpNum, "UPDATE", "designation", $posID, [
         "manpower_summary" => $oldDesig["manpower_summary"],
         "priority" => $oldDesig["priority"],
     ], [
         "manpower_summary" => $toggleState ? "On" : "Off",
-        "priority" => $toggleState ? $prio : 0,
+        "priority" => $newPriority,
     ]);
     $msg["isSuccess"] = true;
     $msg["message"] = "Update designation successfull";
 } catch (Exception $e) {
+    rollbackDesignationWrites();
     error_log("toggle_active mutation failed");
     authJsonFail("Unable to update designation.");
 }
@@ -88,6 +97,16 @@ echo json_encode($msg);
 
 
 #region Functions
+function rollbackDesignationWrites()
+{
+    global $connnew, $connDisable;
+    if ($connnew->inTransaction()) {
+        $connnew->rollBack();
+    }
+    if ($connDisable->inTransaction()) {
+        $connDisable->rollBack();
+    }
+}
 function getMax($secid)
 {
     global $connnew;

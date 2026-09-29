@@ -6,13 +6,14 @@ require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
 require_once '../../php/audit_log.php';
+require_once '../../php/kdt_position_sync.php';
 #endregion
 
 #region set timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-if (!isset($connkdt, $conn_new_disable)) {
+if (!isset($connkdt, $conn_new_disable, $connDisable)) {
     error_log("update_priority missing database connection");
     authJsonFail("Unable to update designation.");
 }
@@ -72,10 +73,11 @@ $newPriority = (int)$newIndex;
 #region Entries Query
 try {
     $conn_new_disable->beginTransaction();
+    $connDisable->beginTransaction();
 
     $oldPriority = getDesignationPriority($posID, $sectionID);
     if ($oldPriority === NULL) {
-        $conn_new_disable->rollBack();
+        rollbackPriorityWrites();
         $msg["isSuccess"] = false;
         $msg["message"] = "Unable to update designation.";
         echo json_encode($msg);
@@ -84,7 +86,7 @@ try {
 
     $maxPrio = getMax($sectionID);
     if ($newPriority < 1 || $newPriority > $maxPrio) {
-        $conn_new_disable->rollBack();
+        rollbackPriorityWrites();
         $msg["isSuccess"] = false;
         $msg["message"] = "Unable to update designation.";
         echo json_encode($msg);
@@ -93,6 +95,7 @@ try {
 
     if ($oldPriority === $newPriority) {
         $conn_new_disable->commit();
+        $connDisable->commit();
         $msg["isSuccess"] = true;
         $msg["message"] = "Update Priority successfull";
         echo json_encode($msg);
@@ -103,7 +106,7 @@ try {
         $updateQ = "UPDATE `designation_list` SET `priority` = `priority` + 1 WHERE `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 AND id<>:posID AND `priority` >= :newPriority AND `priority` < :oldPriority";
         $updateStmt = $conn_new_disable->prepare($updateQ);
         if ($updateStmt === false || $updateStmt->execute([":sectionID" => $sectionID, ":posID" => $posID, ":newPriority" => $newPriority, ":oldPriority" => $oldPriority]) === false) {
-            $conn_new_disable->rollBack();
+            rollbackPriorityWrites();
             error_log("update_priority mutation failed");
             $msg["isSuccess"] = false;
             $msg["message"] = "Unable to update designation.";
@@ -114,7 +117,7 @@ try {
         $updateQ = "UPDATE `designation_list` SET `priority` = `priority` - 1 WHERE `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 AND id<>:posID AND `priority` > :oldPriority AND `priority` <= :newPriority";
         $updateStmt = $conn_new_disable->prepare($updateQ);
         if ($updateStmt === false || $updateStmt->execute([":sectionID" => $sectionID, ":posID" => $posID, ":newPriority" => $newPriority, ":oldPriority" => $oldPriority]) === false) {
-            $conn_new_disable->rollBack();
+            rollbackPriorityWrites();
             error_log("update_priority mutation failed");
             $msg["isSuccess"] = false;
             $msg["message"] = "Unable to update designation.";
@@ -126,7 +129,7 @@ try {
     $updateCurrentQ = "UPDATE `designation_list` SET `priority` = :newPriority WHERE id=:posID AND `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0";
     $updateStmt = $conn_new_disable->prepare($updateCurrentQ);
     if ($updateStmt === false || $updateStmt->execute([":newPriority" => $newPriority, ":posID" => $posID, ":sectionID" => $sectionID]) === false) {
-        $conn_new_disable->rollBack();
+        rollbackPriorityWrites();
         error_log("update_priority mutation failed");
         $msg["isSuccess"] = false;
         $msg["message"] = "Unable to update designation.";
@@ -137,7 +140,7 @@ try {
     $verifyQ = "SELECT `priority` FROM `designation_list` WHERE id=:posID AND `section`=:sectionID AND `show_man_sum`=1 AND `priority`<>0 LIMIT 1";
     $verifyStmt = $conn_new_disable->prepare($verifyQ);
     if ($verifyStmt === false || $verifyStmt->execute([":posID" => $posID, ":sectionID" => $sectionID]) === false) {
-        $conn_new_disable->rollBack();
+        rollbackPriorityWrites();
         error_log("update_priority mutation failed");
         $msg["isSuccess"] = false;
         $msg["message"] = "Unable to update designation.";
@@ -146,7 +149,16 @@ try {
     }
     $updatedPriority = $verifyStmt->fetchColumn();
     if ($updatedPriority === false || (int)$updatedPriority !== $newPriority) {
-        $conn_new_disable->rollBack();
+        rollbackPriorityWrites();
+        error_log("update_priority mutation failed");
+        $msg["isSuccess"] = false;
+        $msg["message"] = "Unable to update designation.";
+        echo json_encode($msg);
+        exit;
+    }
+
+    if (syncKdtPositionPriorities($conn_new_disable, $sectionID) === false) {
+        rollbackPriorityWrites();
         error_log("update_priority mutation failed");
         $msg["isSuccess"] = false;
         $msg["message"] = "Unable to update designation.";
@@ -155,6 +167,7 @@ try {
     }
 
     $conn_new_disable->commit();
+    $connDisable->commit();
     audit_log($actorEmpNum, "UPDATE", "designation", $posID, [
         "priority" => $oldPriority,
     ], [
@@ -163,9 +176,7 @@ try {
     $msg["isSuccess"] = true;
     $msg["message"] = "Update Priority successfull";
 } catch (Exception $e) {
-    if ($conn_new_disable->inTransaction()) {
-        $conn_new_disable->rollBack();
-    }
+    rollbackPriorityWrites();
     error_log("update_priority mutation failed");
     $msg["isSuccess"] = false;
     $msg["message"] = "Unable to update designation.";
@@ -175,6 +186,16 @@ try {
 echo json_encode($msg);
 
 #region Functions
+function rollbackPriorityWrites()
+{
+    global $conn_new_disable, $connDisable;
+    if ($conn_new_disable->inTransaction()) {
+        $conn_new_disable->rollBack();
+    }
+    if ($connDisable->inTransaction()) {
+        $connDisable->rollBack();
+    }
+}
 function getDesignationPriority($posid, $secid)
 {
     global $conn_new_disable;

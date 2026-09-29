@@ -55,9 +55,12 @@ try {
     $connDisable->beginTransaction();
     $connDisableQMS->beginTransaction();
     $conn_new_disable->beginTransaction();
-    $insertQMSQuery = "INSERT INTO group_history(fldStartDate,fldEvent,fldLocation,fldEmployeeNumber,fldGroupName,fldPosition)  VALUES(:resdate,'Resign','KDT',:empnum,(SELECT fldGroup FROM emp_prof WHERE fldEmployeeNum=:empnum),(SELECT fldDesig FROM emp_prof WHERE fldEmployeeNum=:empnum))";
-    $insertQMSStmt = $connDisableQMS->prepare($insertQMSQuery);
-    $insertQMSStmt->execute([":resdate" => $resdate, ":empnum" => $empnum]);
+    $alreadyResigned = ($oldEmployee["resignation_date"] !== null);
+    if (!$alreadyResigned) {
+        $insertQMSQuery = "INSERT INTO group_history(fldStartDate,fldEvent,fldLocation,fldEmployeeNumber,fldGroupName,fldPosition)  VALUES(:resdate,'Resign','KDT',:empnum,(SELECT fldGroup FROM emp_prof WHERE fldEmployeeNum=:empnum),(SELECT fldDesig FROM emp_prof WHERE fldEmployeeNum=:empnum))";
+        $insertQMSStmt = $connDisableQMS->prepare($insertQMSQuery);
+        $insertQMSStmt->execute([":resdate" => $resdate, ":empnum" => $empnum]);
+    }
 
     $editKDTQuery = "UPDATE emp_prof SET fldResignDate=:resdate  WHERE fldEmployeeNum=:empnum";
     $editKDTStmt = $connDisable->prepare($editKDTQuery);
@@ -66,6 +69,15 @@ try {
         $editActiveKDTQuery = "UPDATE emp_prof SET fldActive=0  WHERE fldEmployeeNum=:empnum";
         $editActiveKDTStmt = $connDisable->prepare($editActiveKDTQuery);
         $editActiveKDTStmt->execute([":empnum" => $empnum]);
+
+        $editActiveQMSQuery = "UPDATE emp_prof SET fldActive=0 WHERE fldEmployeeNum=:empnum";
+        $editActiveQMSStmt = $connDisableQMS->prepare($editActiveQMSQuery);
+        $editActiveQMSStmt->execute([":empnum" => $empnum]);
+        $qmsEmpStmt = $connDisableQMS->prepare("SELECT fldEmployeeNum FROM emp_prof WHERE fldEmployeeNum=:empnum LIMIT 1");
+        $qmsEmpStmt->execute([":empnum" => $empnum]);
+        if ($qmsEmpStmt->fetchColumn() === false) {
+            throw new Exception("QMS employee missing");
+        }
     }
 
     $editNewQuery = "UPDATE `employee_list` SET `resignation_date`=:resdate WHERE `id`=:empnum";

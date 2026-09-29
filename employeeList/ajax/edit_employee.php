@@ -126,9 +126,9 @@ try {
     $editKDTStmt = $connDisable->prepare($editKDTQuery);
     $editKDTStmt->execute([":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":username" => $username, ":group" => $group, ":position" => $position, ":bday" => $bday, ":gender" => $gender, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":empnum" => $empnum]);
 
-    $editKDTLoginQuery = "UPDATE kdtlogin SET fldOutlook=:addOutlook,fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
+    $editKDTLoginQuery = "UPDATE kdtlogin SET fldUser=:username, fldOutlook=:addOutlook, fldLotus=:addLotus WHERE fldEmployeeNum=:empnum";
     $editKDTLoginStmt = $connDisable->prepare($editKDTLoginQuery);
-    $editKDTLoginStmt->execute([":addOutlook" => $addOutlook, ":addLotus" => $addLotus, ":empnum" => $empnum]);
+    $editKDTLoginStmt->execute([":username" => $username, ":addOutlook" => $addOutlook, ":addLotus" => $addLotus, ":empnum" => $empnum]);
 
     $editNewQuery = "UPDATE `employee_list` SET `surname`=:lname, `firstname`=:fname,`nickname`=:nname,`username`=:username,`email`=:email,`group_id`=:groupid,`designation`=:posid,`birthdate`=:bday,`gender`=:genderid,`marital_status`=:statusid,`date_hired`=:dhired WHERE `id`=:empnum";
     $editNewStmt = $conn_new_disable->prepare($editNewQuery);

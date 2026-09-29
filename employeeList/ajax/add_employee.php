@@ -130,9 +130,9 @@ try {
     $insertEntryLogsstmt->execute([":empnum" => $empnum]);
 
     $insertKDTLoginquery = "INSERT INTO kdtlogin(fldUser,fldUserHash,fldPw,fldOutlook,fldLotus,fldEmployeeNum)  
-        VALUES (:username,:addHash,'kdtpass',:addOutlook,:addLotus,:empnum)";
+        VALUES (:username,:addHash,:addPw,:addOutlook,:addLotus,:empnum)";
     $insertKDTLoginStmt = $connDisable->prepare($insertKDTLoginquery);
-    $insertKDTLoginStmt->execute([":username" => $username, ":addHash" => $addHash, ":addOutlook" => $addOutlook, ":addLotus" => $addLotus, ":empnum" => $empnum]);
+    $insertKDTLoginStmt->execute([":username" => $username, ":addHash" => $addHash, ":addPw" => "", ":addOutlook" => $addOutlook, ":addLotus" => $addLotus, ":empnum" => $empnum]);
 
     $insertKDTOptionquery = "INSERT INTO kdtoptions(fldEmployeeNumber,fldUser)  
         VALUES (:empnum,:username)";
