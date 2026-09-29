@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="<?= asset_v('css/boxicons.css') ?>" />
     <link rel="stylesheet" href="<?= asset_v('css/neoBootstrap.css') ?>" />
     <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('../css/version.css') ?>" />
     <script src="<?= asset_v('js/jquery.js') ?>"></script>
     <?= csrf_script_tag() ?>
     <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
     <script src="<?= asset_v('js/neoBootstrap.js') ?>"></script>
     <script src="<?= asset_v('../sortable.js') ?>"></script>
     <script src="<?= asset_v('js/lucide.min.js') ?>"></script>
+    <script src="<?= asset_v('../js/version.js') ?>"></script>
     <script src="<?= asset_v('js/main.js') ?>"></script>
   </head>
 

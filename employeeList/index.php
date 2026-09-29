@@ -8,10 +8,12 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="<?= asset_v('../tailwindcss.min.css') ?>" />
     <link rel="stylesheet" href="<?= asset_v('css/index.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_v('../css/version.css') ?>" />
     <script src="<?= asset_v('js/jquery.js') ?>"></script>
     <?= csrf_script_tag() ?>
     <script src="<?= asset_v('../tailwindcss.js') ?>"></script>
     <script src="<?= asset_v('js/lucide.min.js') ?>"></script>
+    <script src="<?= asset_v('../js/version.js') ?>"></script>
     <script src="<?= asset_v('js/main.js') ?>"></script>
   </head>
 
