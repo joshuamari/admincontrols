@@ -2,15 +2,17 @@
 #region Require Database Connections
 ob_start();
 require_once '../../dbconn/dbconnectkdtph.php';
+require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/employee_groups.php';
 #endregion
 
 #region Set Timezone
 date_default_timezone_set('Asia/Manila');
 #endregion
 
-if (!isset($connkdt)) {
+if (!isset($connkdt, $connnew)) {
     error_log("get_employees missing database connection");
     authJsonFail("Unable to load employees.");
 }
@@ -78,6 +80,17 @@ try {
 
     if ($empStmt->rowCount() > 0) {
         $result = $empStmt->fetchAll();
+        $empNums = [];
+        foreach ($result as $row) {
+            $empNums[] = (int)$row['emp_num'];
+        }
+        $groupLabels = employee_groups_display_map($connnew, $empNums);
+        foreach ($result as $index => $row) {
+            $empNum = (int)$row['emp_num'];
+            if (isset($groupLabels[$empNum]) && $groupLabels[$empNum] !== '') {
+                $result[$index]['emp_group'] = $groupLabels[$empNum];
+            }
+        }
     }
 } catch (Exception $e) {
     error_log("get_employees query failed");

@@ -5,6 +5,7 @@ require_once '../../dbconn/dbconnectkdtph.php';
 require_once '../../dbconn/dbconnectnew.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
+require_once '../../php/employee_groups.php';
 #endregion
 
 #region set timezone
@@ -30,7 +31,7 @@ if (!empty($_POST['empNum'])) {
 #region main
 if ($empNum !== false && $empNum !== NULL && (int)$empNum > 0) {
     $empNum = (int)$empNum;
-    $empQ = "SELECT ep.*,kl.fldOutlook AS outmail FROM emp_prof AS ep JOIN kdtlogin AS kl ON ep.fldEmployeeNum=kl.fldEmployeeNum WHERE ep.fldEmployeeNum=:empNum";
+    $empQ = "SELECT ep.*,kl.fldOutlook AS outmail FROM emp_prof AS ep LEFT JOIN kdtlogin AS kl ON ep.fldEmployeeNum=kl.fldEmployeeNum WHERE ep.fldEmployeeNum=:empNum";
     $empStmt = $connkdt->prepare($empQ);
     $empStmt->execute([":empNum" => $empNum]);
     if ($empStmt->rowCount() > 0) {
@@ -41,13 +42,25 @@ if ($empNum !== false && $empNum !== NULL && (int)$empNum > 0) {
             $surName = $emp['fldSurname'];
             $nickName = $emp['fldNick'];
             $employeeUser = $emp['fldUser'];
-            $employeeGroup = getGroupID($emp['fldGroup']);
+            $membership = employee_groups_load($connnew, $employeeNum);
+            $employeeGroups = $membership['ids'];
+            $employeeGroup = $membership['main_id'];
+            if ($employeeGroup <= 0) {
+                $employeeGroup = (int)getGroupID($emp['fldGroup']);
+            }
+            if (count($employeeGroups) === 0 && $employeeGroup > 0) {
+                $employeeGroups = [$employeeGroup];
+            }
             $employeePos = getPosID($emp['fldDesig']);
             $employeeBday = $emp['fldBirthDate'];
             $employeeGender = $emp['fldGender'];
             $employeeStatus = $emp['fldStatus'];
             $employeeDatehired = $emp['fldDateHired'];
             $employeeEmail = $emp['outmail'];
+            $outlookName = '';
+            if (is_string($employeeEmail) && $employeeEmail !== '') {
+                $outlookName = explode("@", $employeeEmail)[0];
+            }
             $employeeResDate = $emp['fldResignDate'];
             $employeeArray['emp_num'] = $employeeNum;
             $employeeArray['emp_fname'] = $firstName;
@@ -55,12 +68,13 @@ if ($empNum !== false && $empNum !== NULL && (int)$empNum > 0) {
             $employeeArray['emp_nick'] = $nickName;
             $employeeArray['emp_user'] = $employeeUser;
             $employeeArray['emp_group'] = $employeeGroup;
+            $employeeArray['emp_groups'] = $employeeGroups;
             $employeeArray['emp_pos'] = $employeePos;
             $employeeArray['emp_bday'] = $employeeBday;
             $employeeArray['emp_gender'] = $employeeGender;
             $employeeArray['emp_status'] = $employeeStatus;
             $employeeArray['emp_dhired'] = $employeeDatehired;
-            $employeeArray['emp_outlook'] = explode("@", $employeeEmail)[0];
+            $employeeArray['emp_outlook'] = $outlookName;
             $employeeArray['emp_resdate'] = $employeeResDate;
         }
     }

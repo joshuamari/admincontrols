@@ -8,6 +8,7 @@ require_once '../../dbconn/formsdb.php';
 ob_end_clean();
 require_once '../../php/require_auth.php';
 require_once '../../php/audit_log.php';
+require_once '../../php/employee_groups.php';
 #endregion
 
 #region set timezone
@@ -62,13 +63,10 @@ $username = NULL;
 if (!empty($_POST['username'])) {
     $username = $_POST['username'];
 }
-$group = NULL;
-$groupID = 0;
-if (!empty($_POST['group'])) {
-    $groupID = filter_var($_POST['group'], FILTER_VALIDATE_INT);
-    if ($groupID !== false) {
-        $group = getGroupAbbr($groupID);
-    }
+$postedGroupIds = employee_group_ids_from_post(isset($_POST['groups']) ? $_POST['groups'] : null);
+$resolvedGroups = null;
+if ($postedGroupIds !== null) {
+    $resolvedGroups = employee_groups_resolve($connnew, $postedGroupIds, isset($_POST['group']) ? $_POST['group'] : null);
 }
 $dhired = NULL;
 if (!empty($_POST['dhired'])) {
@@ -91,15 +89,21 @@ if (
     $empnum === false || $empnum === NULL || (int)$empnum <= 0 ||
     empty($fname) || empty($lname) || empty($nname) || empty($bday) ||
     empty($gender) || empty($status) || empty($username) ||
-    $groupID === false || (int)$groupID <= 0 || $group === NULL ||
+    !is_array($resolvedGroups) || isset($resolvedGroups['error']) ||
     empty($dhired) ||
     $positionID === false || (int)$positionID <= 0 || $position === NULL ||
     empty($email)
 ) {
-    authJsonFail("Unable to save employee.");
+    $message = "Unable to save employee.";
+    if (is_array($resolvedGroups) && isset($resolvedGroups['error'])) {
+        $message = $resolvedGroups['error'];
+    }
+    authJsonFail($message);
 }
 $empnum = (int)$empnum;
-$groupID = (int)$groupID;
+$groupID = (int)$resolvedGroups['main_id'];
+$group = $resolvedGroups['main_abbr'];
+$groups = $resolvedGroups['fld_groups'];
 $positionID = (int)$positionID;
 
 $addHash = password_hash($username, PASSWORD_DEFAULT);
@@ -114,15 +118,15 @@ try {
     $connDisableQMS->beginTransaction();
     $connDisableForms->beginTransaction();
     $conn_new_disable->beginTransaction();
-    $insertQMSquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
-        VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
+    $insertQMSquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldGroups,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
+        VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:groups,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
     $insertQMSstmt = $connDisableQMS->prepare($insertQMSquery);
-    $insertQMSstmt->execute([":empnum" => $empnum, ":username" => $username, ":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":group" => $group, ":position" => $position, ":bday" => $bday, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":addPic" => $addPic, ":gender" => $gender]);
+    $insertQMSstmt->execute([":empnum" => $empnum, ":username" => $username, ":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":group" => $group, ":groups" => $groups, ":position" => $position, ":bday" => $bday, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":addPic" => $addPic, ":gender" => $gender]);
 
-    $insertKDTquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
-        VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
+    $insertKDTquery = "INSERT INTO emp_prof(fldEmployeeNum,fldUser,fldName,fldSurname,fldFirstname,fldNick,fldGroup,fldGroups,fldDesig,fldBirthDate,fldStatus,fldDateHired,fldLotus,fldPic,fldGender)  
+        VALUES (:empnum,:username,:fullName,:lname,:fname,:nname,:group,:groups,:position,:bday,:cstatus,:dhired,:addLotus,:addPic,:gender)";
     $insertKDTstmt = $connDisable->prepare($insertKDTquery);
-    $insertKDTstmt->execute([":empnum" => $empnum, ":username" => $username, ":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":group" => $group, ":position" => $position, ":bday" => $bday, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":addPic" => $addPic, ":gender" => $gender]);
+    $insertKDTstmt->execute([":empnum" => $empnum, ":username" => $username, ":fullName" => $fullName, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":group" => $group, ":groups" => $groups, ":position" => $position, ":bday" => $bday, ":cstatus" => $status, ":dhired" => $dhired, ":addLotus" => $addLotus, ":addPic" => $addPic, ":gender" => $gender]);
 
     $insertEntryLogs = "INSERT INTO entry_logs(fldEmployeeNum)  
         VALUES (:empnum)";
@@ -147,6 +151,7 @@ try {
 
     $insertNewStmt = $conn_new_disable->prepare($insertNewQ);
     $insertNewStmt->execute([":empnum" => $empnum, ":lname" => $lname, ":fname" => $fname, ":nname" => $nname, ":username" => $username, ":email" => $addOutlook, ":groupID" => $groupID, ":positionid" => $positionID, ":bday" => $bday, ":genderid" => $genderID, ":statusid" => $statusID, ":dhired" => $dhired]);
+    employee_groups_replace($conn_new_disable, $empnum, $resolvedGroups['ids']);
     $connDisable->commit();
     $connDisableQMS->commit();
     $connDisableForms->commit();
@@ -165,6 +170,7 @@ audit_log($actorEmpNum, "CREATE", "employee", $empnum, null, [
     "nickname" => $nname,
     "username" => $username,
     "group" => $group,
+    "groups" => $groups,
     "position" => $position,
     "birthdate" => $bday,
     "gender" => $gender,
@@ -177,18 +183,6 @@ audit_log($actorEmpNum, "CREATE", "employee", $empnum, null, [
 #endregion
 
 #region function
-function getGroupAbbr($grpid)
-{
-    global $connnew;
-    $abbr = NULL;
-    $groupQ = "SELECT `abbreviation` FROM `group_list` WHERE `id`=:grpid";
-    $groupStmt = $connnew->prepare($groupQ);
-    $groupStmt->execute([":grpid" => $grpid]);
-    if ($groupStmt->rowCount() > 0) {
-        $abbr = $groupStmt->fetchColumn();
-    }
-    return $abbr;
-}
 function getDesigAbbr($desigid)
 {
     global $connnew;

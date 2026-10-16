@@ -3,6 +3,10 @@ const rootFolder = `//${document.location.hostname}`;
 let empDetails = [];
 let canModifyEmployee = false;
 let currentEmployeeIsActive = true;
+let groupCatalog = [];
+let groupEditMode = false;
+const groupSelection = { add: [], edit: [] };
+const groupSearchIndex = { add: 0, edit: 0 };
 
 //#endregion
 
@@ -505,6 +509,63 @@ checkLogin()
 $(document).on("click", ".btn-addEmp", function () {
   addEmployee();
 });
+$(document).on("change", ".main-group-select", function () {
+  const prefix = $(this).attr("data-prefix");
+  const main = String($(this).val() || "");
+  groupSelection[prefix] = groupSelection[prefix].filter(function (id) {
+    return String(id) !== main;
+  });
+  renderGroupTags(prefix);
+});
+$(document).on("click", ".group-tag-remove", function () {
+  const prefix = $(this).attr("data-prefix");
+  const id = String($(this).attr("data-id"));
+  groupSelection[prefix] = groupSelection[prefix].filter(function (item) {
+    return String(item) !== id;
+  });
+  renderGroupTags(prefix);
+});
+$(document).on("input", ".group-search-input", function () {
+  const prefix = $(this).attr("data-prefix");
+  groupSearchIndex[prefix] = 0;
+  renderGroupResults(prefix);
+});
+$(document).on("focus", ".group-search-input", function () {
+  renderGroupResults($(this).attr("data-prefix"));
+});
+$(document).on("blur", ".group-search-input", function () {
+  const prefix = $(this).attr("data-prefix");
+  window.setTimeout(function () {
+    $("#" + prefix + "GroupResults").addClass("hidden");
+  }, 150);
+});
+$(document).on("keydown", ".group-search-input", function (e) {
+  const prefix = $(this).attr("data-prefix");
+  const $options = $("#" + prefix + "GroupResults .group-search-option");
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    groupSearchIndex[prefix] = Math.min(
+      groupSearchIndex[prefix] + 1,
+      Math.max($options.length - 1, 0)
+    );
+    renderGroupResults(prefix);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    groupSearchIndex[prefix] = Math.max(groupSearchIndex[prefix] - 1, 0);
+    renderGroupResults(prefix);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    const $active = $options.filter(".is-active");
+    const id = $active.length ? $active.attr("data-id") : $options.eq(0).attr("data-id");
+    if (id) addSubGroup(prefix, id);
+  } else if (e.key === "Escape") {
+    $("#" + prefix + "GroupResults").addClass("hidden");
+  }
+});
+$(document).on("mousedown", ".group-search-option", function (e) {
+  e.preventDefault();
+  addSubGroup($(this).attr("data-prefix"), $(this).attr("data-id"));
+});
 $(document).on("click", ".menu", function () {
   $(".navigation").toggleClass("actived");
   $(".main").toggleClass("actived");
@@ -640,11 +701,15 @@ $(document).on("click", "#tabActivity", function () {
 
 $(document).on("click", "#clos", function () {
   resetEditFooter();
-  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("hidden");
+  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12,.m13").addClass(
+    "hidden"
+  );
   closeModal("#showEmployee");
 });
 $(document).on("click", "#close", function () {
-  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12").addClass("hidden");
+  $(".m1,.m2,.m3,.m4,.m5,.m6,.m7,.m8,.m9,.m10,.m11,.m12,.m13").addClass(
+    "hidden"
+  );
   resetAdd();
   closeModal("#addEmployee");
 });
@@ -669,8 +734,9 @@ $(document).on("click", ".btn-editEmp", function () {
     <button type="button" class="btn-success-ui btn-saveEmp">Save changes</button>
   `);
   $(
-    "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
+    "#editFirstname,#editSurname,#editNick,#editPCUser,#editMainGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus,#ac"
   ).prop("disabled", false);
+  setGroupEditing(true);
 });
 $(document).on("click", ".btn-saveEmp", function () {
   saveEdit();
@@ -1101,7 +1167,12 @@ function fillModal(empDeets) {
   $("#editSurname").val(surname);
   $("#editNick").val(nname);
   $("#editPCUser").val(uname);
-  $("#editGroup").val(group);
+  var groupIds = empDeets["emp_groups"] || [];
+  if (!groupIds.length && group) {
+    groupIds = [group];
+  }
+  groupEditMode = false;
+  setEmployeeGroups("edit", groupIds, group);
   $("#editPos").val(position);
   $("#editBday").val(bday);
   $("#editGender").val(gender);
@@ -1110,7 +1181,7 @@ function fillModal(empDeets) {
   $("#editLotus").val(empEmail);
 
   $(
-    "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
+    "#editEmpnum,#editFirstname,#editSurname,#editNick,#editPCUser,#editMainGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
   ).prop("disabled", true);
 
   currentEmployeeIsActive = !resDate || resDate === "0000-00-00";
@@ -1150,9 +1221,142 @@ function fillModal(empDeets) {
   resetEditFooter();
 }
 
+function groupById(id) {
+  return groupCatalog.find(function (item) {
+    return String(item.id) === String(id);
+  });
+}
+function selectedGroupIds(prefix) {
+  const main = String($("#" + prefix + "MainGroup").val() || "");
+  const ids = [];
+  if (main) ids.push(main);
+  groupSelection[prefix].forEach(function (id) {
+    const value = String(id);
+    if (value && ids.indexOf(value) === -1) ids.push(value);
+  });
+  return ids;
+}
+function availableGroups(prefix, query) {
+  const taken = selectedGroupIds(prefix);
+  const needle = String(query || "").trim().toLowerCase();
+  return groupCatalog.filter(function (group) {
+    if (taken.indexOf(String(group.id)) !== -1) return false;
+    if (!needle) return true;
+    const abbr = String(group.abbreviation || "").toLowerCase();
+    const name = String(group.name || "").toLowerCase();
+    return abbr.indexOf(needle) !== -1 || name.indexOf(needle) !== -1;
+  });
+}
+function renderGroupResults(prefix) {
+  const $input = $("#" + prefix + "GroupSearch");
+  const $list = $("#" + prefix + "GroupResults");
+  const matches = availableGroups(prefix, $input.val());
+  $list.empty();
+  if (!matches.length) {
+    $list.append(
+      $("<li>", { class: "group-search-empty", text: "No groups found" })
+    );
+    $list.removeClass("hidden");
+    return;
+  }
+  if (groupSearchIndex[prefix] >= matches.length) {
+    groupSearchIndex[prefix] = matches.length - 1;
+  }
+  if (groupSearchIndex[prefix] < 0) groupSearchIndex[prefix] = 0;
+  matches.forEach(function (group, index) {
+    const $option = $("<button>", {
+      type: "button",
+      class: "group-search-option",
+      role: "option",
+    })
+      .attr("data-prefix", prefix)
+      .attr("data-id", group.id)
+      .toggleClass("is-active", index === groupSearchIndex[prefix]);
+    $("<span>", { class: "group-search-abbr", text: group.abbreviation }).appendTo(
+      $option
+    );
+    $("<span>", { class: "group-search-name", text: group.name }).appendTo($option);
+    $("<li>").append($option).appendTo($list);
+  });
+  $list.removeClass("hidden");
+  const active = $list.find(".is-active").get(0);
+  if (active && groupSearchIndex[prefix] > 0 && active.scrollIntoView) {
+    active.scrollIntoView({ block: "nearest" });
+  }
+}
+function addSubGroup(prefix, id) {
+  const value = String(id || "");
+  if (!value) return;
+  if (groupSelection[prefix].map(String).indexOf(value) === -1) {
+    groupSelection[prefix].push(value);
+  }
+  $("#" + prefix + "GroupSearch").val("");
+  groupSearchIndex[prefix] = 0;
+  renderGroupTags(prefix);
+  $("#" + prefix + "GroupSearch").trigger("focus");
+}
+function renderGroupTags(prefix) {
+  const editing = prefix === "add" || groupEditMode;
+  const $tags = $("#" + prefix + "GroupTags");
+  $tags.empty();
+  const subs = groupSelection[prefix].slice().sort(function (a, b) {
+    const left = groupById(a);
+    const right = groupById(b);
+    const leftName = left ? left.abbreviation : String(a);
+    const rightName = right ? right.abbreviation : String(b);
+    return leftName.localeCompare(rightName);
+  });
+  if (!subs.length && !editing) {
+    $tags.append($("<span>", { class: "group-tags-empty", text: "None" }));
+  }
+  subs.forEach(function (id) {
+    const match = groupById(id);
+    const label = match ? match.abbreviation : String(id);
+    const $tag = $("<span>", { class: "group-tag", title: match ? match.name : label });
+    $("<span>").text(label).appendTo($tag);
+    if (editing) {
+      $("<button>", {
+        type: "button",
+        class: "group-tag-remove",
+        "aria-label": "Remove " + label,
+      })
+        .text("×")
+        .attr("data-prefix", prefix)
+        .attr("data-id", id)
+        .appendTo($tag);
+    }
+    $tags.append($tag);
+  });
+  const $search = $("#" + prefix + "GroupSearch");
+  $("#" + prefix + "GroupSearchWrap").toggleClass("hidden", !editing);
+  if (!editing) {
+    $search.val("");
+    $("#" + prefix + "GroupResults").addClass("hidden").empty();
+  }
+  const remaining = availableGroups(prefix, "");
+  $search.prop("disabled", remaining.length === 0);
+  $search.attr(
+    "placeholder",
+    remaining.length === 0 ? "All groups are assigned" : "Search groups to add"
+  );
+  if (editing && !$("#" + prefix + "GroupResults").hasClass("hidden")) {
+    renderGroupResults(prefix);
+  }
+}
+function setGroupEditing(editing) {
+  groupEditMode = !!editing;
+  renderGroupTags("edit");
+}
+function setEmployeeGroups(prefix, groupIds, mainId) {
+  const main = mainId ? String(mainId) : "";
+  const ids = (groupIds || []).map(String).filter(function (id) {
+    return id && id !== main;
+  });
+  $("#" + prefix + "MainGroup").val(main);
+  groupSelection[prefix] = ids;
+  renderGroupTags(prefix);
+}
 function getGroups() {
-  $(".empGroup").empty();
-  $(".empGroup").html(`<option value='' hidden>Select Group</option>`);
   return new Promise((resolve, reject) => {
     $.ajax({
       type: "GET",
@@ -1174,11 +1378,29 @@ function getGroups() {
     });
   });
 }
-function fillGroups(groups) {
-  groups.forEach((element) => {
-    var addString = `<option value='${element.id}' >${element.name}</option>`;
-    $(".empGroup").append(addString);
+function fillMainGroupOptions(prefix) {
+  const $main = $("#" + prefix + "MainGroup");
+  const current = String($main.val() || "");
+  $main.empty();
+  $main.append(
+    $("<option>", { value: "", text: "Select main group", hidden: true })
+  );
+  groupCatalog.forEach(function (group) {
+    $main.append(
+      $("<option>", {
+        value: group.id,
+        text: group.abbreviation + " — " + group.name,
+      })
+    );
   });
+  if (current) $main.val(current);
+}
+function fillGroups(groups) {
+  groupCatalog = groups || [];
+  fillMainGroupOptions("add");
+  fillMainGroupOptions("edit");
+  renderGroupTags("add");
+  renderGroupTags("edit");
 }
 function getPos() {
   $(".empPos").empty();
@@ -1219,7 +1441,8 @@ function addEmployee() {
   var status = $(`#addStatus`).find(`:selected`).val();
   var empnum = $(`#addEmpnum`).val();
   var username = $(`#addPCUser`).val();
-  var group = $(`#addGroup`).val();
+  var groups = selectedGroupIds("add");
+  var group = $(`#addMainGroup`).val();
   var dhired = $(`#addDatehired`).val();
   var position = $(`#addPos`).val();
   var email = $(`#addLotus`).val();
@@ -1259,7 +1482,7 @@ function addEmployee() {
     error++;
   }
   if (!group) {
-    $(".m9").removeClass("hidden");
+    $(".m13").removeClass("hidden");
     error++;
   }
   if (!dhired) {
@@ -1320,6 +1543,7 @@ function addEmployee() {
       status: status,
       empnum: empnum,
       username: username,
+      groups: groups,
       group: group,
       dhired: dhired,
       position: position,
@@ -1348,7 +1572,8 @@ function saveEdit() {
   var status = $(`#editStatus`).find(`:selected`).val();
   var empnum = $(`#editEmpnum`).val();
   var username = $(`#editPCUser`).val();
-  var group = $(`#editGroup`).find(`:selected`).val();
+  var groups = selectedGroupIds("edit");
+  var group = $(`#editMainGroup`).val();
   var dhired = $(`#editDatehired`).val();
   var position = $(`#editPos`).find(`:selected`).val();
   var email = $(`#editLotus`).val();
@@ -1388,7 +1613,7 @@ function saveEdit() {
     error++;
   }
   if (!group) {
-    $(".m9").removeClass("hidden");
+    $(".m13").removeClass("hidden");
     error++;
   }
   if (!dhired) {
@@ -1446,6 +1671,7 @@ function saveEdit() {
       status: status,
       empnum: empnum,
       username: username,
+      groups: groups,
       group: group,
       dhired: dhired,
       position: position,
@@ -1458,8 +1684,9 @@ function saveEdit() {
       }
 
       resetEditFooter();
+      setGroupEditing(false);
       $(
-        "#editFirstname,#editSurname,#editNick,#editPCUser,#editGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
+        "#editFirstname,#editSurname,#editNick,#editPCUser,#editMainGroup,#editPos,#editBday,#editGender,#editStatus,#editDatehired,#editLotus"
       ).prop("disabled", true);
       $(".errMsg").addClass("hidden");
 
@@ -1477,7 +1704,7 @@ function resetAdd() {
   $("#addSurname").val("");
   $("#addNick").val("");
   $("#addPCUser").val("");
-  $("#addGroup").val("");
+  setEmployeeGroups("add", [], "");
   $("#addPos").val("");
   $("#addBday").val("");
   $("#addGender").val("");

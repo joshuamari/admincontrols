@@ -156,14 +156,18 @@
               >
             </div>
             <div>
-              <label class="mb-1 block text-sm text-slate-300" for="addGroup"
-                >Group</label
+              <label class="mb-1 block text-sm text-slate-300" for="addMainGroup"
+                >Main group</label
               >
-              <select class="select form-input empGroup" id="addGroup">
-                <option value="" selected hidden>Select Group</option>
+              <select
+                class="select form-input main-group-select"
+                id="addMainGroup"
+                data-prefix="add"
+              >
+                <option value="" selected hidden>Select main group</option>
               </select>
-              <span class="m9 errMsg hidden text-sm text-red-400"
-                >Select group</span
+              <span class="m13 errMsg hidden text-sm text-red-400"
+                >Select a main group</span
               >
             </div>
             <div>
@@ -174,6 +178,32 @@
               <span class="m10 errMsg hidden text-sm text-red-400"
                 >Input date hired</span
               >
+            </div>
+            <div class="md:col-span-2">
+              <label class="mb-1 block text-sm text-slate-300" id="addGroupsLabel"
+                >Sub groups</label
+              >
+              <div class="group-subgroups" role="group" aria-labelledby="addGroupsLabel">
+                <div id="addGroupTags" class="group-tags"></div>
+                <div id="addGroupSearchWrap" class="group-search">
+                  <input
+                    type="text"
+                    id="addGroupSearch"
+                    class="form-input group-search-input"
+                    data-prefix="add"
+                    placeholder="Search groups to add"
+                    autocomplete="off"
+                    aria-label="Search groups to add"
+                    aria-controls="addGroupResults"
+                    aria-autocomplete="list"
+                  />
+                  <ul
+                    id="addGroupResults"
+                    class="group-search-results hidden"
+                    role="listbox"
+                  ></ul>
+                </div>
+              </div>
             </div>
             <div class="md:col-span-2">
               <label class="mb-1 block text-sm text-slate-300" for="addPos"
@@ -409,14 +439,18 @@
                 >
               </div>
               <div>
-                <label class="mb-1 block text-sm text-slate-300" for="editGroup"
-                  >Group</label
+                <label class="mb-1 block text-sm text-slate-300" for="editMainGroup"
+                  >Main group</label
                 >
-                <select class="select form-input empGroup" id="editGroup">
-                  <option selected hidden>Select Group</option>
+                <select
+                  class="select form-input main-group-select"
+                  id="editMainGroup"
+                  data-prefix="edit"
+                >
+                  <option value="" selected hidden>Select main group</option>
                 </select>
-                <span class="m9 errMsg hidden text-sm text-red-400"
-                  >Select group</span
+                <span class="m13 errMsg hidden text-sm text-red-400"
+                  >Select a main group</span
                 >
               </div>
               <div>
@@ -429,6 +463,32 @@
                 <span class="m10 errMsg hidden text-sm text-red-400"
                   >Input date hired</span
                 >
+              </div>
+              <div class="md:col-span-2">
+                <label class="mb-1 block text-sm text-slate-300" id="editGroupsLabel"
+                  >Sub groups</label
+                >
+                <div class="group-subgroups" role="group" aria-labelledby="editGroupsLabel">
+                  <div id="editGroupTags" class="group-tags"></div>
+                  <div id="editGroupSearchWrap" class="group-search hidden">
+                    <input
+                      type="text"
+                      id="editGroupSearch"
+                      class="form-input group-search-input"
+                      data-prefix="edit"
+                      placeholder="Search groups to add"
+                      autocomplete="off"
+                      aria-label="Search groups to add"
+                      aria-controls="editGroupResults"
+                      aria-autocomplete="list"
+                    />
+                    <ul
+                      id="editGroupResults"
+                      class="group-search-results hidden"
+                      role="listbox"
+                    ></ul>
+                  </div>
+                </div>
               </div>
               <div class="md:col-span-2">
                 <label class="mb-1 block text-sm text-slate-300" for="editPos"
@@ -765,7 +825,7 @@
                     <th>Name</th>
                     <th>PC Username</th>
                     <th>Department</th>
-                    <th>Group</th>
+                    <th>Groups</th>
                     <th>Position</th>
                     <th class="text-right">Actions</th>
                   </tr>
