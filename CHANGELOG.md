@@ -26,6 +26,17 @@ This project uses [Semantic Versioning](https://semver.org/).
 - Optional context
 -->
 
+## [1.2.0] - 2026-10-16
+
+### Added
+
+- Main group and sub groups can be set from the add and edit employee forms
+- The employee list shows the main group, then any sub groups
+
+### Notes
+
+- Sub groups already existed and were previously updated directly in the database
+
 ## [1.1.0] - 2026-09-29
 
 ### Added
